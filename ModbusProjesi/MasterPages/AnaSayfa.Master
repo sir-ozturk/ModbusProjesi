@@ -1,0 +1,87 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="AnaSayfa.master.cs" Inherits="ModbusProjesi.MasterPages.AnaSayfa" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title>MODBUS : Ana Sayfa</title>
+    <link href="../Styles/Default.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="panel-konteyner">
+
+            <div class="sol-panel">
+                
+                <div class="logo-alani">
+                    <asp:Image ID="Image1" runat="server" ImageUrl="~/Files/Images/LoginSayfasi_1.png" CssClass="anasayfa-img" />
+                    <span class="logo-metin">MODBUS</span>
+                </div>
+
+                <div class="menu-konteyner">
+                    
+                    <div class="menu-grup">
+                        <a href="Default.aspx" class="anasayfa-link">
+                            <span class="menu-ikon"><i class="fa-solid fa-house"></i></span>
+                            <span class="menu-metin">Anasayfa</span>
+                        </a>
+                    </div>
+
+                    <div class="menu-grup">
+                        <div class="grup-baslik">
+                            <span class="menu-ikon"><i class="fa-solid fa-gears"></i></span>
+                            <span class="menu-metin font-bold">Makine İşlemleri</span>
+                        </div>
+                        <ul class="alt-menu">
+                            <li><a href="MakineEkle.aspx">➖ Makine Ekle</a></li>
+                            <li><a href="MakineListele.aspx">➖ Makine Listele</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-grup">
+                        <div class="grup-baslik">
+                            <span class="menu-ikon"><i class="fa-solid fa-user"></i></span>
+                            <span class="menu-metin font-bold">Kullanıcı İşlemleri</span>
+                        </div>
+                        <ul class="alt-menu">
+                            <li><a href="/Pages/KullaniciEkle.aspx">➖ Kullanıcı Ekle</a></li>
+                            <li><a href="/Pages/KullaniciListele.aspx">➖ Kullanıcı Listele</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-grup">
+                        <div class="grup-baslik">
+                            <span class="menu-ikon"><i class="fa-solid fa-chart-simple"></i></span>
+                            <span class="menu-metin font-bold">Raporlar</span>
+                        </div>
+                        <ul class="alt-menu">
+                            <li><a href="LogListesi.aspx">➖ Log Listesi</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <div class="profil-alani">
+                    <div class="profil-bilgi">
+                        <span class="profil-ikon">
+                            <i class="fa-solid fa-circle-user"></i>
+                        </span>
+                        <asp:Label ID="lblGirisYapanKullanici" runat="server" Text="Misafir" CssClass="menu-metin profil-isim"></asp:Label>
+                    </div>
+                    <asp:Button ID="btnCikis" runat="server" Text="Çıkış Yap" CssClass="btn-cikis" OnClick="btnCikis_Click" />
+                </div>
+
+            </div>
+
+            <div class="icerik-alani">
+                <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                </asp:ContentPlaceHolder>
+            </div>
+
+        </div>
+    </form>
+</body>
+</html>

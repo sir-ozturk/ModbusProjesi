@@ -1,0 +1,128 @@
+﻿.form-konteyner {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.sayfa-ust-alan {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+}
+
+.baslik h2 {
+    color: darkblue;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.baslik p {
+    color: red;
+    font-size: 14px;
+}
+
+.mesaj-kutusu {
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.basarili {
+    background-color: rgba(35, 134, 54, 0.15);
+    color: green;
+}
+
+.basarisiz {
+    background-color: rgba(218, 54, 55, 0.15);
+    color: red;
+}
+
+.form-kart {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;  /*Satırlar arası da, sütunlar arası da 20px olur */
+}
+
+.form-grup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+    .form-grup label {
+        color: darkblue;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+.form-kontrol {
+    background-color: cadetblue;
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-secim {
+    background-color: cadetblue;
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.form-ddl {
+    display: flex;
+    gap: 20px;
+}
+
+.form-bilgi-notu {
+    color: red;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-buton-alani {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.btn-kaydet {
+    background-color: forestgreen;
+    color: white;
+    border-radius: 6px;
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .btn-kaydet:hover {
+        background-color: limegreen;
+    }
+
+ Güncelleme modunda açılan şifre alanının dikey mesafesini korur 
+#SifreGrubu {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

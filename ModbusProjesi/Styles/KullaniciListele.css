@@ -1,0 +1,127 @@
+﻿.liste-konteynır{
+    width:130%;
+}
+
+.sayfa-ust-alan{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    padding-bottom:15px;
+}
+
+.baslik h2{
+    color:darkblue;
+    font-size:24px;
+    margin-bottom:5px;
+}
+
+.baslik p{
+    color:red;
+    font-size:14px;
+}
+
+.baslik{
+    margin-right:30px;
+}
+
+.btn-ekle{
+    background-color:forestgreen;
+    color:white;
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:6px;
+    font-weight:600;
+    font-size:14px;
+    transition: background 0.2s;
+    display:flex;
+    align-items:center;
+}
+    .btn-ekle i{
+        margin-right:8px;
+    }
+
+    .btn-ekle:hover{
+        background-color:limegreen;
+    }
+
+.tablo {
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    background-color: cadetblue;
+    border-radius: 8px;
+    color:white
+}
+    .tablo thead tr {
+        background-color: cadetblue;
+    }
+
+    .tablo th {
+        padding: 15px 20px;
+        color: darkblue;
+        font-weight: 600;
+    }
+
+.id {
+    color: darkred;
+}
+
+.rol-adi {
+    background-color: #30363d;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.stat-aktif {
+    color: green;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.stat-pasif {
+    color: red;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.islem-butonlari {
+    display: flex;
+}
+    .islem-butonlari .btn-tablo-islem:not(:last-child){
+        margin-right:8px;
+    }
+
+.btn-tablo-islem {
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+    .btn-tablo-islem i{
+        margin-right:5px;
+    }
+    
+.btn-guncelle {
+    background-color: #d29922;
+    color: white;
+}
+
+    .btn-guncelle:hover {
+        background-color: #e3b341;
+    }
+
+.btn-sil {
+    background-color: #da3637;
+    color: white;
+}
+
+    .btn-sil:hover {
+        background-color: #f85149;
+    }
