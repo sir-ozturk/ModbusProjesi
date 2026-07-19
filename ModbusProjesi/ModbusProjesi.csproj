@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DataBase_Yedegi.sql" />
     <Content Include="Files\Images\LoginSayfasi_1.png" />
     <Content Include="Default.aspx" />
     <Content Include="Pages\KullaniciEkle.aspx" />
