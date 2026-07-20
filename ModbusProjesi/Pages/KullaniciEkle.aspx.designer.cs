@@ -87,6 +87,24 @@ namespace ModbusProjesi.Pages
         protected global::System.Web.UI.WebControls.TextBox txtKullaniciAdi;
 
         /// <summary>
+        /// fuProfilResmi control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuProfilResmi;
+
+        /// <summary>
+        /// imgProfil control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgProfil;
+
+        /// <summary>
         /// phYeniKayitNotu control.
         /// </summary>
         /// <remarks>
@@ -114,13 +132,13 @@ namespace ModbusProjesi.Pages
         protected global::System.Web.UI.WebControls.TextBox txtSifre;
 
         /// <summary>
-        /// ddlRol control.
+        /// ddlRoller control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlRol;
+        protected global::System.Web.UI.WebControls.DropDownList ddlRoller;
 
         /// <summary>
         /// ddlAktiflik control.

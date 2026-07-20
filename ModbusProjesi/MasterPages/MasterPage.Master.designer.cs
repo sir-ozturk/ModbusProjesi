@@ -11,7 +11,7 @@ namespace ModbusProjesi.MasterPages
 {
 
 
-    public partial class AnaSayfa
+    public partial class MasterPage
     {
 
         /// <summary>
@@ -40,6 +40,15 @@ namespace ModbusProjesi.MasterPages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Image Image1;
+
+        /// <summary>
+        /// imgSolMenuProfil control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgSolMenuProfil;
 
         /// <summary>
         /// lblGirisYapanKullanici control.

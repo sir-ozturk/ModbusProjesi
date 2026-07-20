@@ -97,14 +97,33 @@
 .profil-bilgi {
     display: flex;
     align-items: center;
-    margin-right:10px;
+    margin-right: 10px;
+    gap: 10px; 
+}
+
+.sol-menu-pp-kutusu {
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    border: 2px solid darkblue !important; 
+    background-color: #f4f7f6;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.sol-menu-pp-resim {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
 }
 
 .profil-isim {
     font-size: 14px;
     color: darkblue;
-    margin-left:15px;
-    margin-block:15px;
+    margin-left: 5px; 
+    margin-block: 15px;
 }
 
 .btn-cikis {

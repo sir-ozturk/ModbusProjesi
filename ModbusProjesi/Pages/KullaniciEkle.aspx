@@ -1,7 +1,7 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/AnaSayfa.Master" AutoEventWireup="true" CodeBehind="KullaniciEkle.aspx.cs" Inherits="ModbusProjesi.Pages.KullaniciEkle" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="KullaniciEkle.aspx.cs" Inherits="ModbusProjesi.Pages.KullaniciEkle" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <link href="../Styles/KullaniciEkle.css" rel="stylesheet" />
+    <link href="../Styles/KullaniciEkle.css?v=1" rel="stylesheet" />
     <script src="../Scripts/KullaniciEkleZamanlayici.js"></script>
     <script src="../Scripts/KullaniciEkleTelefonMaskeleme.js"></script>
 </asp:Content>
@@ -47,6 +47,17 @@
                 <asp:TextBox ID="txtKullaniciAdi" runat="server" CssClass="form-kontrol"></asp:TextBox>
             </div>
 
+            <div class="form-grup">
+                <label>Profil Fotoğrafı</label>
+                <asp:FileUpload ID="fuProfilResmi" runat="server" CssClass="form-kontrol" />
+
+                <div class="profil-onizleme-alani">
+                    <div class="profil-resim-kutusu">
+                        <asp:Image ID="imgProfil" runat="server" CssClass="profil-resim-onizleme" Style="display: none;" />
+                    </div>
+                </div>
+            </div>
+
             <asp:PlaceHolder ID="phYeniKayitNotu" runat="server" Visible="true">
                 <div class="form-bilgi-notu">
                     <i class="fa-solid fa-envelope-open-text"></i>Şifre, sistem tarafından otomatik oluşturulacaktır.
@@ -63,7 +74,7 @@
             <div class="form-ddl">
                 <div class="form-grup">
                     <label>Rol</label>
-                    <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-secim"></asp:DropDownList>
+                    <asp:DropDownList ID="ddlRoller" runat="server" CssClass="form-secim"></asp:DropDownList>
                 </div>
 
                 <div class="form-grup">

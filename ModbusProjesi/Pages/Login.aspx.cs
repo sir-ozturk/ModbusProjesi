@@ -11,7 +11,7 @@ namespace ModbusProjesi.Pages
 {
     public partial class Login : System.Web.UI.Page
     {
-        SqlBaglanti bglSinifi = new SqlBaglanti();
+        SqlBaglanti sqlBaglanti = new SqlBaglanti();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -20,26 +20,27 @@ namespace ModbusProjesi.Pages
 
         protected void btnGiris_Click(object sender, EventArgs e)
         {
-            using (SqlConnection bgl = bglSinifi.Baglanti())
+            using (SqlConnection sqlConnection = sqlBaglanti.Baglanti())
             {
                 string sorgu = "Select * From Kullanicilar Where kullanici_adi=@p1 And sifre=@p2 And aktiflik_durumu=1";
 
-                using (SqlCommand komut = new SqlCommand(sorgu, bgl))
+                using (SqlCommand sqlCommand = new SqlCommand(sorgu, sqlConnection))
                 {
-                    komut.Parameters.AddWithValue("@p1", txtKullaniciAdi.Text.Trim());
-                    komut.Parameters.AddWithValue("@p2", txtSifre.Text.Trim());
+                    sqlCommand.Parameters.AddWithValue("@p1", txtKullaniciAdi.Text.Trim());
+                    sqlCommand.Parameters.AddWithValue("@p2", txtSifre.Text.Trim());
 
                     try
                     {
-                        using (SqlDataReader dr = komut.ExecuteReader())
+                        using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
                         {
-                            if (dr.Read())
+                            if (sqlDataReader.Read())
                             {
-                                bool aktiflikDurumu = Convert.ToBoolean(dr["aktiflik_durumu"]);
+                                bool aktiflikDurumu = Convert.ToBoolean(sqlDataReader["aktiflik_durumu"]);
 
                                 if (aktiflikDurumu == true)
                                 {
-                                    Session["kullaniciAdSoyad"] = dr["ad"].ToString() + " " + dr["soyad"].ToString();
+                                    Session["kullaniciAdSoyad"] = sqlDataReader["ad"].ToString() + " " + sqlDataReader["soyad"].ToString();
+                                    Session["kullaniciFoto"] = sqlDataReader["profil_resim"].ToString();
                                     Response.Redirect("~/Default.aspx");
                                 }
                                 else

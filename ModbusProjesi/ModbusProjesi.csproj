@@ -68,8 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DataBase_Yedegi.sql" />
-    <Content Include="Files\Images\LoginSayfasi_1.png" />
     <Content Include="Default.aspx" />
+    <Content Include="Files\Images\LoginSayfasi_1.png" />
+    <Content Include="Pages\Default.aspx" />
     <Content Include="Pages\KullaniciEkle.aspx" />
     <Content Include="Pages\KullaniciListele.aspx" />
     <Content Include="Pages\Login.aspx" />
@@ -89,19 +90,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppCode\SqlBaglanti.cs" />
-    <Compile Include="MasterPages\AnaSayfa.Master.cs">
-      <DependentUpon>AnaSayfa.Master</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="MasterPages\AnaSayfa.Master.designer.cs">
-      <DependentUpon>AnaSayfa.Master</DependentUpon>
-    </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterPages\MasterPage.Master.cs">
+      <DependentUpon>MasterPage.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterPages\MasterPage.Master.designer.cs">
+      <DependentUpon>MasterPage.Master</DependentUpon>
     </Compile>
     <Compile Include="Pages\KullaniciEkle.aspx.cs">
       <DependentUpon>KullaniciEkle.aspx</DependentUpon>
@@ -155,7 +163,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="MasterPages\AnaSayfa.Master" />
+    <Content Include="MasterPages\MasterPage.Master" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

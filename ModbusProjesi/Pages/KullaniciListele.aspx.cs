@@ -11,7 +11,7 @@ namespace ModbusProjesi.Pages
 {
     public partial class KullaniciListele : System.Web.UI.Page
     {
-        SqlBaglanti bglSinifi = new SqlBaglanti();
+        SqlBaglanti sqlBaglanti = new SqlBaglanti();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -27,15 +27,15 @@ namespace ModbusProjesi.Pages
                              FROM Kullanicilar K 
                              INNER JOIN Roller R ON K.rol_id = R.id";
 
-            using (SqlConnection bgl = bglSinifi.Baglanti())
+            using (SqlConnection sqlConnection = sqlBaglanti.Baglanti())
             {
-                using (SqlCommand komut = new SqlCommand(sorgu, bgl))
+                using (SqlCommand sqlCommand = new SqlCommand(sorgu, sqlConnection))
                 {
                     try
                     {
-                        using (SqlDataReader oku = komut.ExecuteReader())
+                        using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
                         {
-                            repeaterKullanicilar.DataSource = oku;
+                            repeaterKullanicilar.DataSource = sqlDataReader;
                             repeaterKullanicilar.DataBind();
                         }
                     }
@@ -57,17 +57,17 @@ namespace ModbusProjesi.Pages
 
             if (!string.IsNullOrEmpty(SilenecekId))
             {
-                using (SqlConnection bgl = bglSinifi.Baglanti())
+                using (SqlConnection sqlConnection = sqlBaglanti.Baglanti())
                 {
                     string silmeSorgusu = "DELETE FROM Kullanicilar WHERE id = @p1";
 
-                    using (SqlCommand komutsil = new SqlCommand(silmeSorgusu, bgl))
+                    using (SqlCommand sqlCommand = new SqlCommand(silmeSorgusu, sqlConnection))
                     {
-                        komutsil.Parameters.AddWithValue("@p1", SilenecekId);
+                        sqlCommand.Parameters.AddWithValue("@p1", SilenecekId);
 
                         try
                         {
-                            komutsil.ExecuteNonQuery();
+                            sqlCommand.ExecuteNonQuery();
                             Listele();
                         }
                         catch (Exception ex)

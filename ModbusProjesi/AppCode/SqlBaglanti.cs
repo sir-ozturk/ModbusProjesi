@@ -12,9 +12,9 @@ namespace ModbusProjesi.AppCode
         public SqlConnection Baglanti()
         {
             string bglString = ConfigurationManager.ConnectionStrings["ModbusDb"].ConnectionString;
-            SqlConnection baglan = new SqlConnection(bglString);
-            baglan.Open();
-            return baglan;
+            SqlConnection sqlConnection = new SqlConnection(bglString);
+            sqlConnection.Open();
+            return sqlConnection;
         }
     }
 }

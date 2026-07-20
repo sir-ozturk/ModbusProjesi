@@ -44,7 +44,7 @@
     padding: 30px;
     display: flex;
     flex-direction: column;
-    gap: 20px;  /*Satırlar arası da, sütunlar arası da 20px olur */
+    gap: 20px; /*Satırlar arası da, sütunlar arası da 20px olur */
 }
 
 .form-grup {
@@ -69,6 +69,34 @@
     outline: none;
     width: 100%;
     box-sizing: border-box;
+}
+
+.profil-onizleme-alani {
+    margin-top: 10px;
+}
+
+.profil-resim-kutusu {
+    width: 100px !important;
+    height: 100px !important;
+    border-radius: 50% !important;
+    border: 3px solid cadetblue !important;
+    overflow: hidden !important; /* Devasa resmi çemberin içinde tutar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: cadetblue;
+    display: inline-block;
+}
+
+.profil-resim-onizleme {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* Resmi bozmadan tam ortalar */
+}
+
+input[type="file"].form-kontrol {
+    padding: 8px 12px;
+    background-color: cadetblue;
+    color: darkblue;
+    border: 1px solid cadetblue;
 }
 
 .form-secim {
@@ -121,7 +149,7 @@
         background-color: limegreen;
     }
 
- Güncelleme modunda açılan şifre alanının dikey mesafesini korur 
+/* Güncelleme modunda açılan şifre alanının dikey mesafesini korur */
 #SifreGrubu {
     margin-top: 5px;
     margin-bottom: 5px;

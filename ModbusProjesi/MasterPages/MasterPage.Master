@@ -1,11 +1,11 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="AnaSayfa.master.cs" Inherits="ModbusProjesi.MasterPages.AnaSayfa" %>
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MasterPage.master.cs" Inherits="ModbusProjesi.MasterPages.MasterPage" %>
 
 <!DOCTYPE html>
 
 <html>
 <head runat="server">
     <title>MODBUS : Ana Sayfa</title>
-    <link href="../Styles/Default.css" rel="stylesheet" />
+    <link href="../Styles/Default.css?v=1" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
@@ -15,14 +15,14 @@
         <div class="panel-konteyner">
 
             <div class="sol-panel">
-                
+
                 <div class="logo-alani">
                     <asp:Image ID="Image1" runat="server" ImageUrl="~/Files/Images/LoginSayfasi_1.png" CssClass="anasayfa-img" />
                     <span class="logo-metin">MODBUS</span>
                 </div>
 
                 <div class="menu-konteyner">
-                    
+
                     <div class="menu-grup">
                         <a href="Default.aspx" class="anasayfa-link">
                             <span class="menu-ikon"><i class="fa-solid fa-house"></i></span>
@@ -66,9 +66,11 @@
 
                 <div class="profil-alani">
                     <div class="profil-bilgi">
-                        <span class="profil-ikon">
-                            <i class="fa-solid fa-circle-user"></i>
-                        </span>
+
+                        <div class="sol-menu-pp-kutusu">
+                            <asp:Image ID="imgSolMenuProfil" runat="server" ImageUrl="../Files/no-image.png" CssClass="sol-menu-pp-resim" />
+                        </div>
+
                         <asp:Label ID="lblGirisYapanKullanici" runat="server" Text="Misafir" CssClass="menu-metin profil-isim"></asp:Label>
                     </div>
                     <asp:Button ID="btnCikis" runat="server" Text="Çıkış Yap" CssClass="btn-cikis" OnClick="btnCikis_Click" />
