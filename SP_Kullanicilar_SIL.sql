@@ -1,0 +1,12 @@
+CREATE OR ALTER PROCEDURE SP_Kullanicilar_SÝL
+
+@Id INT
+
+AS
+BEGIN
+
+DELETE FROM Kullanicilar
+WHERE id=@Id;
+
+END;
+GO

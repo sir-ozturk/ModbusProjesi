@@ -7,6 +7,7 @@ using System.Web.UI.WebControls;
 using System.Data.SqlClient;
 using ModbusProjesi.AppCode;
 using System.IO;
+using System.Data;
 
 namespace ModbusProjesi.Pages
 {
@@ -221,26 +222,21 @@ namespace ModbusProjesi.Pages
 
                         string geciciSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
 
-                        string sorguEkle = @"Insert Into Kullanicilar 
-                                            (kullanici_adi, sifre, ad, soyad, telefon, mail, rol_id, aktiflik_durumu, profil_resim) 
-                                            Values (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @foto)";
-
-                        using (SqlCommand sqlCommand = new SqlCommand(sorguEkle, sqlConnection))
+                        using (SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_Ekle", sqlConnection))
                         {
-                            sqlCommand.Parameters.AddWithValue("@p1", txtKullaniciAdi.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p2", geciciSifre);
-                            sqlCommand.Parameters.AddWithValue("@p3", txtAd.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p4", txtSoyad.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p5", txtTelefon.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p6", txtMail.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p7", ddlRoller.SelectedValue);
-                            sqlCommand.Parameters.AddWithValue("@p8", Convert.ToBoolean(ddlAktiflik.SelectedValue));
-                            sqlCommand.Parameters.AddWithValue("@foto", fuProfilResmi.HasFile ? (object)yeniDosyaAdi : DBNull.Value);
+                            sqlCommand.CommandType = CommandType.StoredProcedure;
+
+                            sqlCommand.Parameters.AddWithValue("@kullanici_adi", txtKullaniciAdi.Text.Trim());
+                            sqlCommand.Parameters.AddWithValue("@sifre", geciciSifre);
+                            sqlCommand.Parameters.AddWithValue(" @ad", txtAd.Text.Trim());
+                            sqlCommand.Parameters.AddWithValue("@soyad", txtSoyad.Text.Trim());
+                            sqlCommand.Parameters.AddWithValue("@telefon", txtTelefon.Text.Trim());
+                            sqlCommand.Parameters.AddWithValue("@mail", txtMail.Text.Trim());
+                            sqlCommand.Parameters.AddWithValue("@rol_id", ddlRoller.SelectedValue);
+                            sqlCommand.Parameters.AddWithValue("@aktiflik_durumu", Convert.ToBoolean(ddlAktiflik.SelectedValue));
+                            sqlCommand.Parameters.AddWithValue("@profil_resim", fuProfilResmi.HasFile ? (object)yeniDosyaAdi : DBNull.Value);
 
                             sqlCommand.ExecuteNonQuery();
-
-                            Session["BasariMesaji"] = "Yeni kullanıcı başarıyla eklendi! Geçici Şifre: " + geciciSifre;
-                            Response.Redirect("~/Pages/KullaniciEkle.aspx");
                         }
                     }
                 }
