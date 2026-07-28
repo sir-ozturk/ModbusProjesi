@@ -1,0 +1,8 @@
+CREATE OR ALTER PROCEDURE SP_Roller_LISTELE
+AS
+BEGIN
+
+SELECT id,rol_adi FROM Roller WHERE aktiflik_durumu = 1 ORDER BY rol_adi
+
+END;
+GO

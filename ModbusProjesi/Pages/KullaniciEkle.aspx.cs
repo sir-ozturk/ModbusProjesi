@@ -4,16 +4,14 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Data.SqlClient;
 using ModbusProjesi.AppCode;
 using System.IO;
-using System.Data;
+
 
 namespace ModbusProjesi.Pages
 {
     public partial class KullaniciEkle : System.Web.UI.Page
     {
-        SqlBaglanti sqlBaglanti = new SqlBaglanti();
         string gelenId = "";
 
         protected void Page_Load(object sender, EventArgs e)
@@ -22,85 +20,80 @@ namespace ModbusProjesi.Pages
 
             if (Page.IsPostBack == false)
             {
-                if (Session["BasariMesaji"] != null)
+                try
                 {
-                    pnlMesaj.Visible = true;
-                    pnlMesaj.CssClass = "mesaj-kutusu basarili";
-                    lblMesaj.Text = Session["BasariMesaji"].ToString();
-                    Session.Remove("BasariMesaji");
-                }
-
-                using (SqlConnection sqlConnection = sqlBaglanti.Baglanti())
-                {
-                    string sorguRoller = "Select id, rol_adi From Roller";
-                    string sorguGetir = "Select * From Kullanicilar Where id=@p1";
-
-                    using (SqlCommand sqlCommand1 = new SqlCommand(sorguRoller, sqlConnection))
+                    if (Session["BasariMesaji"] != null)
                     {
-                        try
+                        pnlMesaj.Visible = true;
+                        pnlMesaj.CssClass = "mesaj-kutusu basarili";
+                        lblMesaj.Text = Session["BasariMesaji"].ToString();
+
+                        Session.Remove("BasariMesaji");
+                    }
+
+                    Roller roller = new Roller();
+
+                    ddlRoller.DataSource = roller.Listele();
+                    ddlRoller.DataTextField = "rol_adi";
+                    ddlRoller.DataValueField = "id";
+                    ddlRoller.DataBind();
+
+                    ddlRoller.Items.Insert(0, new ListItem("Rol Seçiniz...", "0"));
+
+                    if (!string.IsNullOrEmpty(gelenId))
+                    {
+                        litSayfaBaslik.Text = "Kullanıcı Bilgilerini Güncelle";
+
+                        btnKaydet.Text = "Güncelle";
+
+                        phYeniKayitNotu.Visible = false;
+                        phGuncellemeSifreAlani.Visible = true;
+
+                        Kullanicilar kullanicilar = new Kullanicilar();
+
+                        kullanicilar.Id = Convert.ToInt32(gelenId);
+                        kullanicilar.Getir();
+
+                        txtAd.Text = kullanicilar.Ad;
+                        txtSoyad.Text = kullanicilar.Soyad;
+                        txtTelefon.Text = kullanicilar.Telefon;
+                        txtMail.Text = kullanicilar.Mail;
+                        txtKullaniciAdi.Text = kullanicilar.KullaniciAdi;
+                        txtSifre.Text = kullanicilar.Sifre;
+
+                        ddlRoller.SelectedValue =
+                            kullanicilar.RolId.ToString();
+
+                        ddlAktiflik.SelectedValue =
+                            kullanicilar.AktiflikDurumu.ToString();
+
+                        if (!string.IsNullOrEmpty(kullanicilar.ProfilResim))
                         {
-                            using (SqlDataReader sqlDataReader = sqlCommand1.ExecuteReader())
-                            {
-                                ddlRoller.DataSource = sqlDataReader;
-                                ddlRoller.DataTextField = "rol_adi";
-                                ddlRoller.DataValueField = "id";
-                                ddlRoller.DataBind();
-                            }
-                            ddlRoller.Items.Insert(0, new ListItem("Rol Seçiniz...", "0"));
+                            imgProfil.ImageUrl = "~/Files/" + kullanicilar.ProfilResim;
 
-                            if (!string.IsNullOrEmpty(gelenId))
-                            {
-                                litSayfaBaslik.Text = "Kullanıcı Bilgilerini Güncelle";
-                                btnKaydet.Text = "Güncelle";
-
-                                phYeniKayitNotu.Visible = false;
-                                phGuncellemeSifreAlani.Visible = true;
-
-                                using (SqlCommand sqlCommand = new SqlCommand(sorguGetir, sqlConnection))
-                                {
-                                    sqlCommand.Parameters.AddWithValue("@p1", gelenId);
-
-                                    using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
-                                    {
-                                        if (sqlDataReader.Read())
-                                        {
-                                            txtAd.Text = sqlDataReader["ad"].ToString();
-                                            txtSoyad.Text = sqlDataReader["soyad"].ToString();
-                                            txtTelefon.Text = sqlDataReader["telefon"].ToString();
-                                            txtMail.Text = sqlDataReader["mail"].ToString();
-                                            txtKullaniciAdi.Text = sqlDataReader["kullanici_adi"].ToString();
-                                            txtSifre.Text = sqlDataReader["sifre"].ToString();
-                                            ddlRoller.SelectedValue = sqlDataReader["rol_id"].ToString();
-                                            bool durum = Convert.ToBoolean(sqlDataReader["aktiflik_durumu"]);
-                                            ddlAktiflik.SelectedValue = durum.ToString();
-                                            string fotoAdi = sqlDataReader["profil_resim"].ToString();
-                                            if (!string.IsNullOrEmpty(fotoAdi))
-                                            {
-                                                imgProfil.ImageUrl = "~/Files/" + fotoAdi;
-                                                imgProfil.Style["display"] = "inline-block";
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                litSayfaBaslik.Text = "Yeni Kullanıcı Ekle";
-                                btnKaydet.Text = "Kaydet";
-                                phYeniKayitNotu.Visible = true;
-                                phGuncellemeSifreAlani.Visible = false;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            pnlMesaj.Visible = true;
-                            pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-                            lblMesaj.Text = "Veriler yüklenirken hata oluştu: " + ex.Message;
+                            imgProfil.Style["display"] = "inline-block";
                         }
                     }
+                    else
+                    {
+                        litSayfaBaslik.Text = "Yeni Kullanıcı Ekle";
+
+                        btnKaydet.Text = "Kaydet";
+
+                        phYeniKayitNotu.Visible = true;
+                        phGuncellemeSifreAlani.Visible = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pnlMesaj.Visible = true;
+                    pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
+
+                    lblMesaj.Text = "Veriler yüklenirken hata oluştu: " + ex.Message;
                 }
             }
         }
+
 
         protected void btnKaydet_Click(object sender, EventArgs e)
         {
@@ -115,138 +108,143 @@ namespace ModbusProjesi.Pages
                 pnlMesaj.Visible = true;
                 pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
                 lblMesaj.Text = "Lütfen tüm alanları eksiksiz doldurunuz, rol ve aktiflik durumu seçiniz!";
+
                 return;
             }
 
             try
             {
-                using (SqlConnection sqlConnection = sqlBaglanti.Baglanti())
-                {
-                    string yeniDosyaAdi = "";
+                DosyaIslemleri dosyaIslemleri = new DosyaIslemleri();
 
+                string yeniDosyaAdi = "";
+
+                // Resim seçilmişse uzantısını kontrol et ve kaydet
+                if (fuProfilResmi.HasFile)
+                {
+                    string uzanti =
+                        Path.GetExtension(fuProfilResmi.FileName).ToLower();
+
+                    if (uzanti != ".jpg" &&
+                        uzanti != ".jpeg" &&
+                        uzanti != ".png")
+                    {
+                        pnlMesaj.Visible = true;
+                        pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
+                        lblMesaj.Text = "Lütfen sadece .jpg, .jpeg veya .png uzantılı fotoğraflar seçiniz.";
+
+                        return;
+                    }
+
+                    yeniDosyaAdi =
+                        dosyaIslemleri.ResimKaydet(fuProfilResmi.PostedFile);
+                }
+
+                // GÜNCELLEME
+                if (!string.IsNullOrEmpty(gelenId))
+                {
+                    Kullanicilar kullanici = new Kullanicilar();
+
+                    kullanici.Id = Convert.ToInt32(gelenId);
+
+                    // Eski kullanıcı bilgilerini getirir.
+                    kullanici.Getir();
+
+                    string eskiFotoAdi = kullanici.ProfilResim;
+                    kullanici.KullaniciAdi = txtKullaniciAdi.Text.Trim();
+                    kullanici.Sifre = txtSifre.Text.Trim();
+                    kullanici.Ad = txtAd.Text.Trim();
+                    kullanici.Soyad = txtSoyad.Text.Trim();
+                    kullanici.Telefon = txtTelefon.Text.Trim();
+                    kullanici.Mail = txtMail.Text.Trim();
+                    kullanici.RolId = Convert.ToInt32(ddlRoller.SelectedValue);
+                    kullanici.AktiflikDurumu = Convert.ToBoolean(ddlAktiflik.SelectedValue);
+
+                    // Yeni resim seçilmişse resim adını değiştir.
                     if (fuProfilResmi.HasFile)
                     {
-                        string uzanti = Path.GetExtension(fuProfilResmi.FileName).ToLower();
-                        if (uzanti == ".jpg" || uzanti == ".jpeg" || uzanti == ".png")
-                        {
-                            yeniDosyaAdi = Guid.NewGuid().ToString() + uzanti;
-                            string yuklemeYolu = Server.MapPath("~/Files/") + yeniDosyaAdi;
-                            fuProfilResmi.SaveAs(yuklemeYolu);
-                        }
-                        else
-                        {
-                            pnlMesaj.Visible = true;
-                            pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-                            lblMesaj.Text = "Lütfen sadece .jpg, .jpeg veya .png uzantılı fotoğraflar seçiniz.";
-                            return;
-                        }
+                        kullanici.ProfilResim = yeniDosyaAdi;
                     }
 
-                    if (!string.IsNullOrEmpty(gelenId))
+                    kullanici.Guncelle();
+
+                    // Güncelleme başarılı olduktan sonra eski resmi sil.
+                    if (fuProfilResmi.HasFile)
                     {
-                        // ESKİ FOTOĞRAFI BULUP SİLME VE SUNUCUYU KORUMA MANTIĞI
-                        if (fuProfilResmi.HasFile)
-                        {
-                            string eskiFotoSorgu = "Select profil_resim From Kullanicilar Where id=@id";
-                            using (SqlCommand sqlCommand = new SqlCommand(eskiFotoSorgu, sqlConnection))
-                            {
-                                sqlCommand.Parameters.AddWithValue("@id", gelenId);
-                                object eskiFotoAd = sqlCommand.ExecuteScalar();
-
-                                if (eskiFotoAd != null && eskiFotoAd != DBNull.Value && !string.IsNullOrEmpty(eskiFotoAd.ToString()))
-                                {
-                                    string resimYolu = Server.MapPath("~/Files/") + eskiFotoAd.ToString();
-                                    if (File.Exists(resimYolu))
-                                    {
-                                        File.Delete(resimYolu);
-                                    }
-                                }
-                            }
-                        }
-
-                        string sorguGuncelle = "";
-                        if (string.IsNullOrEmpty(txtSifre.Text))
-                        {
-                            sorguGuncelle = fuProfilResmi.HasFile
-                                ? @"Update Kullanicilar Set kullanici_adi=@p1, ad=@p2, soyad=@p3, telefon=@p4, mail=@p5, rol_id=@p6, aktiflik_durumu=@p7, profil_resim=@foto where id=@p8"
-                                : @"Update Kullanicilar Set kullanici_adi=@p1, ad=@p2, soyad=@p3, telefon=@p4, mail=@p5, rol_id=@p6, aktiflik_durumu=@p7 where id=@p8";
-                        }
-                        else
-                        {
-                            sorguGuncelle = fuProfilResmi.HasFile
-                                ? @"Update Kullanicilar Set kullanici_adi=@p1, ad=@p2, soyad=@p3, telefon=@p4, mail=@p5, rol_id=@p6, aktiflik_durumu=@p7, sifre=@sifre, profil_resim=@foto where id=@p8"
-                                : @"Update Kullanicilar Set kullanici_adi=@p1, ad=@p2, soyad=@p3, telefon=@p4, mail=@p5, rol_id=@p6, aktiflik_durumu=@p7, sifre=@sifre where id=@p8";
-                        }
-
-                        using (SqlCommand sqlCommand = new SqlCommand(sorguGuncelle, sqlConnection))
-                        {
-                            if (!string.IsNullOrEmpty(txtSifre.Text))
-                            {
-                                sqlCommand.Parameters.AddWithValue("@sifre", txtSifre.Text.Trim());
-                            }
-                            if (fuProfilResmi.HasFile)
-                            {
-                                sqlCommand.Parameters.AddWithValue("@foto", yeniDosyaAdi);
-                            }
-
-                            sqlCommand.Parameters.AddWithValue("@p1", txtKullaniciAdi.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p2", txtAd.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p3", txtSoyad.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p4", txtTelefon.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p5", txtMail.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@p6", ddlRoller.SelectedValue);
-                            sqlCommand.Parameters.AddWithValue("@p7", Convert.ToBoolean(ddlAktiflik.SelectedValue));
-                            sqlCommand.Parameters.AddWithValue("@p8", gelenId);
-
-                            sqlCommand.ExecuteNonQuery();
-                        }
-
-                        Response.Redirect("~/Pages/KullaniciEkle.aspx");
+                        dosyaIslemleri.ResimSil(eskiFotoAdi);
                     }
-                    else
-                    {
-                        Random random = new Random();
 
-                        string[] harfler = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-                                             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+                    Response.Redirect("~/Pages/KullaniciEkle.aspx");
+                }
 
-                        string rastgeleHarf1 = harfler[random.Next(0, harfler.Length)];
-                        string rastgeleHarf2 = harfler[random.Next(0, harfler.Length)];
-                        string rastgeleHarf3 = harfler[random.Next(0, harfler.Length)];
-                        string rastgeleHarf4 = harfler[random.Next(0, harfler.Length)];
+                // YENİ KULLANICI EKLEME
+                else
+                {
+                    Random random = new Random();
 
-                        string[] karakterler = { "!", "?", "*", "-", "_", "+", "#", "$" };
-                        string rastgeleKarakter = karakterler[random.Next(0, karakterler.Length)];
+                    string[] harfler =
+                    {"A", "B", "C", "D", "E", "F", "G", "H",
+                     "I", "J", "K", "L", "M", "N", "O", "P",
+                     "Q", "R", "S", "T", "U", "V", "W", "X",
+                     "Y", "Z",
+                     "a", "b", "c", "d", "e", "f", "g", "h",
+                     "i", "j", "k", "l", "m", "n", "o", "p",
+                     "q", "r", "s", "t", "u", "v", "w", "x",
+                     "y", "z"
+                    };
 
-                        int rastgeleSayi = random.Next(1000, 999999);
+                    string[] karakterler = { "!", "?", "*", "-", "_", "+", "#", "$" };
 
-                        string geciciSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
+                    string rastgeleHarf1 = harfler[random.Next(0, harfler.Length)];
+                    string rastgeleHarf2 = harfler[random.Next(0, harfler.Length)];
+                    string rastgeleHarf3 = harfler[random.Next(0, harfler.Length)];
+                    string rastgeleHarf4 = harfler[random.Next(0, harfler.Length)];
 
-                        using (SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_Ekle", sqlConnection))
-                        {
-                            sqlCommand.CommandType = CommandType.StoredProcedure;
+                    string rastgeleKarakter = karakterler[random.Next(0, karakterler.Length)];
 
-                            sqlCommand.Parameters.AddWithValue("@kullanici_adi", txtKullaniciAdi.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@sifre", geciciSifre);
-                            sqlCommand.Parameters.AddWithValue(" @ad", txtAd.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@soyad", txtSoyad.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@telefon", txtTelefon.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@mail", txtMail.Text.Trim());
-                            sqlCommand.Parameters.AddWithValue("@rol_id", ddlRoller.SelectedValue);
-                            sqlCommand.Parameters.AddWithValue("@aktiflik_durumu", Convert.ToBoolean(ddlAktiflik.SelectedValue));
-                            sqlCommand.Parameters.AddWithValue("@profil_resim", fuProfilResmi.HasFile ? (object)yeniDosyaAdi : DBNull.Value);
+                    int rastgeleSayi = random.Next(1000, 999999);
 
-                            sqlCommand.ExecuteNonQuery();
-                        }
-                    }
+                    string geciciSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
+
+                    Kullanicilar kullanici = new Kullanicilar();
+
+                    kullanici.KullaniciAdi = txtKullaniciAdi.Text.Trim();
+                    kullanici.Sifre = geciciSifre;
+                    kullanici.Ad = txtAd.Text.Trim();
+                    kullanici.Soyad = txtSoyad.Text.Trim();
+                    kullanici.Telefon = txtTelefon.Text.Trim();
+                    kullanici.Mail = txtMail.Text.Trim();
+                    kullanici.RolId = Convert.ToInt32(ddlRoller.SelectedValue);
+                    kullanici.AktiflikDurumu = Convert.ToBoolean(ddlAktiflik.SelectedValue);
+                    kullanici.ProfilResim = yeniDosyaAdi;
+
+                    kullanici.Ekle();
+                    Session["BasariMesaji"] = "Kullanıcı başarıyla eklendi.<br/>Geçici Şifre : <b>" + geciciSifre + "</b>";
+                    Response.Redirect("~/Pages/KullaniciEkle.aspx");
                 }
             }
             catch (Exception ex)
             {
                 pnlMesaj.Visible = true;
                 pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-                lblMesaj.Text = "Hata Oluştu: " + ex.Message;
+
+                if (ex.Message.Contains("UQ_Kullanicilar_KullaniciAdi"))
+                {
+                    lblMesaj.Text = "Bu kullanıcı adı zaten kullanılmaktadır.";
+                }
+                else if (ex.Message.Contains("UQ_Kullanicilar_Mail"))
+                {
+                    lblMesaj.Text = "Bu mail adresi zaten kullanılmaktadır.";
+                }
+                else if (ex.Message.Contains("UQ_Kullanicilar_Telefon"))
+                {
+                    lblMesaj.Text = "Bu telefon numarası zaten kullanılmaktadır.";
+                }
+                else
+                {
+                    lblMesaj.Text = "Hata oluştu: " + ex.Message;
+                }
             }
         }
+
     }
 }

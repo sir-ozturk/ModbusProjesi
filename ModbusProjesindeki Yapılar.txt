@@ -1,0 +1,458 @@
+28/07/2026 ModbusProjesi Yapılar
+
+KALITIM: Kalıtım, ortak özellik ve metotların tekrar yazılmasını önlemek için kullanılır. Benim projemde Kullanicilar ve Roller sınıfları, 
+VeritabaniIslemleri sınıfından kalıtım alarak ortak Baglanti() metodunu kullanmaktadır.
+
+SINIF: Sınıf (Class), nesnelerin oluşturulduğu şablondur. İçerisinde değişkenler ve metotlar bulunur. 
+Benim projemde Kullanicilar sınıfı kullanıcı bilgilerini ve kullanıcıya ait işlemleri (Ekle, Guncelle, Sil, Giris) tek bir yerde toplamaktadır.
+
+ÖR: 
+
+Özellikler (Fields):
+Id
+KullaniciAdi
+Ad
+Soyad
+
+Metotlar (Davranışlar):
+Ekle()
+Guncelle()
+Sil()
+
+Bu sınıftan nesne oluşturup kullanıyoruz:
+
+Kullanicilar kullanici = new Kullanicilar();
+
+kullanici.Ad = "Ahmet";
+kullanici.Soyad = "Yazıcı";
+
+kullanici.Ekle();
+
+STORED PROCEDURE: Stored Procedure, SQL Server içinde kaydedilen ve gerektiğinde C# tarafından çağrılarak çalışan hazır SQL komutlarıdır.
+
+YAPISI:
+
+CREATE OR ALTER PROCEDURE ProsedurAdi
+
+    @Parametre1 VeriTipi,
+    @Parametre2 VeriTipi
+
+AS
+BEGIN
+
+    SQL KOMUTLARI
+
+END
+GO
+
+Buradaki bölümler:
+
+CREATE OR ALTER PROCEDURE
+
+Prosedürü oluşturur. Daha önce varsa günceller.
+
+@Parametre
+
+C# tarafından gönderilecek değerleri alır.
+
+AS
+BEGIN
+
+Prosedürün çalıştıracağı kodların başladığı yerdir.
+
+END
+
+Prosedürün bittiği yerdir.
+
+ÖR:
+
+CREATE OR ALTER PROCEDURE SP_Kullanicilar_Ekle
+
+    @KullaniciAdi NVARCHAR(50),
+    @Sifre NVARCHAR(50),
+    @Ad NVARCHAR(50),
+    @Soyad NVARCHAR(50),
+    @Telefon NVARCHAR(13),
+    @Mail NVARCHAR(100),
+    @RolId INT,
+    @AktiflikDurumu BIT,
+    @ProfilResim NVARCHAR(200)
+
+AS
+BEGIN
+
+    INSERT INTO Kullanicilar
+    (
+        kullanici_adi,
+        sifre,
+        ad,
+        soyad,
+        telefon,
+        mail,
+        rol_id,
+        aktiflik_durumu,
+        olusturulma_tarihi,
+        profil_resim
+    )
+    VALUES
+    (
+        @KullaniciAdi,
+        @Sifre,
+        @Ad,
+        @Soyad,
+        @Telefon,
+        @Mail,
+        @RolId,
+        @AktiflikDurumu,
+        GETDATE(),
+        @ProfilResim
+    );
+
+END
+GO
+
+Kullanicilar.cs sınıfındaki Ekle() metodu prosedürü çağırır:
+
+public void Ekle()
+{
+    using (SqlConnection sqlConnection = Baglanti())
+    {
+        SqlCommand sqlCommand =
+            new SqlCommand(
+                "SP_Kullanicilar_Ekle",
+                sqlConnection
+            );
+
+        sqlCommand.CommandType =
+            CommandType.StoredProcedure;
+
+        sqlCommand.Parameters.AddWithValue(
+            "@KullaniciAdi",
+            KullaniciAdi
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@Sifre",
+            Sifre
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@Ad",
+            Ad
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@Soyad",
+            Soyad
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@Telefon",
+            Telefon
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@Mail",
+            Mail
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@RolId",
+            RolId
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@AktiflikDurumu",
+            AktiflikDurumu
+        );
+
+        sqlCommand.Parameters.AddWithValue(
+            "@ProfilResim",
+            ProfilResim
+        );
+
+        sqlCommand.ExecuteNonQuery();
+    }
+}
+
+DETAYLAR:
+
+- sqlCommand.CommandType = CommandType.StoredProcedure;
+
+Bu satır, yazdığımız ifadenin normal SQL sorgusu değil, Stored Procedure adı olduğunu belirtir.
+
+- sqlCommand.Parameters.AddWithValue("@Mail", Mail);
+
+C# içindeki Mail değerini prosedürdeki:
+
+@Mail
+
+parametresine gönderir.
+
+Parametre isimleri birebir uyumlu olmalıdır.
+
+
+ADO.NET SINIFLARI VE METODLARI:
+
+| Yapı / Metot                    | Ne işe yarar?                                                       | Hangi durumda kullanılır?                                                      | Geriye ne döndürür?                         |
+| ------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------- |
+| **SqlConnection**               | SQL Server ile bağlantı kurar.                                      | Veritabanına herhangi bir işlem yapılmadan önce kullanılır.                    | Bağlantı nesnesi                            |
+| **SqlCommand**                  | SQL sorgusunu veya Stored Procedure'ü çalıştırmaya hazırlar.        | `SELECT`, `INSERT`, `UPDATE`, `DELETE` veya prosedür çalıştırırken kullanılır. | Tek başına sonuç döndürmez.                 |
+| **ExecuteNonQuery()**           | Veri ekleme, silme veya güncelleme işlemini çalıştırır.             | `INSERT`, `UPDATE`, `DELETE` işlemlerinde kullanılır.                          | Etkilenen satır sayısını (`int`) döndürür.  |
+| **ExecuteScalar()**             | Sorgunun ilk satırındaki ilk sütunu getirir.                        | `COUNT`, `MAX`, `MIN`, ID alma, kayıt kontrolü gibi işlemlerde kullanılır.     | Tek bir değer (`object`) döndürür.          |
+| **ExecuteReader()**             | Sorgu sonucundaki satırları tek tek okur.                           | Bir veya birden fazla kayıt okunacaksa kullanılır.                             | `SqlDataReader` döndürür.                   |
+| **SqlDataReader**               | Verileri satır satır ve ileri yönlü okur.                           | Tek kayıt getirme, login kontrolü, hızlı veri okuma işlemlerinde kullanılır.   | Satırları okur.                             |
+| **SqlDataAdapter**              | SQL sonucunu `DataTable` veya `DataSet` içine doldurur.             | Listeleme, GridView, Repeater, DropDownList doldurma işlemlerinde kullanılır.  | Doğrudan veri döndürmez.                    |
+| **DataTable**                   | Verileri hafızada tablo biçiminde tutar.                            | Listeleme işlemlerinde ve kontrollere veri bağlamada kullanılır.               | Satır ve sütunlardan oluşan tablo döndürür. |
+| **SqlParameter**                | Sorguya güvenli şekilde değer gönderir.                             | Kullanıcıdan alınan verileri SQL'e aktarırken kullanılır.                      | Parametre nesnesi                           |
+| **CommandType.StoredProcedure** | `SqlCommand` içindeki komutun Stored Procedure olduğunu belirtir.   | Prosedür adı ile işlem yapılırken kullanılır.                                  | Değer döndürmez.                            |
+| **CommandType.Text**            | `SqlCommand` içindeki komutun normal SQL sorgusu olduğunu belirtir. | Doğrudan SQL metni yazıldığında kullanılır.                                    | Değer döndürmez.                            |
+
+
+| İşlem                 | Kullanılan Yapılar                               |
+| --------------------- | ------------------------------------------------ |
+| Kullanıcı Ekle        | **SqlCommand + ExecuteNonQuery()**               |
+| Kullanıcı Güncelle    | **SqlCommand + ExecuteNonQuery()**               |
+| Kullanıcı Sil         | **SqlCommand + ExecuteNonQuery()**               |
+| Kullanıcı Giriş       | **SqlCommand + ExecuteReader() + SqlDataReader** |
+| Tek Kullanıcı Getirme | **SqlCommand + ExecuteReader() + SqlDataReader** |
+| Kullanıcı Listeleme   | **SqlCommand + SqlDataAdapter + DataTable**      |
+| Rol Listeleme         | **SqlCommand + SqlDataAdapter + DataTable**      |
+| Şifre Kontrol         | **SqlCommand + ExecuteReader() + SqlDataReader** |
+| Şifre Güncelleme      | **SqlCommand + ExecuteNonQuery()**               |
+
+
+DOSYA İŞLEMLERİ CLASS'I:
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.IO;
+
+namespace ModbusProjesi.AppCode
+{
+    public class DosyaIslemleri
+    {
+        public string ResimKaydet(HttpPostedFile dosya)
+        {
+            string uzanti = Path.GetExtension(dosya.FileName).ToLower();
+
+            string yeniDosyaAdi = System.Guid.NewGuid().ToString() + uzanti;
+
+            string yol = HttpContext.Current.Server.MapPath("~/Files/") + yeniDosyaAdi;
+
+            dosya.SaveAs(yol);
+
+            return yeniDosyaAdi;
+        }
+
+        public void ResimSil(string dosyaAdi)
+        {
+            if (string.IsNullOrEmpty(dosyaAdi))
+                return;
+
+            string yol = HttpContext.Current.Server.MapPath("~/Files/") + dosyaAdi;
+
+            if (File.Exists(yol))
+            {
+                File.Delete(yol);
+            }
+        }
+    }
+}
+
+1) ResimKaydet()
+public string ResimKaydet(HttpPostedFile dosya)
+Ne yapar?
+
+Kullanıcının yüklediği resmi sunucuya kaydeder ve dosyanın yeni adını geriye döndürür.
+
+Parametre:
+
+HttpPostedFile dosya
+
+Bu, FileUpload kontrolünden gelen dosyadır.
+
+Örneğin:
+
+FileUpload1.PostedFile
+Dosya uzantısını alma
+string uzanti = Path.GetExtension(dosya.FileName).ToLower();
+
+Örnek:
+
+Kullanıcı yükledi:
+
+resim.jpg
+
+Sonuç:
+
+.jpg
+
+Amaç:
+
+Dosyanın türünü öğrenmek.
+
+Benzersiz dosya adı oluşturma
+string yeniDosyaAdi = Guid.NewGuid().ToString() + uzanti;
+
+Örneğin:
+
+Eski isim:
+
+profil.jpg
+
+Yeni isim:
+
+7f3a54c6-5fd0-43dd-9f5b-34ad7f31c5c8.jpg
+Neden GUID kullandık?
+
+Çünkü iki kullanıcı aynı isimde dosya yükleyebilir.
+
+Örneğin:
+
+profil.jpg
+
+başka kullanıcı da yükleyebilir.
+
+GUID sayesinde isimler çakışmaz.
+
+Dosyanın kaydedileceği yolu oluşturma
+string yol = HttpContext.Current.Server.MapPath("~/Files/") + yeniDosyaAdi;
+
+Burada:
+
+~/Files/
+
+uygulamadaki Files klasörüdür.
+
+Örneğin:
+
+C:\Projeler\AsyModbus\Files\
+
+olabilir.
+
+Sonuç:
+
+C:\Projeler\AsyModbus\Files\
+7f3a54c6.jpg
+Dosyayı kaydetme
+dosya.SaveAs(yol);
+
+Artık dosya gerçekten bilgisayara kaydedilir.
+
+Dosya adını döndürme
+return yeniDosyaAdi;
+
+Neden tam yolu döndürmüyoruz?
+
+Çünkü veritabanında sadece:
+
+7f3a54c6.jpg
+
+saklamak yeterlidir.
+
+Daha sonra:
+
+~/Files/
+
+ile birleştirerek resmi gösterebiliriz.
+
+ResimSil()
+public void ResimSil(string dosyaAdi)
+
+Bu metot sunucudaki resmi siler.
+
+İlk kontrol
+if (string.IsNullOrEmpty(dosyaAdi))
+    return;
+
+Neden?
+
+Dosya adı boş olabilir.
+
+Örneğin:
+
+""
+
+veya
+
+null
+
+Böyle durumda işlem yapılmaz.
+
+Dosyanın yolunu oluşturma
+string yol = HttpContext.Current.Server.MapPath("~/Files/") + dosyaAdi;
+
+Örneğin:
+
+7f3a54c6.jpg
+
+↓
+
+C:\Projeler\AsyModbus\Files\
+7f3a54c6.jpg
+Dosya var mı?
+if(File.Exists(yol))
+
+Bu satır dosyanın gerçekten bulunup bulunmadığını kontrol eder.
+
+Dosyayı sil
+File.Delete(yol);
+
+Dosya sunucudan silinir.
+
+UNIQUE: UNIQUE, bir sütundaki verilerin tekrar etmesini engelleyen SQL Server kısıtlamasıdır.
+
+YAPISI:
+
+Kullanıcı Kaydet
+        ↓
+SP_Kullanicilar_EKLE
+        ↓
+SQL Server
+        ↓
+UNIQUE kontrolü
+
+Catch bloğu ne yapıyor?
+catch(Exception ex)
+
+Bu blok oluşan hatayı yakalar.
+
+ÖR:
+
+if(ex.Message.Contains("UQ_Kullanicilar_KullaniciAdi"))
+
+kontrolü yapılır.
+
+Yani:
+
+"Hata kullanıcı adı UNIQUE kısıtlamasından mı geldi?"
+
+Eğer geldiyse:
+
+lblMesaj.Text = "Bu kullanıcı adı zaten kullanılmaktadır.";
+
+kullanıcıya teknik hata yerine anlaşılır mesaj gösterilir.
+
+DİĞER YAPILAR:
+
+| Yapı / Metot               | Ne işe yarar?                                              | Hangi durumda kullanılır?                                            | Geriye ne döndürür? |
+| -------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------- | ------------------- |
+| **Fill()**                 | `SqlDataAdapter` içindeki verileri `DataTable`'a doldurur. | Listeleme işlemlerinde kullanılır.                                   | Değer döndürmez.    |
+| **Read()**                 | `SqlDataReader` ile bir sonraki satırı okur.               | Tek kayıt okuma, login ve kullanıcı getirme işlemlerinde kullanılır. | `bool`              |
+| **AddWithValue()**         | Parametreye değer gönderir.                                | Stored Procedure veya SQL sorgusuna veri gönderirken kullanılır.     | `SqlParameter`      |
+| **ToString()**             | Veriyi `string` tipine dönüştürür.                         | Veritabanından gelen metinsel verileri okurken kullanılır.           | `string`            |
+| **Convert.ToInt32()**      | Veriyi `int` tipine dönüştürür.                            | ID, RolId gibi sayısal alanlarda kullanılır.                         | `int`               |
+| **Convert.ToBoolean()**    | Veriyi `bool` tipine dönüştürür.                           | Aktiflik durumu gibi True/False alanlarında kullanılır.              | `bool`              |
+| **Guid.NewGuid()**         | Benzersiz dosya adı oluşturur.                             | Resim yüklerken dosya adlarının çakışmasını önlemek için kullanılır. | `Guid`              |
+| **Path.GetExtension()**    | Dosyanın uzantısını alır.                                  | Yüklenen dosyanın türünü belirlemek için kullanılır.                 | `string`            |
+| **SaveAs()**               | Dosyayı belirtilen klasöre kaydeder.                       | Resim yükleme işlemlerinde kullanılır.                               | Değer döndürmez.    |
+| **File.Exists()**          | Dosyanın var olup olmadığını kontrol eder.                 | Dosya silmeden önce kullanılır.                                      | `bool`              |
+| **File.Delete()**          | Dosyayı sunucudan siler.                                   | Eski resmi silerken kullanılır.                                      | Değer döndürmez.    |
+| **Server.MapPath()**       | Sanal yolu fiziksel dosya yoluna çevirir.                  | Dosya kaydetme ve silme işlemlerinde kullanılır.                     | `string`            |
+| **Session[]**              | Kullanıcı bilgilerini oturum boyunca saklar.               | Giriş yapan kullanıcı bilgilerini tutmak için kullanılır.            | `object`            |
+| **try - catch**            | Oluşan hataları yakalar ve yönetir.                        | Veritabanı ve dosya işlemlerinde kullanılır.                         | Değer döndürmez.    |
+| **string.IsNullOrEmpty()** | String'in boş veya `null` olup olmadığını kontrol eder.    | Dosya adı veya kullanıcı girişlerini kontrol ederken kullanılır.     | `bool`              |
+| **FileUpload.PostedFile**  | Kullanıcının yüklediği dosyayı alır.                       | Resim yükleme işlemlerinde kullanılır.                               | `HttpPostedFile`    |

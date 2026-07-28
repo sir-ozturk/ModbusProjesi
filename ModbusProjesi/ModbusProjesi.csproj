@@ -67,7 +67,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DataBase_Yedegi.sql" />
     <Content Include="Default.aspx" />
     <Content Include="Files\Images\LoginSayfasi_1.png" />
     <Content Include="Pages\Default.aspx" />
@@ -89,8 +88,11 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppCode\DosyaIslemleri.cs" />
     <Compile Include="AppCode\Kullanicilar.cs" />
+    <Compile Include="AppCode\Roller.cs" />
     <Compile Include="AppCode\SqlBaglanti.cs" />
+    <Compile Include="AppCode\VeritabaniIslemleri.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
