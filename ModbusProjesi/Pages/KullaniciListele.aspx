@@ -37,14 +37,14 @@
                             <td class="id"><%# Eval("id") %></td>
                             <td><%# Eval("kullanici_adi") %></td>
                             <td><%# Eval("ad") %> <%# Eval("soyad") %></td>
-                            <td><%# Eval("telefon") %></td>
+                            <td><%# TelefonFormatla(Eval("telefon").ToString()) %></td>
                             <td><%# Eval("mail") %></td>
                             <td>
                                 <span class="rol-adi"><%# Eval("rol_adi") %></span>
                             </td>
                             <td>
-                                <span class='<%# Convert.ToBoolean(Eval("aktiflik_durumu")) == true ? "stat-aktif" : "stat-pasif" %>'>
-                                    <%# Convert.ToBoolean(Eval("aktiflik_durumu")) == true ? "Aktif" : "Aktif Değil" %>
+                                <span class='<%# Convert.ToBoolean(Eval("aktif_mi")) == true ? "stat-aktif" : "stat-pasif" %>'>
+                                    <%# Convert.ToBoolean(Eval("aktif_mi")) == true ? "Aktif" : "Aktif Değil" %>
                                 </span>
                             </td>
                             <td>

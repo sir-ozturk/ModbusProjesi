@@ -7,19 +7,66 @@ using System.Data.SqlClient;
 
 namespace ModbusProjesi.AppCode
 {
-    public class Roller:VeritabaniIslemleri
+    public class Roller:OrtakAlanlar
     {
-        public DataTable Listele()
+        private VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+
+        #region SABİTLER
+
+        public const string C_Sp_Listele = "dbo.SP_Roller_LISTELE";
+        public const string C_Sutun_rol_adi = "rol_adi";
+        public const string C_Sutun_aciklama = "aciklama";
+
+        #endregion
+
+        #region NESNELER
+
+        private string rolAdi;
+        public string RolAdi
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            get
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Roller_LISTELE", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
-                DataTable dataTable = new DataTable();
-                sqlDataAdapter.Fill(dataTable);
-                return dataTable;
+                return rolAdi;
+            }
+            set
+            {
+                rolAdi = value;
             }
         }
+
+        private string aciklama;
+        public string Aciklama
+        {
+            get
+            {
+                return aciklama;
+            }
+            set
+            {
+                aciklama = value;
+            }
+        }
+
+        #endregion
+
+        #region METOTLAR
+
+        public DataTable Listele()
+        {
+            try
+            {
+                veritabaniIslemleri.Baslat(C_Sp_Listele);
+
+                DataTable rollerTablosu = veritabaniIslemleri.TabloGetir();
+
+                return rollerTablosu;
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
+            }
+        }
+
+        #endregion
     }
 }

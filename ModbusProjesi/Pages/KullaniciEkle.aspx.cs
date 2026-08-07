@@ -56,16 +56,24 @@ namespace ModbusProjesi.Pages
 
                         txtAd.Text = kullanicilar.Ad;
                         txtSoyad.Text = kullanicilar.Soyad;
-                        txtTelefon.Text = kullanicilar.Telefon;
+                        if (!string.IsNullOrEmpty(kullanicilar.Telefon) &&
+                            kullanicilar.Telefon.Length == 10)
+                        {
+                            txtTelefon.Text =
+                                kullanicilar.Telefon.Substring(0, 3) + "-" +
+                                kullanicilar.Telefon.Substring(3, 3) + "-" +
+                                kullanicilar.Telefon.Substring(6, 2) + "-" +
+                                kullanicilar.Telefon.Substring(8, 2);
+                        }
+                        else
+                        {
+                            txtTelefon.Text = kullanicilar.Telefon;
+                        }
                         txtMail.Text = kullanicilar.Mail;
                         txtKullaniciAdi.Text = kullanicilar.KullaniciAdi;
                         txtSifre.Text = kullanicilar.Sifre;
-
-                        ddlRoller.SelectedValue =
-                            kullanicilar.RolId.ToString();
-
-                        ddlAktiflik.SelectedValue =
-                            kullanicilar.AktiflikDurumu.ToString();
+                        ddlRoller.SelectedValue = kullanicilar.RolId.ToString();
+                        ddlAktiflik.SelectedValue = kullanicilar.AktifMi.ToString();
 
                         if (!string.IsNullOrEmpty(kullanicilar.ProfilResim))
                         {
@@ -114,6 +122,30 @@ namespace ModbusProjesi.Pages
 
             try
             {
+                Kullanicilar kullanicilar = new Kullanicilar();
+
+                if (!string.IsNullOrEmpty(gelenId))
+                {
+                    kullanicilar.Id = Convert.ToInt32(gelenId);
+                }
+                else
+                {
+                    kullanicilar.Id = 0;
+                }
+
+                kullanicilar.KullaniciAdi = txtKullaniciAdi.Text.Trim();
+                kullanicilar.Telefon = txtTelefon.Text.Trim();
+                kullanicilar.Mail = txtMail.Text.Trim();
+
+                if (kullanicilar.KayitVarMi())
+                {
+                    pnlMesaj.Visible = true;
+                    pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
+                    lblMesaj.Text = "Bu kullanıcı adı, mail adresi veya telefon numarası daha önce kullanılmıştır.";
+
+                    return;
+                }
+
                 DosyaIslemleri dosyaIslemleri = new DosyaIslemleri();
 
                 string yeniDosyaAdi = "";
@@ -135,45 +167,49 @@ namespace ModbusProjesi.Pages
                         return;
                     }
 
-                    yeniDosyaAdi =
-                        dosyaIslemleri.ResimKaydet(fuProfilResmi.PostedFile);
+                    yeniDosyaAdi = dosyaIslemleri.ResimKaydet(fuProfilResmi.PostedFile);
                 }
 
                 // GÜNCELLEME
                 if (!string.IsNullOrEmpty(gelenId))
                 {
-                    Kullanicilar kullanici = new Kullanicilar();
-
-                    kullanici.Id = Convert.ToInt32(gelenId);
 
                     // Eski kullanıcı bilgilerini getirir.
-                    kullanici.Getir();
+                    kullanicilar.Getir();
 
-                    string eskiFotoAdi = kullanici.ProfilResim;
-                    kullanici.KullaniciAdi = txtKullaniciAdi.Text.Trim();
-                    kullanici.Sifre = txtSifre.Text.Trim();
-                    kullanici.Ad = txtAd.Text.Trim();
-                    kullanici.Soyad = txtSoyad.Text.Trim();
-                    kullanici.Telefon = txtTelefon.Text.Trim();
-                    kullanici.Mail = txtMail.Text.Trim();
-                    kullanici.RolId = Convert.ToInt32(ddlRoller.SelectedValue);
-                    kullanici.AktiflikDurumu = Convert.ToBoolean(ddlAktiflik.SelectedValue);
+                    string eskiFotoAdi = kullanicilar.ProfilResim;
+                    kullanicilar.KullaniciAdi = txtKullaniciAdi.Text.Trim();
+                    kullanicilar.Sifre = txtSifre.Text.Trim();
+                    kullanicilar.Ad = txtAd.Text.Trim();
+                    kullanicilar.Soyad = txtSoyad.Text.Trim();
+                    kullanicilar.Telefon = txtTelefon.Text.Trim();
+                    kullanicilar.Mail = txtMail.Text.Trim();
+                    kullanicilar.RolId = Convert.ToInt32(ddlRoller.SelectedValue);
+                    kullanicilar.AktifMi = Convert.ToBoolean(ddlAktiflik.SelectedValue);
 
                     // Yeni resim seçilmişse resim adını değiştir.
                     if (fuProfilResmi.HasFile)
                     {
-                        kullanici.ProfilResim = yeniDosyaAdi;
+                        kullanicilar.ProfilResim = yeniDosyaAdi;
                     }
 
-                    kullanici.Guncelle();
-
-                    // Güncelleme başarılı olduktan sonra eski resmi sil.
-                    if (fuProfilResmi.HasFile)
+                    if (Session["kullaniciId"] != null)
                     {
-                        dosyaIslemleri.ResimSil(eskiFotoAdi);
+                        kullanicilar.GuncelleyenId = Convert.ToInt32(Session["kullaniciId"]);
                     }
+                    kullanicilar.GuncelleyenIp = Request.UserHostAddress;
 
-                    Response.Redirect("~/Pages/KullaniciEkle.aspx");
+                    if (kullanicilar.Guncelle())
+                    {
+                        // Eski dosyayı siler
+                        if (fuProfilResmi.HasFile)
+                        {
+                            dosyaIslemleri.ResimSil(eskiFotoAdi);
+                        }
+
+                        Session["BasariMesaji"] = "Kullanıcı başarıyla güncellendi.";
+                        Response.Redirect("~/Pages/KullaniciEkle.aspx");
+                    }
                 }
 
                 // YENİ KULLANICI EKLEME
@@ -205,44 +241,34 @@ namespace ModbusProjesi.Pages
 
                     string geciciSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
 
-                    Kullanicilar kullanici = new Kullanicilar();
+                    kullanicilar.KullaniciAdi = txtKullaniciAdi.Text.Trim();
+                    kullanicilar.Sifre = geciciSifre;
+                    kullanicilar.Ad = txtAd.Text.Trim();
+                    kullanicilar.Soyad = txtSoyad.Text.Trim();
+                    kullanicilar.Telefon = txtTelefon.Text.Trim();
+                    kullanicilar.Mail = txtMail.Text.Trim();
+                    kullanicilar.RolId = Convert.ToInt32(ddlRoller.SelectedValue);
+                    kullanicilar.AktifMi = Convert.ToBoolean(ddlAktiflik.SelectedValue);
+                    kullanicilar.ProfilResim = yeniDosyaAdi;
 
-                    kullanici.KullaniciAdi = txtKullaniciAdi.Text.Trim();
-                    kullanici.Sifre = geciciSifre;
-                    kullanici.Ad = txtAd.Text.Trim();
-                    kullanici.Soyad = txtSoyad.Text.Trim();
-                    kullanici.Telefon = txtTelefon.Text.Trim();
-                    kullanici.Mail = txtMail.Text.Trim();
-                    kullanici.RolId = Convert.ToInt32(ddlRoller.SelectedValue);
-                    kullanici.AktiflikDurumu = Convert.ToBoolean(ddlAktiflik.SelectedValue);
-                    kullanici.ProfilResim = yeniDosyaAdi;
+                    if (Session["kullaniciId"] != null)
+                    {
+                        kullanicilar.EkleyenId = Convert.ToInt32(Session["kullaniciId"]);
+                    }
+                    kullanicilar.EkleyenIp = Request.UserHostAddress;
 
-                    kullanici.Ekle();
-                    Session["BasariMesaji"] = "Kullanıcı başarıyla eklendi.<br/>Geçici Şifre : <b>" + geciciSifre + "</b>";
-                    Response.Redirect("~/Pages/KullaniciEkle.aspx");
+                    if (kullanicilar.Ekle())
+                    {
+                        Session["BasariMesaji"] = "Kullanıcı başarıyla eklendi.<br/>Geçici Şifre: <b>" + geciciSifre + "</b>";
+                        Response.Redirect("~/Pages/KullaniciEkle.aspx");
+                    }
                 }
             }
             catch (Exception ex)
             {
                 pnlMesaj.Visible = true;
                 pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-
-                if (ex.Message.Contains("UQ_Kullanicilar_KullaniciAdi"))
-                {
-                    lblMesaj.Text = "Bu kullanıcı adı zaten kullanılmaktadır.";
-                }
-                else if (ex.Message.Contains("UQ_Kullanicilar_Mail"))
-                {
-                    lblMesaj.Text = "Bu mail adresi zaten kullanılmaktadır.";
-                }
-                else if (ex.Message.Contains("UQ_Kullanicilar_Telefon"))
-                {
-                    lblMesaj.Text = "Bu telefon numarası zaten kullanılmaktadır.";
-                }
-                else
-                {
-                    lblMesaj.Text = "Hata oluştu: " + ex.Message;
-                }
+                lblMesaj.Text = "Hata Oluştu: " + ex.Message;
             }
         }
 

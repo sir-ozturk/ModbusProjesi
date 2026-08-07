@@ -66,6 +66,8 @@ namespace ModbusProjesi.Pages
                     string yeniSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
 
                     kullanicilar.Sifre = yeniSifre;
+                    kullanicilar.GuncelleyenId = kullanicilar.Id;
+                    kullanicilar.GuncelleyenIp = Request.UserHostAddress;
 
                     kullanicilar.SifreGuncelle();
                     Session["GeciciSifre"] = yeniSifre;

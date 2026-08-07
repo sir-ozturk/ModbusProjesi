@@ -4,200 +4,393 @@ using System.Linq;
 using System.Web;
 using System.Data;
 using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 
 namespace ModbusProjesi.AppCode
 {
-    public class Kullanicilar:VeritabaniIslemleri
+    public class Kullanicilar:OrtakMetotlar
     {
+        private VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
 
-        public int Id;
-        public string KullaniciAdi;
-        public string Sifre;
-        public string Ad;
-        public string Soyad;
-        public string Telefon;
-        public string Mail;
-        public int RolId;
-        public bool AktiflikDurumu;
-        public string ProfilResim;
+        #region SABİTLER
 
-        public bool Ekle() 
+        public const string C_Tablo = "dbo.Kullanicilar";
+
+        public const string C_Sp_Ekle = "dbo.SP_Kullanicilar_EKLE";
+        public const string C_Sp_Sil = "dbo.SP_Kullanicilar_SIL";
+        public const string C_Sp_Guncelle = "dbo.SP_Kullanicilar_GUNCELLE";
+        public const string C_Sp_Getir = "dbo.SP_Kullanicilar_GETIR";
+        public const string C_Sp_Listele = "dbo.SP_Kullanicilar_LISTELE";
+        public const string C_Sp_Giris = "dbo.SP_Kullanicilar_GIRIS";
+        public const string C_Sp_SifreKontrol = "dbo.SP_Kullanicilar_SIFREKONTROL";
+        public const string C_Sp_SifreGuncelle = "dbo.SP_Kullanicilar_SIFREGUNCELLE";
+        public const string C_Sp_KayitVarMi = "dbo.SP_Kullanicilar_KAYITVARMI";
+
+        public const string C_Sutun_kullanici_adi = "kullanici_adi";
+        public const string C_Sutun_sifre = "sifre";
+        public const string C_Sutun_ad = "ad";
+        public const string C_Sutun_soyad = "soyad";
+        public const string C_Sutun_telefon = "telefon";
+        public const string C_Sutun_mail = "mail";
+        public const string C_Sutun_rol_id = "rol_id";
+        public const string C_Sutun_profil_resim = "profil_resim";
+
+        #endregion
+
+        #region NESNELER
+
+        private string kullaniciAdi;
+        public string KullaniciAdi
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            get
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_EKLE", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-
-                sqlCommand.Parameters.AddWithValue("@KullaniciAdi", KullaniciAdi);
-                sqlCommand.Parameters.AddWithValue("@Sifre", Sifre);
-                sqlCommand.Parameters.AddWithValue("@Ad", Ad);
-                sqlCommand.Parameters.AddWithValue("@Soyad", Soyad);
-                sqlCommand.Parameters.AddWithValue("@Telefon", Telefon);
-                sqlCommand.Parameters.AddWithValue("@Mail", Mail);
-                sqlCommand.Parameters.AddWithValue("@RolId", RolId);
-                sqlCommand.Parameters.AddWithValue("@AktiflikDurumu", AktiflikDurumu);
-                sqlCommand.Parameters.AddWithValue("@ProfilResim", ProfilResim);
-
-                sqlCommand.ExecuteNonQuery();
-                return true;
+                return kullaniciAdi;
+            }
+            set
+            {
+                kullaniciAdi = value;
             }
         }
 
-        public void Guncelle() 
+        private string sifre;
+        public string Sifre
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            get
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_GUNCELLE", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                return sifre;
+            }
+            set
+            {
+                sifre = value;
+            }
+        }
 
-                sqlCommand.Parameters.AddWithValue("@Id", Id);
-                sqlCommand.Parameters.AddWithValue("@KullaniciAdi", KullaniciAdi);
+        private string ad;
+        public string Ad
+        {
+            get
+            {
+                return ad;
+            }
+            set
+            {
+                ad = value;
+            }
+        }
+
+        private string soyad;
+        public string Soyad
+        {
+            get
+            {
+                return soyad;
+            }
+            set
+            {
+                soyad = value;
+            }
+        }
+
+        private string telefon;
+
+        public string Telefon
+        {
+            get
+            {
+                return telefon;
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    telefon = value;
+                }
+                else
+                {
+                    telefon = value.Replace("-", "").Replace(" ", "");
+                }
+            }
+        }
+
+        private string mail;
+        public string Mail
+        {
+            get
+            {
+                return mail;
+            }
+            set
+            {
+                mail = value;
+            }
+        }
+
+        private int rolId;
+        public int RolId
+        {
+            get
+            {
+                return rolId;
+            }
+            set
+            {
+                rolId = value;
+            }
+        }
+
+        private string profilResim;
+        public string ProfilResim
+        {
+            get
+            {
+                return profilResim;
+            }
+            set
+            {
+                profilResim = value;
+            }
+        }
+
+        #endregion
+
+        #region METOTLAR
+
+        public override bool Ekle()
+        {
+            try
+            {
+                veritabaniIslemleri.Baslat(C_Sp_Ekle);
+                
+                veritabaniIslemleri.ParametreEkle(C_Sutun_kullanici_adi, KullaniciAdi);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_ad, Ad);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_soyad, Soyad);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_sifre, Sifre);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_telefon, Telefon);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_mail, Mail);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_rol_id, RolId);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_aktif_mi, AktifMi);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_profil_resim, ProfilResim);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_ekleyen_id, EkleyenId);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_ekleyen_ip, EkleyenIp);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_guncelleyen_id, GuncelleyenId);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_guncelleyen_ip, GuncelleyenIp);
+
+                return veritabaniIslemleri.Calistir();
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
+            }
+        }
+
+        public override bool Guncelle()
+        {
+            try
+            {
+                veritabaniIslemleri.Baslat(C_Sp_Guncelle);
+
+                veritabaniIslemleri.ParametreEkle(C_Sutun_id, Id);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_kullanici_adi, KullaniciAdi);
 
                 if (string.IsNullOrEmpty(Sifre))
                 {
-                    sqlCommand.Parameters.AddWithValue("@Sifre", DBNull.Value);
+                    veritabaniIslemleri.ParametreEkle(C_Sutun_sifre, null);
                 }
                 else
                 {
-                    sqlCommand.Parameters.AddWithValue("@Sifre", Sifre);
+                    veritabaniIslemleri.ParametreEkle(C_Sutun_sifre, Sifre);
                 }
 
-                sqlCommand.Parameters.AddWithValue("@Ad", Ad);
-                sqlCommand.Parameters.AddWithValue("@Soyad", Soyad);
-                sqlCommand.Parameters.AddWithValue("@Telefon", Telefon);
-                sqlCommand.Parameters.AddWithValue("@Mail", Mail);
-                sqlCommand.Parameters.AddWithValue("@RolId", RolId);
-                sqlCommand.Parameters.AddWithValue("@AktiflikDurumu", AktiflikDurumu);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_ad, Ad);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_soyad, Soyad);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_telefon, Telefon);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_mail, Mail);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_rol_id, RolId);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_aktif_mi, AktifMi);
 
                 if (string.IsNullOrEmpty(ProfilResim))
                 {
-                    sqlCommand.Parameters.AddWithValue("@ProfilResim", DBNull.Value);
+                    veritabaniIslemleri.ParametreEkle(C_Sutun_profil_resim, null);
                 }
                 else
                 {
-                    sqlCommand.Parameters.AddWithValue("@ProfilResim", ProfilResim);
+                    veritabaniIslemleri.ParametreEkle(C_Sutun_profil_resim, ProfilResim);
                 }
 
-                sqlCommand.ExecuteNonQuery();
+                veritabaniIslemleri.ParametreEkle(C_Sutun_guncelleyen_id, GuncelleyenId);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_guncelleyen_ip, GuncelleyenIp);
+
+                return veritabaniIslemleri.Calistir();
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
             }
         }
 
-        public void Sil() 
+        public override bool Sil()
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            try
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_SIL", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.AddWithValue("@Id", Id);
-                sqlCommand.ExecuteNonQuery();
+                veritabaniIslemleri.Baslat(C_Sp_Sil);
+
+                veritabaniIslemleri.ParametreEkle(C_Sutun_id, Id);
+
+                return veritabaniIslemleri.Calistir();
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
             }
         }
 
-        public void Getir() 
+        public bool Getir()
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            try
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_GETIR", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                veritabaniIslemleri.Baslat(C_Sp_Getir);
 
-                sqlCommand.Parameters.AddWithValue("@Id", Id);
-
-                SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-
-                if (sqlDataReader.Read())
+                veritabaniIslemleri.ParametreEkle(C_Sutun_id, Id);
+                DataRow satir = veritabaniIslemleri.SatirGetir();
+                
+                if (satir==null)
                 {
-                    Id = Convert.ToInt32(sqlDataReader["id"]);
-                    KullaniciAdi = sqlDataReader["kullanici_adi"].ToString();
-                    Sifre = sqlDataReader["sifre"].ToString();
-                    Ad = sqlDataReader["ad"].ToString();
-                    Soyad = sqlDataReader["soyad"].ToString();
-                    Telefon = sqlDataReader["telefon"].ToString();
-                    Mail = sqlDataReader["mail"].ToString();
-                    RolId = Convert.ToInt32(sqlDataReader["rol_id"]);
-                    AktiflikDurumu = Convert.ToBoolean(sqlDataReader["aktiflik_durumu"]);
-                    ProfilResim = sqlDataReader["profil_resim"].ToString();
+                    return false;
                 }
+                
+                Id = Convert.ToInt32(satir[C_Sutun_id]);
+                KullaniciAdi = satir[C_Sutun_kullanici_adi].ToString();
+                Sifre = satir[C_Sutun_sifre].ToString();
+                Ad = satir[C_Sutun_ad].ToString();
+                Soyad = satir[C_Sutun_soyad].ToString();
+                Telefon = satir[C_Sutun_telefon].ToString();
+                Mail = satir[C_Sutun_mail].ToString();
+                RolId = Convert.ToInt32(satir[C_Sutun_rol_id]);
+                AktifMi = Convert.ToBoolean(satir[C_Sutun_aktif_mi]);
+                ProfilResim = satir[C_Sutun_profil_resim].ToString();
+
+                return true;
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
             }
         }
 
         public DataTable Listele()
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            try
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_LISTELE",sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
-                DataTable dataTable = new DataTable();
-                sqlDataAdapter.Fill(dataTable);
-                return dataTable;
+                veritabaniIslemleri.Baslat(C_Sp_Listele);
+                return veritabaniIslemleri.TabloGetir();
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
             }
         }
 
         public bool Giris()
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            try
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_GIRIS", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                veritabaniIslemleri.Baslat(C_Sp_Giris);
 
-                sqlCommand.Parameters.AddWithValue("@KullaniciAdi", KullaniciAdi);
-                sqlCommand.Parameters.AddWithValue("@Sifre", Sifre);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_kullanici_adi, KullaniciAdi);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_sifre, Sifre);
 
-                using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
+                DataRow satir = veritabaniIslemleri.SatirGetir();
+                if (satir == null)
                 {
-                    if (sqlDataReader.Read())
-                    {
-                        Id = Convert.ToInt32(sqlDataReader["id"]);
-                        Ad = sqlDataReader["ad"].ToString();
-                        Soyad = sqlDataReader["soyad"].ToString();
-                        ProfilResim = sqlDataReader["profil_resim"].ToString();
-                        AktiflikDurumu = Convert.ToBoolean(sqlDataReader["aktiflik_durumu"]);
-
-                        return true;
-                    }
-
                     return false;
                 }
+
+                Id = Convert.ToInt32(satir[C_Sutun_id]);
+                Ad = satir[C_Sutun_ad].ToString();
+                Soyad = satir[C_Sutun_soyad].ToString();
+                AktifMi = Convert.ToBoolean(satir[C_Sutun_aktif_mi]);
+                ProfilResim = satir[C_Sutun_profil_resim].ToString();
+
+                return true;
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
             }
         }
 
         public bool SifreKontrol()
         {
-            using (SqlConnection sqlConnection = Baglanti())
+            try
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_SIFREKONTROL", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                veritabaniIslemleri.Baslat(C_Sp_SifreKontrol);
 
-                sqlCommand.Parameters.AddWithValue("@KullaniciAdi", KullaniciAdi);
-                sqlCommand.Parameters.AddWithValue("@Mail", Mail);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_kullanici_adi, KullaniciAdi);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_mail, Mail);
 
-                using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
+                DataRow satir = veritabaniIslemleri.SatirGetir();
+                if (satir == null)
                 {
-                    if (sqlDataReader.Read())
-                    {
-                        Ad = sqlDataReader["ad"].ToString();
-                        return true;
-                    }
-
                     return false;
                 }
-            }
-        }
 
-        public void SifreGuncelle()
-        {
-            using (SqlConnection sqlConnection = Baglanti())
+                Ad = satir[C_Sutun_ad].ToString();
+                Id = Convert.ToInt32(satir[C_Sutun_id]);
+
+                return true;
+            }
+            finally
             {
-                SqlCommand sqlCommand = new SqlCommand("SP_Kullanicilar_SIFREGUNCELLE", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-
-                sqlCommand.Parameters.AddWithValue("@KullaniciAdi", KullaniciAdi);
-                sqlCommand.Parameters.AddWithValue("@Mail", Mail);
-                sqlCommand.Parameters.AddWithValue("@Sifre", Sifre);
-
-                sqlCommand.ExecuteNonQuery();
+                veritabaniIslemleri.Bitir();
             }
         }
 
+        public bool SifreGuncelle()
+        {
+            try
+            {
+                veritabaniIslemleri.Baslat(C_Sp_SifreGuncelle);
+
+                veritabaniIslemleri.ParametreEkle(C_Sutun_kullanici_adi, KullaniciAdi);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_sifre, Sifre);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_mail, Mail);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_guncelleyen_id, GuncelleyenId);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_guncelleyen_ip, GuncelleyenIp);
+
+                return veritabaniIslemleri.Calistir();
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
+            }
+        }
+
+        public bool KayitVarMi()
+        {
+            try
+            {
+                veritabaniIslemleri.Baslat(C_Sp_KayitVarMi);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_id,Id);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_kullanici_adi,KullaniciAdi);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_telefon,Telefon);
+                veritabaniIslemleri.ParametreEkle(C_Sutun_mail,Mail);
+
+                object sonuc = veritabaniIslemleri.DegerGetir();
+                int kayitSayisi = Convert.ToInt32(sonuc);
+
+                if (kayitSayisi > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
+            }
+        }
+
+        #endregion
     }
 }

@@ -33,6 +33,7 @@ namespace ModbusProjesi.Pages
 
                 if (kullanicilar.Giris())
                 {
+                    Session["kullaniciId"] = kullanicilar.Id;
                     Session["kullaniciAdSoyad"] = kullanicilar.Ad + "" + kullanicilar.Soyad;
                     Session["kullaniciFoto"] = kullanicilar.ProfilResim;
 

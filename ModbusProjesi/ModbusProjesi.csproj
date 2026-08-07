@@ -90,8 +90,8 @@
   <ItemGroup>
     <Compile Include="AppCode\DosyaIslemleri.cs" />
     <Compile Include="AppCode\Kullanicilar.cs" />
+    <Compile Include="AppCode\OrtakMetotlar.cs" />
     <Compile Include="AppCode\Roller.cs" />
-    <Compile Include="AppCode\SqlBaglanti.cs" />
     <Compile Include="AppCode\VeritabaniIslemleri.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
@@ -100,6 +100,7 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AppCode\OrtakAlanlar.cs" />
     <Compile Include="Pages\Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

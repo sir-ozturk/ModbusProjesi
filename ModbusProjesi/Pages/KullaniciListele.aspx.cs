@@ -32,27 +32,37 @@ namespace ModbusProjesi.Pages
             }
         }
 
+        public string TelefonFormatla(string telefon)
+        {
+            if (string.IsNullOrEmpty(telefon) || telefon.Length != 10)
+            {
+                return telefon;
+            }
+
+            return telefon.Substring(0, 3) + "-" +
+                   telefon.Substring(3, 3) + "-" +
+                   telefon.Substring(6, 2) + "-" +
+                   telefon.Substring(8, 2);
+        }
+
         protected void btnTabloSil_Click(object sender, EventArgs e)
         {
             // Tıklanan satırdaki LinkButton'ı yakalıyoruz
-            LinkButton btn = (LinkButton)sender;
+            LinkButton linkButton = (LinkButton)sender;
 
             // Butonun içine gizlediğimiz ID değerini alıyoruz
-            string SilenecekId = btn.CommandArgument;
+            int Id = Convert.ToInt32(linkButton.CommandArgument);
 
-            if (!string.IsNullOrEmpty(SilenecekId))
+            try
             {
-                try
-                {
-                    Kullanicilar kullanicilar = new Kullanicilar();
-                    kullanicilar.Id = Convert.ToInt32(SilenecekId);
-                    kullanicilar.Sil();
-                    Listele();
-                }
-                catch (Exception ex)
-                {
-                    Response.Write("<script>alert('Silme Hatası: " + ex.Message + "');</script>");
-                }
+                Kullanicilar Kullanicilar = new Kullanicilar();
+                Kullanicilar.Id = Id;
+                Kullanicilar.Sil();
+                Listele();
+            }
+            catch (Exception ex)
+            {
+                Response.Write("<script>alert('Silme Hatası : " + ex.Message + "');</script>");
             }
         }
     }
