@@ -456,3 +456,520 @@ DİĞER YAPILAR:
 | **try - catch**            | Oluşan hataları yakalar ve yönetir.                        | Veritabanı ve dosya işlemlerinde kullanılır.                         | Değer döndürmez.    |
 | **string.IsNullOrEmpty()** | String'in boş veya `null` olup olmadığını kontrol eder.    | Dosya adı veya kullanıcı girişlerini kontrol ederken kullanılır.     | `bool`              |
 | **FileUpload.PostedFile**  | Kullanıcının yüklediği dosyayı alır.                       | Resim yükleme işlemlerinde kullanılır.                               | `HttpPostedFile`    |
+
+
+YENİ MİMARİ VE KULLANILAN YAPILAR
+
+1. Entity – Work ayrımı
+
+En önemli eksik bu.
+
+Eskiden:
+
+Kullanicilar
+ ├─ Id
+ ├─ Ad
+ ├─ Soyad
+ ├─ Ekle()
+ ├─ Sil()
+ └─ Guncelle()
+
+Şimdi ise ayırdık:
+
+Entity
+│
+├── Kullanicilar.cs
+└── Roller.cs
+
+Work
+│
+├── VeritabaniIslemleri.cs
+├── KullaniciIslemleri.cs
+└── RolIslemleri.cs
+
+Mantığı:
+
+Kullanicilar.cs
+→ Veriyi temsil eder.
+
+KullaniciIslemleri.cs
+→ Kullanıcıyla ilgili işlemleri yapar.
+
+VeritabaniIslemleri.cs
+→ SQL bağlantısını ve ortak DB işlemlerini yönetir.
+
+Örneğin:
+
+Kullanicilar kullanici = new Kullanicilar();
+
+kullanici.Ad = "Ahmet";
+kullanici.Soyad = "Yazıcı";
+
+ama artık:
+
+kullanici.Ekle();
+
+demiyoruz.
+
+Onun yerine:
+
+KullaniciIslemleri kullaniciIslemleri = new KullaniciIslemleri(veritabaniIslemleri);
+kullaniciIslemleri.Ekle(kullanici);
+
+2.İşlem sınıflarından try-catch-finally kaldırılması
+
+Önceden KullaniciIslemleri içerisindeki metotlarda buna benzer bir mantık vardı:
+
+public bool Ekle(Kullanicilar kullanicilar)
+{
+    try
+    {
+        // SQL işlemleri...
+        return true;
+    }
+    catch (Exception)
+    {
+        // hata yönetimi
+        return false;
+    }
+    finally
+    {
+        veritabaniIslemleri.Bitir();
+    }
+}
+
+Bunu kaldırdık.
+
+Yeni KullaniciIslemleri daha sade:
+
+public bool Ekle(Kullanicilar kullanicilar)
+{
+    veritabaniIslemleri.ProsedurSec(Kullanicilar.C_Sp_Ekle);
+
+    // Parametreler...
+
+    return veritabaniIslemleri.Calistir();
+}
+
+Bunun çok önemli bir nedeni vardı:
+
+KullaniciIslemleri içerisindeki bir metot kendi kendine:
+
+veritabaniIslemleri.Bitir();
+
+veya transaction üzerinde işlem yaparsa, üst tarafta devam edecek diğer işlemler aynı bağlantı ve transaction'ı kullanamaz hale geliyordu.
+
+Bizim kullanıcı ekleme akışımız mesela tek metottan oluşmuyor:
+
+btnKaydet_Click
+      ↓
+Transaction başlat
+      ↓
+KayitVarMi()
+      ↓
+Ekle()
+      ↓
+ID alınır
+      ↓
+Kullanıcı adı oluşturulur
+      ↓
+KullanıcıAdiGuncelle()
+      ↓
+COMMIT
+      ↓
+Bitir()
+
+Dolayısıyla KayitVarMi() kendi içinde bağlantıyı kapatırsa:
+
+KayitVarMi()
+     ↓
+Bitir() ❌
+     ↓
+Ekle()
+     ↓
+Bağlantı yok!
+
+ve bizim karşılaştığımız şu tarz hatalar ortaya çıkıyordu:
+
+Fill: SelectCommand.Connection özelliği başlatılmamış.
+
+Aynı şekilde transaction'ın yanlış yerde Rollback/Dispose edilmesi:
+
+SqlTransaction tamamlandı; artık kullanılabilir değil.
+
+hatasına yol açabiliyordu.
+
+Yeni sorumluluk dağılımımız
+
+Şimdi mantık şu:
+
+KullaniciIslemleri
+→ Sadece kullanıcı işlemini yapar.
+
+VeritabaniIslemleri
+→ Connection / Command / Transaction altyapısını yönetir.
+
+Page (btnKaydet_Click)
+→ İşlem akışını yönetir.
+→ try-catch-finally burada bulunur.
+
+Örneğin:
+
+try
+{
+    veritabaniIslemleri.Baslat(
+        VeritabaniIslemleri.IslemTip.BAGIMLI);
+
+    // KayitVarMi
+    // Ekle
+    // KullaniciAdiGuncelle
+
+    veritabaniIslemleri.Uygula();
+}
+catch (Exception ex)
+{
+    veritabaniIslemleri.GeriAl();
+
+    lblMesaj.Text = ex.Message;
+}
+finally
+{
+    veritabaniIslemleri.Bitir();
+}
+
+3. BusinessLayer projesi 
+
+Ana web projesinden iş katmanını ayırdık:
+
+Solution
+│
+├── ModbusProjesi
+│
+└── BusinessLayer
+
+BusinessLayer içerisinde:
+
+BusinessLayer
+├── Entity
+├── Work
+└── Interfaces
+
+gibi bir yapı oluşturduk.
+
+Burada ayrıca DLL/reference mantığını anlatabiliriz:
+
+BusinessLayer
+       ↓ Build
+BusinessLayer.dll
+       ↓ Reference
+ModbusProjesi
+
+4. Constructor ile VeritabaniIslemleri gönderme 
+Son yapının temel noktalarından biri:
+
+private VeritabaniIslemleri veritabaniIslemleri;
+
+public KullaniciIslemleri(VeritabaniIslemleri veritabaniIslemleri)
+{
+    this.veritabaniIslemleri = veritabaniIslemleri;
+}
+
+Sonra:
+
+KullaniciIslemleri kullaniciIslemleri = new KullaniciIslemleri(veritabaniIslemleri);
+
+Bunun nedenini özellikle yazalım:
+
+Aynı işlem akışındaki sınıfların aynı VeritabaniIslemleri nesnesini, dolayısıyla aynı bağlantı ve gerektiğinde aynı transaction'ı kullanabilmesi.
+
+5. Merkezi VeritabaniIslemleri sınıfı 
+Dosyada ADO.NET sınıfları tek tek anlatılmış ama bizim sonradan oluşturduğumuz merkezi DB sınıfı yok.
+
+Bunu ayrıca anlatmalıyız:
+
+VeritabaniIslemleri
+│
+├── Baslat()
+├── ProsedurSec()
+├── ParametreEkle()
+├── Calistir()
+├── TabloGetir()
+├── SatirGetir()
+├── DegerGetir()
+├── Uygula()
+├── GeriAl()
+└── Bitir()
+
+Örneğin:
+
+veritabaniIslemleri.ProsedurSec(Kullanicilar.C_Sp_Ekle);
+veritabaniIslemleri.ParametreEkle(Kullanicilar.C_Sutun_ad, kullanicilar.Ad);
+veritabaniIslemleri.Calistir();
+
+Bunun amacı:
+Her sınıfta tekrar tekrar SqlConnection, SqlCommand, SqlDataAdapter yazmamak.
+
+6. BAGIMLI – BAGIMSIZ işlem tipi
+
+Bu tamamen yeni ve önemli.
+
+public enum IslemTip
+{
+    BAGIMLI,
+    BAGIMSIZ
+}
+
+BAĞIMSIZ:
+Tek başına çalışan işlem.
+
+Örneğin:
+veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+
+Listeleme, giriş, tek kayıt getirme gibi işlemlerde kullanılabilir.
+
+BAĞIMLI:
+Birden fazla SQL işleminin hep birlikte başarılı olması gereken durum.
+
+Örneğin:
+veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
+
+7. Transaction – Commit – Rollback
+Bence dosyadaki en önemli yeni konu bu olmalı.
+
+Örneğin kullanıcı eklerken:
+
+KayitVarMi
+      ↓
+Kullanıcı Ekle
+      ↓
+ID Al
+      ↓
+Kullanıcı Adı Oluştur
+      ↓
+Kullanıcı Adını Güncelle
+
+Bunlardan biri hata verirse yarım kayıt istemiyoruz.
+
+Bu nedenle:
+
+veritabaniIslemleri.Uygula();
+
+→ COMMIT
+
+ve:
+
+veritabaniIslemleri.GeriAl();
+
+→ ROLLBACK
+
+kullanıyoruz.
+
+Akışı şöyle göstermek çok öğretici olur:
+
+BAŞLAT
+   ↓
+BEGIN TRANSACTION
+   ↓
+İşlem 1
+   ↓
+İşlem 2
+   ↓
+İşlem 3
+   ↓
+Hepsi başarılı mı?
+   ↓             ↓
+ EVET           HAYIR
+   ↓             ↓
+COMMIT        ROLLBACK
+
+8. DataRow, SatirGetir() ve DegerGetir() 
+
+Dosyada DataTable ve ExecuteScalar() var ama bizim oluşturduğumuz abstraction yok.
+
+DataRow satir = veritabaniIslemleri.SatirGetir();
+
+Tek kullanıcı için.
+
+DataTable tablo = veritabaniIslemleri.TabloGetir();
+
+Liste için.
+
+object sonuc = veritabaniIslemleri.DegerGetir();
+
+Tek değer için.
+
+Bunu güzel bir tablo halinde ekleyebiliriz:
+
+Metot	Kullanım
+Calistir()	INSERT / UPDATE / DELETE
+DegerGetir()	COUNT / ID / tek değer
+SatirGetir()	Tek kullanıcı
+TabloGetir()	Listeleme
+
+9. Sistem tarafından kullanıcı adı üretimi
+
+Bugün yaptığımız yapı da kesinlikle eklenmeli.
+
+Artık kullanıcı:
+
+kullanici_adi
+
+belirlemiyor.
+
+Sistem:
+
+ID = 1
+↓
+2026
+↓
+0001
+↓
+Modbus20260001
+
+oluşturuyor.
+
+Sonraki:
+
+ID = 2
+→ Modbus20260002
+
+Burada ayrıca:
+
+kullanicilar.Id.ToString("D4")
+
+konusunu anlatırız.
+
+1    → 0001
+25   → 0025
+153  → 0153
+
+10. ID'yi INSERT sonrasında alma
+9.maddeyle bağlantılı olarak çok önemli.
+
+Çünkü:
+
+Modbus20260001
+
+oluşturmak için önce SQL'in verdiği ID lazım.
+
+Burada:
+
+INSERT
+↓
+SCOPE_IDENTITY()
+↓
+C# ID'yi alır
+↓
+Kullanıcı adı oluşturulur
+
+mantığını eklemeliyiz.
+
+11. Geçici benzersiz kullanıcı adı / GUID 
+
+Az önce yaptığımız:
+
+Guid.NewGuid()
+
+dosyada dosya adı üretmek için anlatılmış.
+
+Fakat artık ikinci kullanımımız da var.
+
+kullanici_adi NOT NULL olduğu için ID oluşmadan önce geçici benzersiz değer veriyoruz:
+
+GUID
+↓
+INSERT
+↓
+ID oluşur
+↓
+Modbus20260001 oluşturulur
+↓
+GUID yerine gerçek kullanıcı adı yazılır
+
+Bu da Transaction içinde gerçekleşiyor.
+
+12. IDENTITY ve DBCC CHECKIDENT
+
+Bugün kullandığımız:
+
+DBCC CHECKIDENT ('Kullanicilar', RESEED, 0);
+
+konusunu da kısa bir bölüm olarak ekleyebiliriz.
+
+Burada:
+
+IDENTITY
+→ ID'yi otomatik artırır.
+
+RESEED
+→ Identity sayacını yeniden ayarlar.
+
+CompleteRequest(): ASP.NET'e mevcut HTTP isteğinin tamamlanacağını bildirir. Response.Redirect(..., false) ile birlikte kullanılarak yönlendirme işleminin daha kontrollü yapılmasını sağlar.
+
+MAX ID ile Kullanıcı Adı Oluşturma
+
+Projede kullanıcı adı artık kullanıcı tarafından girilmez. Kullanıcı eklendikten sonra oluşan ID değeri kullanılarak sistem tarafından otomatik oluşturulur.
+
+Format:
+
+Modbus + Yıl + 4 Haneli ID
+
+ID = 1  → Modbus20260001
+ID = 25 → Modbus20260025
+
+Son eklenen kullanıcının ID'sini almak için:
+
+CREATE PROCEDURE SP_Kullanicilar_MAXIDGETIR
+AS
+BEGIN
+    SELECT ISNULL(MAX(id), 0)
+    FROM Kullanicilar;
+END
+
+C# tarafında:
+
+public int MaxIdGetir()
+{
+    veritabaniIslemleri.ProsedurSec(Kullanicilar.C_Sp_MaxIdGetir);
+
+    object sonuc = veritabaniIslemleri.DegerGetir();
+
+    return Convert.ToInt32(sonuc);
+}
+
+Kullanıcı eklendikten sonra ID alınır ve kullanıcı adı oluşturulur:
+
+int yeniId = kullaniciIslemleri.MaxIdGetir();
+
+kullanicilar.Id = yeniId;
+
+kullanicilar.KullaniciAdi ="Modbus" + DateTime.Now.Year + yeniId.ToString("D4");
+
+ToString("D4"), ID'yi 4 haneli yapar:
+
+1  → 0001
+25 → 0025
+
+İlk kayıt sırasında ID henüz belli olmadığı ve kullanici_adi alanı boş bırakılamadığı için geçici olarak benzersiz bir Guid kullanılır:
+
+kullanicilar.KullaniciAdi = Guid.NewGuid().ToString();
+
+ID oluştuktan sonra bu geçici değer Modbus20260001 şeklindeki gerçek kullanıcı adıyla değiştirilir.
+
+Genel akış:
+
+Geçici GUID
+    ↓
+Kullanıcı Ekle
+    ↓
+MaxIdGetir
+    ↓
+ID = 1
+    ↓
+Modbus20260001
+    ↓
+Kullanıcı Adını Güncelle
+
+Not: MAX(id) yöntemi local ve tek kullanıcılı mevcut proje için kullanılmıştır. Çok kullanıcılı sistemlerde SCOPE_IDENTITY() veya OUTPUT daha güvenlidir.
+
+

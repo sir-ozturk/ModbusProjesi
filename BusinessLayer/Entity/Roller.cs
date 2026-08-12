@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Data;
-using System.Data.SqlClient;
+using BusinessLayer.Work;
 
-namespace ModbusProjesi.AppCode
+namespace BusinessLayer.Entity
 {
-    public class Roller:OrtakAlanlar
+    public class Roller : OrtakAlanlar
     {
-        private VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         #region SABİTLER
 
         public const string C_Sp_Listele = "dbo.SP_Roller_LISTELE";
@@ -48,25 +43,6 @@ namespace ModbusProjesi.AppCode
         }
 
         #endregion
-
-        #region METOTLAR
-
-        public DataTable Listele()
-        {
-            try
-            {
-                veritabaniIslemleri.Baslat(C_Sp_Listele);
-
-                DataTable rollerTablosu = veritabaniIslemleri.TabloGetir();
-
-                return rollerTablosu;
-            }
-            finally
-            {
-                veritabaniIslemleri.Bitir();
-            }
-        }
-
-        #endregion
     }
+
 }

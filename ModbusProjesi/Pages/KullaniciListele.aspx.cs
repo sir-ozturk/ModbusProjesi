@@ -4,7 +4,9 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using ModbusProjesi.AppCode;
+using BusinessLayer.Entity;
+using BusinessLayer.Interfaces;
+using BusinessLayer.Work;
 
 namespace ModbusProjesi.Pages
 {
@@ -20,15 +22,22 @@ namespace ModbusProjesi.Pages
 
         private void Listele()
         {
+            VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+
             try
             {
-                Kullanicilar kullanicilar = new Kullanicilar();
-                repeaterKullanicilar.DataSource = kullanicilar.Listele();
+                veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+                KullaniciIslemleri kullaniciIslemleri = new KullaniciIslemleri(veritabaniIslemleri);
+                repeaterKullanicilar.DataSource = kullaniciIslemleri.Listele();
                 repeaterKullanicilar.DataBind();
             }
             catch (Exception ex)
             {
                 Response.Write("<script>alert('Listeleme Hatası: " + ex.Message + "');</script>");
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
             }
         }
 
@@ -53,17 +62,27 @@ namespace ModbusProjesi.Pages
             // Butonun içine gizlediğimiz ID değerini alıyoruz
             int Id = Convert.ToInt32(linkButton.CommandArgument);
 
+            VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+
             try
             {
-                Kullanicilar Kullanicilar = new Kullanicilar();
-                Kullanicilar.Id = Id;
-                Kullanicilar.Sil();
-                Listele();
+                veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+                Kullanicilar kullanicilar = new Kullanicilar();
+                kullanicilar.Id = Id;
+                KullaniciIslemleri kullaniciIslemleri = new KullaniciIslemleri(veritabaniIslemleri);
+                kullaniciIslemleri.Sil(kullanicilar);
             }
             catch (Exception ex)
             {
                 Response.Write("<script>alert('Silme Hatası : " + ex.Message + "');</script>");
             }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
+            }
+
+            Listele();
+
         }
     }
 }

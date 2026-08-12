@@ -2,6 +2,7 @@
     width: 100%;
     max-width: 700px;
     margin: 0 auto;
+    margin-left: 100%;
 }
 
 .sayfa-ust-alan {
@@ -9,22 +10,26 @@
     padding-bottom: 15px;
 }
 
+.baslik{
+    text-align:center;
+}
+
 .baslik h2 {
     color: darkblue;
-    font-size: 24px;
+    font-size: 30px;
     margin-bottom: 5px;
 }
 
 .baslik p {
     color: red;
-    font-size: 14px;
+    font-size: 20px;
 }
 
 .mesaj-kutusu {
     padding: 15px 20px;
     border-radius: 6px;
     margin-bottom: 20px;
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 500;
 }
 
@@ -56,7 +61,7 @@
 
     .form-grup label {
         color: darkblue;
-        font-size: 14px;
+        font-size: 20px;
         font-weight: 500;
     }
 
@@ -65,7 +70,7 @@
     border-radius: 6px;
     padding: 10px 14px;
     color: white;
-    font-size: 14px;
+    font-size: 20px;
     outline: none;
     width: 100%;
     box-sizing: border-box;
@@ -76,8 +81,8 @@
 }
 
 .profil-resim-kutusu {
-    width: 100px !important;
-    height: 100px !important;
+    width: 130px !important;
+    height: 130px !important;
     border-radius: 50% !important;
     border: 3px solid cadetblue !important;
     overflow: hidden !important; /* Devasa resmi çemberin içinde tutar */
@@ -104,7 +109,7 @@ input[type="file"].form-kontrol {
     border-radius: 6px;
     padding: 10px 14px;
     color: white;
-    font-size: 14px;
+    font-size: 20px;
     outline: none;
     width: 100%;
     cursor: pointer;
@@ -120,7 +125,7 @@ input[type="file"].form-kontrol {
     color: red;
     padding: 12px;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 20px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -139,7 +144,7 @@ input[type="file"].form-kontrol {
     color: white;
     border-radius: 6px;
     padding: 12px 32px;
-    font-size: 14px;
+    font-size: 25px;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;

@@ -44,7 +44,7 @@
 
             <div class="form-grup">
                 <label>Kullanıcı Adı</label>
-                <asp:TextBox ID="txtKullaniciAdi" runat="server" CssClass="form-kontrol"></asp:TextBox>
+                <asp:TextBox ID="txtKullaniciAdi" runat="server" ReadOnly="true" CssClass="form-kontrol"></asp:TextBox>
             </div>
 
             <div class="form-grup">

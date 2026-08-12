@@ -4,7 +4,9 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using ModbusProjesi.AppCode;
+using BusinessLayer.Entity;
+using BusinessLayer.Interfaces;
+using BusinessLayer.Work;
 
 namespace ModbusProjesi.Pages
 {
@@ -24,20 +26,29 @@ namespace ModbusProjesi.Pages
                 return;
             }
 
+            VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+
             try
             {
+                // Giriş tek başına çalışan bir işlem olduğu için BAĞIMSIZ
+                veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+
                 Kullanicilar kullanicilar = new Kullanicilar();
 
                 kullanicilar.KullaniciAdi = txtKullaniciAdi.Text.Trim();
                 kullanicilar.Sifre = txtSifre.Text.Trim();
 
-                if (kullanicilar.Giris())
+                KullaniciIslemleri kullaniciIslemleri = new KullaniciIslemleri(veritabaniIslemleri);
+
+                if (kullaniciIslemleri.Giris(kullanicilar))
                 {
                     Session["kullaniciId"] = kullanicilar.Id;
-                    Session["kullaniciAdSoyad"] = kullanicilar.Ad + "" + kullanicilar.Soyad;
+                    Session["kullaniciAdSoyad"] = kullanicilar.Ad + " " + kullanicilar.Soyad;
                     Session["kullaniciFoto"] = kullanicilar.ProfilResim;
 
-                    Response.Redirect("~/Default.aspx");
+                    Response.Redirect("~/Default.aspx",false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
                 }
                 else
                 {
@@ -47,6 +58,10 @@ namespace ModbusProjesi.Pages
             catch (Exception ex)
             {
                 Response.Write("<script>alert('Giriş Hatası: " + ex.Message + "');</script>");
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
             }
         }
     }

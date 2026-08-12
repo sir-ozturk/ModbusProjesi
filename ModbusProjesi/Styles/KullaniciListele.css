@@ -12,13 +12,13 @@
 
 .baslik h2{
     color:darkblue;
-    font-size:24px;
+    font-size:30px;
     margin-bottom:5px;
 }
 
 .baslik p{
     color:red;
-    font-size:14px;
+    font-size:20px;
 }
 
 .baslik{
@@ -32,7 +32,7 @@
     padding:10px 16px;
     border-radius:6px;
     font-weight:600;
-    font-size:14px;
+    font-size:20px;
     transition: background 0.2s;
     display:flex;
     align-items:center;
@@ -48,7 +48,7 @@
 .tablo {
     width: 100%;
     text-align: left;
-    font-size: 14px;
+    font-size: 20px;
     background-color: cadetblue;
     border-radius: 8px;
     color:white
@@ -72,7 +72,7 @@
     color: white;
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 18px;
 }
 
 .stat-aktif {
@@ -98,7 +98,7 @@
     text-decoration: none;
     padding: 6px 12px;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: 18px;
     font-weight: 500;
     display: inline-flex;
     align-items: center;

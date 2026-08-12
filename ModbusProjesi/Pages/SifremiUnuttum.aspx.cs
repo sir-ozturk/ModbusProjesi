@@ -4,12 +4,16 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using ModbusProjesi.AppCode;
+using BusinessLayer.Entity;
+using BusinessLayer.Work;
+using BusinessLayer.Interfaces;
 
 namespace ModbusProjesi.Pages
 {
     public partial class SifremiUnuttum : System.Web.UI.Page
     {
+        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["GeciciSifre"] != null)
@@ -32,12 +36,14 @@ namespace ModbusProjesi.Pages
 
             try
             {
+                veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
                 Kullanicilar kullanicilar = new Kullanicilar();
+                KullaniciIslemleri kullaniciIslemleri = new KullaniciIslemleri(veritabaniIslemleri);
 
                 kullanicilar.KullaniciAdi = resetKullaniciAdi;
                 kullanicilar.Mail = resetMail;
 
-                if (kullanicilar.SifreKontrol())
+                if (kullaniciIslemleri.SifreKontrol(kullanicilar))
                 {
                     Random random = new Random();
 
@@ -69,9 +75,11 @@ namespace ModbusProjesi.Pages
                     kullanicilar.GuncelleyenId = kullanicilar.Id;
                     kullanicilar.GuncelleyenIp = Request.UserHostAddress;
 
-                    kullanicilar.SifreGuncelle();
+                    kullaniciIslemleri.SifreGuncelle(kullanicilar);
                     Session["GeciciSifre"] = yeniSifre;
-                    Response.Redirect("~/Pages/SifremiUnuttum.aspx");
+                    Response.Redirect("~/Pages/SifremiUnuttum.aspx",false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
                 }
                 else
                 {
