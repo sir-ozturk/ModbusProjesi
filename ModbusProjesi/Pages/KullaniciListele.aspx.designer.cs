@@ -7,20 +7,17 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ModbusProjesi.Pages
+
+
+public partial class KullaniciListele
 {
 
-
-    public partial class KullaniciListele
-    {
-
-        /// <summary>
-        /// repeaterKullanicilar control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater repeaterKullanicilar;
-    }
+    /// <summary>
+    /// repeaterKullanicilar control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Repeater repeaterKullanicilar;
 }

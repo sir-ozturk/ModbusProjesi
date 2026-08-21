@@ -1,8 +1,0 @@
-CREATE PROCEDURE [SP_Kullanicilar_MAXIDGETIR]
-AS
-BEGIN
-
-SELECT ISNULL(MAX(id),0)
-FROM Kullanicilar;
-
-END

@@ -11,34 +11,42 @@ namespace ModbusProjesi.MasterPages
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            Sessionlar sessionlar = new Sessionlar();
+            CurrentInfo currentInfo = sessionlar.Current._CurrentInfo;
+
+            if (currentInfo == null || currentInfo.LoginYapildiMi == false)
+            {
+                Response.Redirect("~/Pages/Login.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+                return;
+            }
+
             if (!Page.IsPostBack)
             {
-                if (Session["kullaniciAdSoyad"] != null)
-                {
-                    lblGirisYapanKullanici.Text = Session["kullaniciAdSoyad"].ToString();
+                    lblGirisYapanKullanici.Text = currentInfo.Ad + " " + currentInfo.Soyad;
 
-                    if (Session["kullaniciFoto"] != null && !string.IsNullOrEmpty(Session["kullaniciFoto"].ToString()))
+                    if (!string.IsNullOrEmpty(currentInfo.ProfilResim))
                     {
-                        string fotoAdi = Session["kullaniciFoto"].ToString();
-                        imgSolMenuProfil.ImageUrl = "~/Files/" + fotoAdi;
+                        imgSolMenuProfil.ImageUrl = "~/Files/" + currentInfo.ProfilResim;
                     }
                     else
                     {
                         imgSolMenuProfil.ImageUrl = "~/Files/no-image.png";
-                    }
-                }
-                else
-                {
-                    Response.Redirect("~/Pages/Login.aspx");
-                }
+                    }        
             }
         }
 
         protected void btnCikis_Click(object sender, EventArgs e)
         {
+            Sessionlar sessionlar = new Sessionlar();
+
+            sessionlar.Current._CurrentInfo = null;
+
+            Session.Clear();
             Session.Abandon();
-            Session.RemoveAll();
-            Response.Redirect("~/Pages/Login.aspx"); 
+
+            Response.Redirect("~/Pages/Login.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }

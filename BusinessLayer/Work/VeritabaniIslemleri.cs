@@ -7,109 +7,116 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace BusinessLayer.Work
+
+public class VeritabaniIslemleri
 {
-    public class VeritabaniIslemleri
+    private SqlConnection sqlConnection;
+    private SqlCommand sqlCommand;
+    private SqlTransaction sqlTransaction;
+
+    public string SpAdi { get; set; }
+
+    public enum IslemTip
     {
-        private SqlConnection sqlConnection;
-        private SqlCommand sqlCommand;
-        private SqlTransaction sqlTransaction;
+        BAGIMLI,
+        BAGIMSIZ
+    }
 
-        public enum IslemTip
+    private IslemTip islemTip;
+
+    public void Baslat(IslemTip tip)
+    {
+        islemTip = tip;
+
+        string connectionString = ConfigurationManager.ConnectionStrings["ModbusDb"].ConnectionString;
+
+        sqlCommand = new SqlCommand();
+        sqlConnection = new SqlConnection(connectionString);
+        sqlConnection.Open();
+
+        sqlCommand.Connection = sqlConnection;
+        sqlCommand.CommandType = CommandType.StoredProcedure;
+
+        if (islemTip == IslemTip.BAGIMLI)
         {
-            BAGIMLI,
-            BAGIMSIZ
+            sqlTransaction = sqlConnection.BeginTransaction();
+            sqlCommand.Transaction = sqlTransaction;
+        }
+    }
+
+    public void ParametreEkle(string parametreAdi, object parametreDegeri)
+    {
+        string tamParametreAdi = "@" + parametreAdi;
+
+        if (parametreDegeri == null)
+        {
+            sqlCommand.Parameters.AddWithValue(tamParametreAdi, DBNull.Value);
+        }
+        else
+        {
+            sqlCommand.Parameters.AddWithValue(tamParametreAdi, parametreDegeri);
+        }
+    }
+
+    public bool Calistir()
+    {
+        sqlCommand.CommandText = SpAdi;
+
+        int sonuc = sqlCommand.ExecuteNonQuery();
+
+        ParametreleriSil();
+
+        return sonuc > 0;
+    }
+
+    public DataTable TabloGetir()
+    {
+        sqlCommand.CommandText = SpAdi;
+
+        SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
+
+        DataTable dataTable = new DataTable();
+
+        sqlDataAdapter.Fill(dataTable);
+
+        ParametreleriSil();
+
+        return dataTable;
+    }
+
+    public DataRow SatirGetir()
+    {
+        DataTable dataTable = TabloGetir();
+
+        if (dataTable.Rows.Count > 0)
+        {
+            return dataTable.Rows[0];
         }
 
-        private IslemTip islemTip;
+        return null;
+    }
 
-        public void Baslat(IslemTip tip)
+    public object DegerGetir()
+    {
+        sqlCommand.CommandText = SpAdi;
+
+        object sonuc = sqlCommand.ExecuteScalar();
+
+        ParametreleriSil();
+
+        return sonuc;
+    }
+
+    public bool Bitir()
+    {
+        try
         {
-            islemTip = tip;
-
-            string connectionString = ConfigurationManager.ConnectionStrings["ModbusDb"].ConnectionString;
-
-            sqlConnection = new SqlConnection(connectionString);
-            sqlConnection.Open();
-
-            if (islemTip == IslemTip.BAGIMLI)
-            {
-                sqlTransaction = sqlConnection.BeginTransaction();
-            }
-        }
-
-        public void ProsedurSec(string prosedurAdi)
-        {
-            if (sqlConnection == null)
-            {
-                throw new Exception("Veritabanı bağlantısı oluşturulmamış.");
-            }
-
-            if (sqlConnection.State != ConnectionState.Open)
-            {
-                throw new Exception("Veritabanı bağlantısı açık değil.");
-            }
-
-            sqlCommand = new SqlCommand(prosedurAdi, sqlConnection);
-            sqlCommand.CommandType = CommandType.StoredProcedure;
-
             if (sqlTransaction != null)
             {
-                sqlCommand.Transaction = sqlTransaction;
-            }
-        }
-
-        public void ParametreEkle(string parametreAdi, object parametreDegeri)
-        {
-            string tamParametreAdi = "@" + parametreAdi;
-
-            if (parametreDegeri == null)
-            {
-                sqlCommand.Parameters.AddWithValue(tamParametreAdi, DBNull.Value);
-            }
-            else
-            {
-                sqlCommand.Parameters.AddWithValue(tamParametreAdi, parametreDegeri);
-            }
-        }
-
-        public bool Calistir()
-        {
-            int sonuc = sqlCommand.ExecuteNonQuery();
-
-            return sonuc > 0;
-        }
-
-        public DataTable TabloGetir()
-        {
-            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
-
-            DataTable dataTable = new DataTable();
-
-            sqlDataAdapter.Fill(dataTable);
-
-            return dataTable;
-        }
-
-        public DataRow SatirGetir()
-        {
-            DataTable dataTable = TabloGetir();
-
-            if (dataTable.Rows.Count > 0)
-            {
-                return dataTable.Rows[0];
+                sqlTransaction.Dispose();
+                sqlTransaction = null;
             }
 
-            return null;
-        }
-
-        public object DegerGetir()
-        {
-            return sqlCommand.ExecuteScalar();
-        }
-
-        public void Bitir()
-        {
             if (sqlCommand != null)
             {
                 sqlCommand.Dispose();
@@ -125,31 +132,55 @@ namespace BusinessLayer.Work
 
                 sqlConnection.Dispose();
                 sqlConnection = null;
+
+                SqlConnection.ClearAllPools();
             }
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public void Uygula()
+    {
+        if (sqlTransaction == null)
+        {
+            return;
         }
 
-        public void Uygula()
-        {
-            if (sqlTransaction == null)
-            {
-                return;
-            }
+        sqlTransaction.Commit();
+        sqlTransaction.Dispose();
+        sqlTransaction = null;
+    }
 
-            sqlTransaction.Commit();
-            sqlTransaction.Dispose();
-            sqlTransaction = null;
+    public void GeriAl()
+    {
+        if (sqlTransaction == null)
+        {
+            return;
         }
 
-        public void GeriAl()
-        {
-            if (sqlTransaction == null)
-            {
-                return;
-            }
+        sqlTransaction.Rollback();
+        sqlTransaction.Dispose();
+        sqlTransaction = null;
+    }
 
-            sqlTransaction.Rollback();
-            sqlTransaction.Dispose();
-            sqlTransaction = null;
+    public void ParametreleriSil()
+    {
+        try
+        {
+            if (sqlCommand != null)
+            {
+                sqlCommand.Parameters.Clear();
+            }
+        }
+        catch
+        {
+
         }
     }
 }
+

@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Web;
 
-namespace BusinessLayer.Work
-{
+
     public class DosyaIslemleri
     {
         public string ResimKaydet(HttpPostedFile dosya)
@@ -36,4 +35,4 @@ namespace BusinessLayer.Work
             }
         }
     }
-}
+

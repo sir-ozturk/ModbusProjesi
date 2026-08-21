@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="SifremiUnuttum.aspx.cs" Inherits="ModbusProjesi.Pages.SifremiUnuttum" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="SifremiUnuttum.aspx.cs" Inherits="SifremiUnuttum" %>
 
 <!DOCTYPE html>
 
