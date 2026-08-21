@@ -8,6 +8,12 @@ public class Roller : OrtakAlanlar, IOrtakMetotlar
         VeritabaniIslem = _veritabaniIslemleri;
     }
 
+    ~Roller()
+    {
+        SonucKayit = null;
+        VeriTablosu = null;
+    }
+
     #region SABİTLER
 
     public const string C_Sp_TumunuGetir = "dbo.SP_Roller_TUMUNU_GETIR";

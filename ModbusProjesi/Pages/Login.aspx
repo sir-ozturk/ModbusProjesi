@@ -7,6 +7,7 @@
     <title>MODBUS KULLANICI GİRİŞ PANELİ</title>
     <link href="../Styles/Login.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async="async" defer="defer"> </script>
 </head>
 <body>
     <form id="form1" runat="server" defaultbutton="btnGiris">
@@ -22,6 +23,9 @@
             </div>
             <div class="giris-alanlari">
                 <asp:TextBox ID="txtSifre" runat="server" TextMode="Password" placeholder="Şifre"></asp:TextBox>
+            </div>
+            <div class="turnstile-alani">
+                <div id="turnstileWidget" runat="server" class="cf-turnstile"></div>
             </div>
             <div class="buton-aksiyonu">
                 <asp:Button ID="btnGiris" runat="server" Text="Giriş Yap" CssClass="giris-butonu" OnClick="btnGiris_Click" />

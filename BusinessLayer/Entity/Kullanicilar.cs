@@ -9,6 +9,12 @@ public class Kullanicilar : OrtakAlanlar, IOrtakMetotlar
         VeritabaniIslem = _veritabaniIslemleri;
     }
 
+    ~Kullanicilar()
+    {
+        SonucKayit = null;
+        VeriTablosu = null;
+    }
+
     #region SABİTLER
 
     public const string C_Tablo = "dbo.Kullanicilar";

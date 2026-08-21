@@ -8,6 +8,7 @@
     <link href="../Styles/SifremiUnuttum.css" rel="stylesheet" />
     <script src="../Scripts/SifremiUnuttumZamanlayici.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async="async" defer="defer"></script>
 </head>
 <body>
     <form id="form1" runat="server" defaultbutton="btnSifirla">
@@ -23,6 +24,9 @@
             </div>
             <div class="giris-alanlari">
                 <asp:TextBox ID="TxtResetKullaniciAdi" runat="server" placeholder="Kullanıcı Kodu"></asp:TextBox>
+            </div>
+            <div class="turnstile-alani">
+                <div id="turnstileWidget" runat="server" class="cf-turnstile"></div>
             </div>
             <div class="buton-aksiyonu">
                 <asp:Button ID="btnSifirla" runat="server" Text="Sıfırla" CssClass="sifirla-butonu" OnClick="btnSifirla_Click" />

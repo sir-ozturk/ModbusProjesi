@@ -1,48 +1,65 @@
 ﻿using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-    public partial class SifremiUnuttum : System.Web.UI.Page
-    {
-        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+public partial class SifremiUnuttum : System.Web.UI.Page
+{
+    VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
 
-        protected void Page_Load(object sender, EventArgs e)
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!Page.IsPostBack)
         {
-            if (Session["GeciciSifre"] != null)
-            {
-                lblYeniSifre.Text = "Geçici Şifreniz: " + Session["GeciciSifre"].ToString();
-                Session["GeciciSifre"] = null;
-            }
+            string siteKey = ConfigurationManager.AppSettings["TurnstileSiteKey"];
+            turnstileWidget.Attributes["data-sitekey"] = siteKey;
         }
 
-        protected void btnSifirla_Click(object sender, EventArgs e)
+        if (Session["GeciciSifre"] != null)
         {
-            string resetMail = TxtResetMail.Text.Trim();
-            string resetKullaniciAdi = TxtResetKullaniciAdi.Text.Trim();
+            lblYeniSifre.Text = "Geçici Şifreniz: " + Session["GeciciSifre"].ToString();
+            Session["GeciciSifre"] = null;
+        }
+    }
 
-            if (string.IsNullOrEmpty(resetMail) || string.IsNullOrEmpty(resetKullaniciAdi))
+    protected void btnSifirla_Click(object sender, EventArgs e)
+    {
+        string resetMail = TxtResetMail.Text.Trim();
+        string resetKullaniciAdi = TxtResetKullaniciAdi.Text.Trim();
+
+        if (string.IsNullOrEmpty(resetMail) || string.IsNullOrEmpty(resetKullaniciAdi))
+        {
+            Response.Write("<script>alert('Lütfen email ve kullanıcı kodu alanlarını doldurunuz!');</script>");
+            return;
+        }
+
+        string token = Request.Form["cf-turnstile-response"];
+
+        TurnstileIslemleri turnstileIslemleri = new TurnstileIslemleri();
+
+        if (!turnstileIslemleri.Dogrula(token, Request.UserHostAddress))
+        {
+            Response.Write("<script>alert('Lütfen robot olmadığınızı doğrulayınız!');</script>");
+            return;
+        }
+
+        try
+        {
+            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+            Kullanicilar kullanicilar = new Kullanicilar(veritabaniIslemleri);
+
+            kullanicilar.KullaniciAdi = resetKullaniciAdi;
+            kullanicilar.Mail = resetMail;
+
+            if (kullanicilar.SifreKontrol())
             {
-                Response.Write("<script>alert('Lütfen email ve kullanıcı kodu alanlarını doldurunuz!');</script>");
-                return;
-            }
+                Random random = new Random();
 
-            try
-            {
-                veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-                Kullanicilar kullanicilar = new Kullanicilar(veritabaniIslemleri);
-
-                kullanicilar.KullaniciAdi = resetKullaniciAdi;
-                kullanicilar.Mail = resetMail;
-
-                if (kullanicilar.SifreKontrol())
-                {
-                    Random random = new Random();
-
-                    string[] harfler =
-                    {"A", "B", "C", "D", "E", "F", "G", "H",
+                string[] harfler =
+                {"A", "B", "C", "D", "E", "F", "G", "H",
                      "I", "J", "K", "L", "M", "N", "O", "P",
                      "Q", "R", "S", "T", "U", "V", "W", "X",
                      "Y", "Z",
@@ -52,37 +69,37 @@ using System.Web.UI.WebControls;
                      "y", "z"
                     };
 
-                    string[] karakterler = { "!", "?", "*", "-", "_", "+", "#", "$" };
+                string[] karakterler = { "!", "?", "*", "-", "_", "+", "#", "$" };
 
-                    string rastgeleHarf1 = harfler[random.Next(0, harfler.Length)];
-                    string rastgeleHarf2 = harfler[random.Next(0, harfler.Length)];
-                    string rastgeleHarf3 = harfler[random.Next(0, harfler.Length)];
-                    string rastgeleHarf4 = harfler[random.Next(0, harfler.Length)];
+                string rastgeleHarf1 = harfler[random.Next(0, harfler.Length)];
+                string rastgeleHarf2 = harfler[random.Next(0, harfler.Length)];
+                string rastgeleHarf3 = harfler[random.Next(0, harfler.Length)];
+                string rastgeleHarf4 = harfler[random.Next(0, harfler.Length)];
 
-                    string rastgeleKarakter = karakterler[random.Next(0, karakterler.Length)];
+                string rastgeleKarakter = karakterler[random.Next(0, karakterler.Length)];
 
-                    int rastgeleSayi = random.Next(1000, 999999);
+                int rastgeleSayi = random.Next(1000, 999999);
 
-                    string yeniSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
+                string yeniSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
 
-                    kullanicilar.Sifre = yeniSifre;
-                    kullanicilar.GuncelleyenId = kullanicilar.Id;
-                    kullanicilar.GuncelleyenIp = Request.UserHostAddress;
+                kullanicilar.Sifre = yeniSifre;
+                kullanicilar.GuncelleyenId = kullanicilar.Id;
+                kullanicilar.GuncelleyenIp = Request.UserHostAddress;
 
-                    kullanicilar.SifreGuncelle();
-                    Session["GeciciSifre"] = yeniSifre;
-                    Response.Redirect("~/Pages/SifremiUnuttum.aspx",false);
-                    Context.ApplicationInstance.CompleteRequest();
-                    return;
-                }
-                else
-                {
-                    Response.Write("<script>alert('Kullanıcı kodu veya mail hatalı!');</script>");
-                }
+                kullanicilar.SifreGuncelle();
+                Session["GeciciSifre"] = yeniSifre;
+                Response.Redirect("~/Pages/SifremiUnuttum.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+                return;
             }
-            catch (Exception ex)
+            else
             {
-                Response.Write("<script>alert('Şifre Sıfırlama Hatası: " + ex.Message + "');</script>");
+                Response.Write("<script>alert('Kullanıcı kodu veya mail hatalı!');</script>");
             }
         }
+        catch (Exception ex)
+        {
+            Response.Write("<script>alert('Şifre Sıfırlama Hatası: " + ex.Message + "');</script>");
+        }
     }
+}

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Configuration;
 
 public partial class Login : System.Web.UI.Page
 {
@@ -11,6 +12,11 @@ public partial class Login : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
 
+        if (!Page.IsPostBack)
+        {
+            string siteKey = ConfigurationManager.AppSettings["TurnstileSiteKey"];
+            turnstileWidget.Attributes["data-sitekey"] = siteKey;
+        }
     }
 
     protected void btnGiris_Click(object sender, EventArgs e)
@@ -20,6 +26,16 @@ public partial class Login : System.Web.UI.Page
             Response.Write("<script>alert('Lütfen kullanıcı adı ve şifre giriniz!');</script>");
             return;
         }
+
+        string token = Request.Form["cf-turnstile-response"];
+        TurnstileIslemleri turnstileIslemleri = new TurnstileIslemleri();
+
+        if (!turnstileIslemleri.Dogrula(token, Request.UserHostAddress))
+        {
+            Response.Write("<script>alert('Lütfen robot olmadığınızı doğrulayınız!');</script>");
+            return;
+        }
+
 
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
 
