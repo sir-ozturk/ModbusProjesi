@@ -1,7 +1,7 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="KullaniciEkle.aspx.cs" Inherits="KullaniciEkle" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <link href="../Styles/KullaniciEkle.css?v=1" rel="stylesheet" />
+    <link href="../Styles/KullaniciEkle.css?v=3" rel="stylesheet" />
     <script src="../Scripts/KullaniciEkleZamanlayici.js"></script>
     <script src="../Scripts/KullaniciEkleTelefonMaskeleme.js"></script>
 </asp:Content>
@@ -15,10 +15,6 @@
                 <p>Kullanıcı bilgilerini düzenleyin veya yeni kayıt oluşturun</p>
             </div>
         </div>
-
-        <asp:Panel ID="pnlMesaj" runat="server" Visible="false" CssClass="mesaj-kutusu">
-            <asp:Label ID="lblMesaj" runat="server" Text=""></asp:Label>
-        </asp:Panel>
 
         <div class="form-kart">
 

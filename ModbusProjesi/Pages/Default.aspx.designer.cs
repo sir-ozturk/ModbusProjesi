@@ -7,11 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ModbusProjesi
+
+
+public partial class Default
 {
-
-
-    public partial class Default
-    {
-    }
 }

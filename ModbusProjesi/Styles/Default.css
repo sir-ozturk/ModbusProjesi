@@ -24,6 +24,7 @@
     box-sizing: border-box;
     background-color: white;
     min-height: 100vh;
+    width: calc(100% - 260px);
 }
 
 .logo-alani {
@@ -141,4 +142,57 @@
 
     .btn-cikis:hover {
         background-color: #f13838;
+    }
+
+.grid-sayfalama {
+    background-color: transparent !important;
+}
+
+    .grid-sayfalama table {
+        margin: 15px auto 0 auto;
+    }
+
+    .grid-sayfalama td {
+        padding: 3px !important;
+        border: none !important;
+    }
+
+    .grid-sayfalama a,
+    .grid-sayfalama span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .grid-sayfalama a {
+        background-color: cadetblue;
+        color: darkblue;
+    }
+
+        .grid-sayfalama a:hover {
+            background-color: darkcyan;
+            color: white;
+        }
+
+    .grid-sayfalama span {
+        background-color: darkblue;
+        color: white;
+    }
+
+.grid-siralama-link {
+    color: darkblue !important;
+    text-decoration: none !important;
+    font-weight: 700;
+}
+
+    .grid-siralama-link:hover {
+        color: darkblue !important;
+        text-decoration: none !important;
     }

@@ -23,7 +23,7 @@ public partial class Login : System.Web.UI.Page
     {
         if (string.IsNullOrEmpty(txtKullaniciAdi.Text) || string.IsNullOrEmpty(txtSifre.Text))
         {
-            Response.Write("<script>alert('Lütfen kullanıcı adı ve şifre giriniz!');</script>");
+            Mesaj.Ver(Mesajlar.KullaniciAdiVeSifreGiriniz, Mesaj.MesajTurleri.WARNING, Page);
             return;
         }
 
@@ -32,7 +32,7 @@ public partial class Login : System.Web.UI.Page
 
         if (!turnstileIslemleri.Dogrula(token, Request.UserHostAddress))
         {
-            Response.Write("<script>alert('Lütfen robot olmadığınızı doğrulayınız!');</script>");
+            Mesaj.Ver(Mesajlar.RobotDogrulamasiYapiniz, Mesaj.MesajTurleri.WARNING, Page);
             return;
         }
 
@@ -71,12 +71,12 @@ public partial class Login : System.Web.UI.Page
             }
             else
             {
-                Response.Write("<script>alert('Kullanıcı adı veya şifre hatalı!');</script>");
+                Mesaj.Ver(Mesajlar.KullaniciAdiVeyaSifreHatali, Mesaj.MesajTurleri.FAIL, Page);
             }
         }
         catch (Exception ex)
         {
-            Response.Write("<script>alert('Giriş Hatası: " + ex.Message + "');</script>");
+            Mesaj.Ver(Mesajlar.GirisHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page);
         }
         finally
         {

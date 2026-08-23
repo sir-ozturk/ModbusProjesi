@@ -22,6 +22,42 @@ public partial class SifremiUnuttum
     protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
     /// <summary>
+    /// lbl_success control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lbl_success;
+
+    /// <summary>
+    /// lbl_error control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lbl_error;
+
+    /// <summary>
+    /// lbl_info control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lbl_info;
+
+    /// <summary>
+    /// lbl_warning control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lbl_warning;
+
+    /// <summary>
     /// loginLogo control.
     /// </summary>
     /// <remarks>
@@ -65,13 +101,4 @@ public partial class SifremiUnuttum
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.Button btnSifirla;
-
-    /// <summary>
-    /// lblYeniSifre control.
-    /// </summary>
-    /// <remarks>
-    /// Auto-generated field.
-    /// To modify move field declaration from designer file to code-behind file.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Label lblYeniSifre;
 }

@@ -46,6 +46,8 @@
   <ItemGroup>
     <Compile Include="Entity\Kullanicilar.cs" />
     <Compile Include="Work\CurrentInfo.cs" />
+    <Compile Include="Work\Mesaj.cs" />
+    <Compile Include="Work\Mesajlar.cs" />
     <Compile Include="Work\OrtakAlanlar.cs" />
     <Compile Include="Entity\Roller.cs" />
     <Compile Include="Interfaces\IOrtakMetotlar.cs" />
@@ -53,6 +55,7 @@
     <Compile Include="Work\DosyaIslemleri.cs" />
     <Compile Include="Work\Sessionlar.cs" />
     <Compile Include="Work\TurnstileIslemleri.cs" />
+    <Compile Include="Work\Utility.cs" />
     <Compile Include="Work\VeritabaniIslemleri.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

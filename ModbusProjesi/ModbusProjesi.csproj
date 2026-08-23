@@ -88,6 +88,7 @@
     <Content Include="Styles\KullaniciListele.css" />
     <Content Include="Styles\Login.css" />
     <Content Include="Styles\SifremiUnuttum.css" />
+    <Content Include="UserControls\ucMyGrid.ascx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +163,13 @@
       <DependentUpon>SifremiUnuttum.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserControls\ucMyGrid.ascx.cs">
+      <DependentUpon>ucMyGrid.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucMyGrid.ascx.designer.cs">
+      <DependentUpon>ucMyGrid.ascx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="MasterPages\MasterPage.Master" />

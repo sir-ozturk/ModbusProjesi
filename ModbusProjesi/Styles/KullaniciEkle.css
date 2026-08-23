@@ -2,7 +2,6 @@
     width: 100%;
     max-width: 700px;
     margin: 0 auto;
-    margin-left: 100%;
 }
 
 .sayfa-ust-alan {
@@ -23,24 +22,6 @@
 .baslik p {
     color: red;
     font-size: 20px;
-}
-
-.mesaj-kutusu {
-    padding: 15px 20px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-size: 20px;
-    font-weight: 500;
-}
-
-.basarili {
-    background-color: rgba(35, 134, 54, 0.15);
-    color: green;
-}
-
-.basarisiz {
-    background-color: rgba(218, 54, 55, 0.15);
-    color: red;
 }
 
 .form-kart {

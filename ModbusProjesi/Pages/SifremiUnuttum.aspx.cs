@@ -20,8 +20,9 @@ public partial class SifremiUnuttum : System.Web.UI.Page
 
         if (Session["GeciciSifre"] != null)
         {
-            lblYeniSifre.Text = "Geçici Şifreniz: " + Session["GeciciSifre"].ToString();
-            Session["GeciciSifre"] = null;
+            string geciciSifreMesaji = Mesajlar.GeciciSifreBaslik + "<b>" + Session["GeciciSifre"].ToString() + "</b>";
+            Mesaj.Ver(geciciSifreMesaji, Mesaj.MesajTurleri.SUCCESS, Page);
+            Session.Remove("GeciciSifre");
         }
     }
 
@@ -32,7 +33,7 @@ public partial class SifremiUnuttum : System.Web.UI.Page
 
         if (string.IsNullOrEmpty(resetMail) || string.IsNullOrEmpty(resetKullaniciAdi))
         {
-            Response.Write("<script>alert('Lütfen email ve kullanıcı kodu alanlarını doldurunuz!');</script>");
+            Mesaj.Ver(Mesajlar.EmailVeKullaniciKoduDoldurunuz, Mesaj.MesajTurleri.WARNING, Page);
             return;
         }
 
@@ -42,7 +43,7 @@ public partial class SifremiUnuttum : System.Web.UI.Page
 
         if (!turnstileIslemleri.Dogrula(token, Request.UserHostAddress))
         {
-            Response.Write("<script>alert('Lütfen robot olmadığınızı doğrulayınız!');</script>");
+            Mesaj.Ver(Mesajlar.RobotDogrulamasiYapiniz, Mesaj.MesajTurleri.WARNING, Page);
             return;
         }
 
@@ -56,31 +57,7 @@ public partial class SifremiUnuttum : System.Web.UI.Page
 
             if (kullanicilar.SifreKontrol())
             {
-                Random random = new Random();
-
-                string[] harfler =
-                {"A", "B", "C", "D", "E", "F", "G", "H",
-                     "I", "J", "K", "L", "M", "N", "O", "P",
-                     "Q", "R", "S", "T", "U", "V", "W", "X",
-                     "Y", "Z",
-                     "a", "b", "c", "d", "e", "f", "g", "h",
-                     "i", "j", "k", "l", "m", "n", "o", "p",
-                     "q", "r", "s", "t", "u", "v", "w", "x",
-                     "y", "z"
-                    };
-
-                string[] karakterler = { "!", "?", "*", "-", "_", "+", "#", "$" };
-
-                string rastgeleHarf1 = harfler[random.Next(0, harfler.Length)];
-                string rastgeleHarf2 = harfler[random.Next(0, harfler.Length)];
-                string rastgeleHarf3 = harfler[random.Next(0, harfler.Length)];
-                string rastgeleHarf4 = harfler[random.Next(0, harfler.Length)];
-
-                string rastgeleKarakter = karakterler[random.Next(0, karakterler.Length)];
-
-                int rastgeleSayi = random.Next(1000, 999999);
-
-                string yeniSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
+                string yeniSifre = Utility.RastgeleSifreOlustur();
 
                 kullanicilar.Sifre = yeniSifre;
                 kullanicilar.GuncelleyenId = kullanicilar.Id;
@@ -94,12 +71,16 @@ public partial class SifremiUnuttum : System.Web.UI.Page
             }
             else
             {
-                Response.Write("<script>alert('Kullanıcı kodu veya mail hatalı!');</script>");
+                Mesaj.Ver(Mesajlar.KullaniciKoduVeyaMailHatali, Mesaj.MesajTurleri.FAIL, Page);
             }
         }
         catch (Exception ex)
         {
-            Response.Write("<script>alert('Şifre Sıfırlama Hatası: " + ex.Message + "');</script>");
+            Mesaj.Ver(Mesajlar.SifreSifirlamaHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page);
+        }
+        finally
+        {
+            veritabaniIslemleri.Bitir();
         }
     }
 }

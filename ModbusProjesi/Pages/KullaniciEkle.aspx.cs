@@ -24,10 +24,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
 
                 if (Session["BasariMesaji"] != null)
                 {
-                    pnlMesaj.Visible = true;
-                    pnlMesaj.CssClass = "mesaj-kutusu basarili";
-                    lblMesaj.Text = Session["BasariMesaji"].ToString();
-
+                    Mesaj.Ver(Session["BasariMesaji"].ToString(), Mesaj.MesajTurleri.SUCCESS, Page.Master);
                     Session.Remove("BasariMesaji");
                 }
 
@@ -57,19 +54,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
 
                     txtAd.Text = kullanicilar.Ad;
                     txtSoyad.Text = kullanicilar.Soyad;
-                    if (!string.IsNullOrEmpty(kullanicilar.Telefon) &&
-                        kullanicilar.Telefon.Length == 10)
-                    {
-                        txtTelefon.Text =
-                            kullanicilar.Telefon.Substring(0, 3) + "-" +
-                            kullanicilar.Telefon.Substring(3, 3) + "-" +
-                            kullanicilar.Telefon.Substring(6, 2) + "-" +
-                            kullanicilar.Telefon.Substring(8, 2);
-                    }
-                    else
-                    {
-                        txtTelefon.Text = kullanicilar.Telefon;
-                    }
+                    txtTelefon.Text = Utility.TelefonFormatla(kullanicilar.Telefon);
                     txtMail.Text = kullanicilar.Mail;
                     txtKullaniciAdi.Text = kullanicilar.KullaniciAdi;
                     txtSifre.Text = kullanicilar.Sifre;
@@ -95,10 +80,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
             }
             catch (Exception ex)
             {
-                pnlMesaj.Visible = true;
-                pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-
-                lblMesaj.Text = "Veriler yüklenirken hata oluştu: " + ex.Message;
+                Mesaj.Ver(Mesajlar.VeriYuklemeHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page.Master);
             }
             finally
             {
@@ -117,9 +99,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
             ddlRoller.SelectedValue == "0" ||
             ddlAktiflik.SelectedValue == "Seçiniz...")
         {
-            pnlMesaj.Visible = true;
-            pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-            lblMesaj.Text = "Lütfen tüm alanları eksiksiz doldurunuz, rol ve aktiflik durumu seçiniz!";
+            Mesaj.Ver(Mesajlar.TumAlanlariDoldurunuz, Mesaj.MesajTurleri.WARNING, Page.Master);
 
             return;
         }
@@ -140,9 +120,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
                 uzanti != ".jpeg" &&
                 uzanti != ".png")
             {
-                pnlMesaj.Visible = true;
-                pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-                lblMesaj.Text = "Lütfen sadece .jpg, .jpeg veya .png uzantılı fotoğraflar seçiniz.";
+                Mesaj.Ver(Mesajlar.GecerliProfilResmiSeciniz, Mesaj.MesajTurleri.WARNING, Page.Master);
 
                 return;
             }
@@ -177,9 +155,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
             {
                 veritabaniIslemleri.GeriAl();
 
-                pnlMesaj.Visible = true;
-                pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-                lblMesaj.Text = "Bu mail adresi veya telefon numarası daha önce kullanılmıştır.";
+                Mesaj.Ver(Mesajlar.KayitZatenMevcut, Mesaj.MesajTurleri.WARNING, Page.Master);
 
                 return;
             }
@@ -218,38 +194,14 @@ public partial class KullaniciEkle : System.Web.UI.Page
                 {
                     sonuc = true;
 
-                    Session["BasariMesaji"] = "Kullanıcı başarıyla güncellendi.";
+                    Session["BasariMesaji"] = Mesajlar.KullaniciBasariylaGuncellendi;
                 }
             }
 
             // YENİ KULLANICI EKLEME
             else
             {
-                Random random = new Random();
-
-                string[] harfler =
-                {"A", "B", "C", "D", "E", "F", "G", "H",
-                     "I", "J", "K", "L", "M", "N", "O", "P",
-                     "Q", "R", "S", "T", "U", "V", "W", "X",
-                     "Y", "Z",
-                     "a", "b", "c", "d", "e", "f", "g", "h",
-                     "i", "j", "k", "l", "m", "n", "o", "p",
-                     "q", "r", "s", "t", "u", "v", "w", "x",
-                     "y", "z"
-                    };
-
-                string[] karakterler = { "!", "?", "*", "-", "_", "+", "#", "$" };
-
-                string rastgeleHarf1 = harfler[random.Next(0, harfler.Length)];
-                string rastgeleHarf2 = harfler[random.Next(0, harfler.Length)];
-                string rastgeleHarf3 = harfler[random.Next(0, harfler.Length)];
-                string rastgeleHarf4 = harfler[random.Next(0, harfler.Length)];
-
-                string rastgeleKarakter = karakterler[random.Next(0, karakterler.Length)];
-
-                int rastgeleSayi = random.Next(1000, 999999);
-
-                string geciciSifre = rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
+                string geciciSifre = Utility.RastgeleSifreOlustur();
 
                 kullanicilar.Sifre = geciciSifre;
                 kullanicilar.Ad = txtAd.Text.Trim();
@@ -274,7 +226,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
                     {
                         sonuc = true;
 
-                        Session["BasariMesaji"] = "Kullanıcı başarıyla eklendi.<br/>" + "Kullanıcı Adı: <b>" + kullanicilar.KullaniciAdi + "</b><br/>" + "Geçici Şifre: <b>" + geciciSifre + "</b>";
+                        Session["BasariMesaji"] = Mesajlar.KullaniciBasariylaEklendi + "<br/>" + Mesajlar.KullaniciAdiBaslik + "<b>" + kullanicilar.KullaniciAdi + "</b><br/>" + Mesajlar.GeciciSifreBaslik + "<b>" + geciciSifre + "</b>";
                     }
                 }
             }
@@ -296,9 +248,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
             {
                 veritabaniIslemleri.GeriAl();
 
-                pnlMesaj.Visible = true;
-                pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-                lblMesaj.Text = "İşlem gerçekleştirilemedi.";
+                Mesaj.Ver(Mesajlar.IslemGerceklestirilemedi, Mesaj.MesajTurleri.FAIL, Page.Master);
             }
         }
         catch (Exception ex)
@@ -306,10 +256,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
             // İşlemlerden herhangi biri hata verirse
             // yapılan SQL işlemlerini geri al.
             veritabaniIslemleri.GeriAl();
-
-            pnlMesaj.Visible = true;
-            pnlMesaj.CssClass = "mesaj-kutusu basarisiz";
-            lblMesaj.Text = "Hata Oluştu: " + ex.Message;
+            Mesaj.Ver(Mesajlar.GenelHata + ex.Message, Mesaj.MesajTurleri.FAIL, Page.Master);
         }
         finally
         {

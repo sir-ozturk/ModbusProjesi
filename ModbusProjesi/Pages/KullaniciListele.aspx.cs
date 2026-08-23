@@ -7,12 +7,30 @@ using System.Web.UI.WebControls;
 
 public partial class KullaniciListele : System.Web.UI.Page
 {
+    protected void Page_Init(object sender, EventArgs e)
+    {
+        GridHazirla();
+    }
+
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (Page.IsPostBack == false)
         {
             Listele();
         }
+    }
+
+    private void GridHazirla()
+    {
+        ucMyGrid.KolonEkle(Kullanicilar.C_Sutun_id, "ID");
+        ucMyGrid.KolonEkle(Kullanicilar.C_Sutun_kullanici_adi, "Kullanıcı Adı");
+        ucMyGrid.BirlesikKolonEkle("Ad Soyad", Kullanicilar.C_Sutun_ad, Kullanicilar.C_Sutun_soyad);
+        ucMyGrid.FormatliKolonEkle(Kullanicilar.C_Sutun_telefon, "Telefon", ucMyGrid.FormatTip.TELEFON);
+        ucMyGrid.KolonEkle(Kullanicilar.C_Sutun_mail, "Mail");
+        ucMyGrid.KolonEkle(Roller.C_Sutun_rol_adi, "Rol Adı");
+        ucMyGrid.DurumKolonEkle(Kullanicilar.C_Sutun_aktif_mi, "Durum", "Aktif", "Pasif");
+        ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE, ucMyGrid.ButonTip.SIL);
     }
 
     private void Listele()
@@ -24,12 +42,12 @@ public partial class KullaniciListele : System.Web.UI.Page
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
             Kullanicilar kullanicilar = new Kullanicilar(veritabaniIslemleri);
             kullanicilar.TumunuGetir();
-            repeaterKullanicilar.DataSource = kullanicilar.VeriTablosu;
-            repeaterKullanicilar.DataBind();
+
+            ucMyGrid.Doldur(kullanicilar.VeriTablosu);
         }
         catch (Exception ex)
         {
-            Response.Write("<script>alert('Listeleme Hatası: " + ex.Message + "');</script>");
+            Mesaj.Ver(Mesajlar.ListelemeHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page.Master);
         }
         finally
         {
@@ -37,51 +55,39 @@ public partial class KullaniciListele : System.Web.UI.Page
         }
     }
 
-    public string TelefonFormatla(object telefonObj)
+    protected void ucMyGrid_ButonTiklandi(object sender, ucMyGrid.MyGridButonEventArgs e)
     {
-        if (telefonObj == null || telefonObj == DBNull.Value)
-            return string.Empty;
-
-        string telefon = telefonObj.ToString();
-
-        if (telefon.Length != 10)
+        if (e.ButonTip == ucMyGrid.ButonTip.GUNCELLE)
         {
-            return telefon;
+            Response.Redirect("~/Pages/KullaniciEkle.aspx?id=" + e.Id, false);
+
+            Context.ApplicationInstance.CompleteRequest();
+            return;
         }
 
-        return telefon.Substring(0, 3) + "-" +
-               telefon.Substring(3, 3) + "-" +
-               telefon.Substring(6, 2) + "-" +
-               telefon.Substring(8, 2);
-    }
-
-    protected void btnTabloSil_Click(object sender, EventArgs e)
-    {
-        // Tıklanan satırdaki LinkButton'ı yakalıyoruz
-        LinkButton linkButton = (LinkButton)sender;
-
-        // Butonun içine gizlediğimiz ID değerini alıyoruz
-        int Id = Convert.ToInt32(linkButton.CommandArgument);
-
-        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
-        try
+        if (e.ButonTip == ucMyGrid.ButonTip.SIL)
         {
-            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-            Kullanicilar kullanicilar = new Kullanicilar(veritabaniIslemleri);
-            kullanicilar.Id = Id;
-            kullanicilar.Sil();
-        }
-        catch (Exception ex)
-        {
-            Response.Write("<script>alert('Silme Hatası : " + ex.Message + "');</script>");
-        }
-        finally
-        {
-            veritabaniIslemleri.Bitir();
-        }
+            VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
 
-        Listele();
+            try
+            {
+                veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
 
+                Kullanicilar kullanicilar = new Kullanicilar(veritabaniIslemleri);
+
+                kullanicilar.Id = e.Id;
+                kullanicilar.Sil();
+            }
+            catch (Exception ex)
+            {
+                Mesaj.Ver(Mesajlar.SilmeHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page.Master);
+            }
+            finally
+            {
+                veritabaniIslemleri.Bitir();
+            }
+
+            Listele();
+        }
     }
 }
