@@ -358,6 +358,7 @@ public partial class ucMyGrid : System.Web.UI.UserControl
                         buton.Text = "<i class='fa-solid fa-trash-can'></i> Sil";
                         buton.CommandName = "SIL";
                         buton.CssClass = "btn btn-danger btn-sm me-2";
+                        buton.OnClientClick = "silOnayiGoster(this); return false;";
                         break;
 
                     case ButonTip.DETAY:

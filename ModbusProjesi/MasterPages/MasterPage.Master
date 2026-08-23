@@ -4,17 +4,28 @@
 
 <html>
 <head runat="server">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>MODBUS : Ana Sayfa</title>
-    <link href="../Styles/Default.css?v=5" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
+    <link href="../Styles/Default.css?v=6" rel="stylesheet" />
+
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
+
 </head>
+
 <body>
+
     <form id="form1" runat="server">
+
         <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+
             <div id="toastMesaj" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+
                 <div class="toast-header">
                     <strong id="toastBaslik" class="me-auto">Bildirim</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Kapat"></button>
@@ -26,82 +37,150 @@
                     <asp:Label ID="lbl_info" runat="server"></asp:Label>
                     <asp:Label ID="lbl_warning" runat="server"></asp:Label>
                 </div>
+
             </div>
+
         </div>
-        <div class="panel-konteyner">
 
-            <div class="sol-panel">
+        <div class="d-flex min-vh-100">
 
-                <div class="logo-alani">
+            <aside class="sol-panel d-flex flex-column position-fixed top-0 start-0 h-100 px-3 py-3">
+
+                <a href="/Default.aspx" class="d-flex align-items-center pb-4 text-decoration-none">
                     <asp:Image ID="Image1" runat="server" ImageUrl="~/Files/Images/LoginSayfasi_1.png" CssClass="anasayfa-img" />
-                    <span class="logo-metin">MODBUS</span>
-                </div>
+                    <span class="logo-metin fw-bold ms-3">MODBUS</span>
+                </a>
 
-                <div class="menu-konteyner">
+                <div class="d-flex flex-column mt-2">
 
-                    <div class="menu-grup">
-                        <a href="Default.aspx" class="anasayfa-link">
-                            <span class="menu-ikon"><i class="fa-solid fa-house"></i></span>
-                            <span class="menu-metin">Anasayfa</span>
+                    <div class="mb-3">
+
+                        <a href="/Default.aspx" class="menu-ana-link d-flex align-items-center text-decoration-none">
+
+                            <span class="me-2">
+                                <i class="fa-solid fa-house"></i>
+                            </span>
+
+                            <span>Anasayfa</span>
+
                         </a>
+
                     </div>
 
-                    <div class="menu-grup">
-                        <div class="grup-baslik">
-                            <span class="menu-ikon"><i class="fa-solid fa-gears"></i></span>
-                            <span class="menu-metin font-bold">Makine İşlemleri</span>
+                    <div class="mb-3">
+
+                        <div class="menu-grup-baslik d-flex align-items-center">
+
+                            <span class="me-2">
+                                <i class="fa-solid fa-gears"></i>
+                            </span>
+
+                            <span class="fw-bold">Makine İşlemleri</span>
+
                         </div>
-                        <ul class="alt-menu">
-                            <li><a href="MakineEkle.aspx">➖ Makine Ekle</a></li>
-                            <li><a href="MakineListele.aspx">➖ Makine Listele</a></li>
+
+                        <ul class="list-unstyled mb-0 ps-4">
+
+                            <li>
+                                <a href="/Pages/MakineEkle.aspx" class="alt-menu-link text-decoration-none">➖ Makine Ekle
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/Pages/MakineListele.aspx" class="alt-menu-link text-decoration-none">➖ Makine Listele
+                                </a>
+                            </li>
+
                         </ul>
+
                     </div>
 
-                    <div class="menu-grup">
-                        <div class="grup-baslik">
-                            <span class="menu-ikon"><i class="fa-solid fa-user"></i></span>
-                            <span class="menu-metin font-bold">Kullanıcı İşlemleri</span>
+                    <div class="mb-3">
+
+                        <div class="menu-grup-baslik d-flex align-items-center">
+
+                            <span class="me-2">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+
+                            <span class="fw-bold">Kullanıcı İşlemleri</span>
+
                         </div>
-                        <ul class="alt-menu">
-                            <li><a href="/Pages/KullaniciEkle.aspx">➖ Kullanıcı Ekle</a></li>
-                            <li><a href="/Pages/KullaniciListele.aspx">➖ Kullanıcı Listele</a></li>
+
+                        <ul class="list-unstyled mb-0 ps-4">
+
+                            <li>
+                                <a href="/Pages/KullaniciEkle.aspx" class="alt-menu-link text-decoration-none">➖ Kullanıcı Ekle
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/Pages/KullaniciListele.aspx" class="alt-menu-link text-decoration-none">➖ Kullanıcı Listele
+                                </a>
+                            </li>
+
                         </ul>
+
                     </div>
 
-                    <div class="menu-grup">
-                        <div class="grup-baslik">
-                            <span class="menu-ikon"><i class="fa-solid fa-chart-simple"></i></span>
-                            <span class="menu-metin font-bold">Raporlar</span>
+                    <div class="mb-3">
+
+                        <div class="menu-grup-baslik d-flex align-items-center">
+
+                            <span class="me-2">
+                                <i class="fa-solid fa-chart-simple"></i>
+                            </span>
+
+                            <span class="fw-bold">Raporlar</span>
+
                         </div>
-                        <ul class="alt-menu">
-                            <li><a href="LogListesi.aspx">➖ Log Listesi</a></li>
+
+                        <ul class="list-unstyled mb-0 ps-4">
+
+                            <li>
+                                <a href="/Pages/LogListesi.aspx" class="alt-menu-link text-decoration-none">➖ Log Listesi
+                                </a>
+                            </li>
+
                         </ul>
+
                     </div>
 
                 </div>
 
-                <div class="profil-alani">
-                    <div class="profil-bilgi">
+                <div class="mt-auto pt-3">
+
+                    <div class="d-flex align-items-center gap-2 mb-3">
 
                         <div class="sol-menu-pp-kutusu">
+
                             <asp:Image ID="imgSolMenuProfil" runat="server" ImageUrl="../Files/no-image.png" CssClass="sol-menu-pp-resim" />
+
                         </div>
 
-                        <asp:Label ID="lblGirisYapanKullanici" runat="server" Text="Misafir" CssClass="menu-metin profil-isim"></asp:Label>
+                        <asp:Label ID="lblGirisYapanKullanici" runat="server" Text="Misafir" CssClass="profil-isim fw-bold"></asp:Label>
+
                     </div>
-                    <asp:Button ID="btnCikis" runat="server" Text="Çıkış Yap" CssClass="btn-cikis" OnClick="btnCikis_Click" />
+
+                    <asp:Button ID="btnCikis" runat="server" Text="Çıkış Yap" CssClass="btn btn-danger w-100 fw-bold" OnClick="btnCikis_Click" />
+
                 </div>
 
-            </div>
+            </aside>
 
-            <div class="icerik-alani">
+            <main class="icerik-alani min-vh-100">
+
                 <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
                 </asp:ContentPlaceHolder>
-            </div>
+
+            </main>
 
         </div>
+
     </form>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var success = document.getElementById("<%= lbl_success.ClientID %>");
@@ -115,6 +194,7 @@
             if (success && success.innerText.trim() !== "") {
                 toastBaslik.innerText = "Başarılı";
                 toastElement.classList.add("text-bg-success");
+
                 var toast = new bootstrap.Toast(toastElement, {
                     autohide: true,
                     delay: 10000
@@ -125,6 +205,7 @@
             else if (error && error.innerText.trim() !== "") {
                 toastBaslik.innerText = "Hata";
                 toastElement.classList.add("text-bg-danger");
+
                 var toast = new bootstrap.Toast(toastElement, {
                     autohide: true,
                     delay: 10000
@@ -135,6 +216,7 @@
             else if (info && info.innerText.trim() !== "") {
                 toastBaslik.innerText = "Bilgi";
                 toastElement.classList.add("text-bg-info");
+
                 var toast = new bootstrap.Toast(toastElement, {
                     autohide: true,
                     delay: 10000
@@ -145,6 +227,7 @@
             else if (warning && warning.innerText.trim() !== "") {
                 toastBaslik.innerText = "Uyarı";
                 toastElement.classList.add("text-bg-warning");
+
                 var toast = new bootstrap.Toast(toastElement, {
                     autohide: true,
                     delay: 10000
@@ -154,5 +237,6 @@
             }
         });
     </script>
+
 </body>
 </html>

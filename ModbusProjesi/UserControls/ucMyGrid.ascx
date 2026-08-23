@@ -52,6 +52,58 @@
 
         </asp:GridView>
 
-    </div>
+        <div class="modal fade" id="silOnayModal" tabindex="-1" aria-labelledby="silOnayModalBaslik" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
 
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="silOnayModalBaslik">Silme Onayı</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        Bu kaydı silmek istediğinize emin misiniz?
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="button" class="btn btn-danger" id="btnModalSil">
+                            <i class="fa-solid fa-trash-can"></i>Sil
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    var silButonu = null;
+
+    function silOnayiGoster(buton) {
+        silButonu = buton;
+
+        var modalElement = document.getElementById("silOnayModal");
+        var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        modal.show();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var btnModalSil = document.getElementById("btnModalSil");
+
+        if (btnModalSil) {
+            btnModalSil.addEventListener("click", function () {
+                if (silButonu) {
+                    var modalElement = document.getElementById("silOnayModal");
+                    var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+                    modal.hide();
+
+                    silButonu.onclick = null;
+                    silButonu.click();
+                }
+            });
+        }
+    });
+</script>

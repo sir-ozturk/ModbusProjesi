@@ -1,142 +1,52 @@
-﻿.form-konteyner {
-    width: 100%;
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.sayfa-ust-alan {
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-}
-
-.baslik{
-    text-align:center;
-}
-
-.baslik h2 {
+﻿.text-modbus {
     color: darkblue;
-    font-size: 30px;
-    margin-bottom: 5px;
 }
 
-.baslik p {
-    color: red;
+.form-control-modbus,
+.form-select-modbus {
+    background-color: cadetblue;
+    color: white;
+    border-color: cadetblue;
     font-size: 20px;
 }
 
-.form-kart {
-    background-color: white;
-    border-radius: 8px;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /*Satırlar arası da, sütunlar arası da 20px olur */
-}
-
-.form-grup {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-}
-
-    .form-grup label {
-        color: darkblue;
-        font-size: 20px;
-        font-weight: 500;
+    .form-control-modbus:focus,
+    .form-select-modbus:focus {
+        background-color: cadetblue;
+        color: white;
+        border-color: darkblue;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 139, 0.15);
     }
 
-.form-kontrol {
-    background-color: cadetblue;
-    border-radius: 6px;
-    padding: 10px 14px;
+    .form-control-modbus::placeholder {
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+.btn-modbus-kaydet {
+    background-color: forestgreen;
     color: white;
-    font-size: 20px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
+    border-color: forestgreen;
 }
 
-.profil-onizleme-alani {
-    margin-top: 10px;
-}
+    .btn-modbus-kaydet:hover {
+        background-color: limegreen;
+        color: white;
+        border-color: limegreen;
+    }
 
 .profil-resim-kutusu {
-    width: 130px !important;
-    height: 130px !important;
-    border-radius: 50% !important;
-    border: 3px solid cadetblue !important;
-    overflow: hidden !important; /* Devasa resmi çemberin içinde tutar */
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 3px solid cadetblue;
+    overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: cadetblue;
     display: inline-block;
 }
 
 .profil-resim-onizleme {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important; /* Resmi bozmadan tam ortalar */
-}
-
-input[type="file"].form-kontrol {
-    padding: 8px 12px;
-    background-color: cadetblue;
-    color: darkblue;
-    border: 1px solid cadetblue;
-}
-
-.form-secim {
-    background-color: cadetblue;
-    border-radius: 6px;
-    padding: 10px 14px;
-    color: white;
-    font-size: 20px;
-    outline: none;
     width: 100%;
-    cursor: pointer;
-    box-sizing: border-box;
-}
-
-.form-ddl {
-    display: flex;
-    gap: 20px;
-}
-
-.form-bilgi-notu {
-    color: red;
-    padding: 12px;
-    border-radius: 6px;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.form-buton-alani {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-}
-
-.btn-kaydet {
-    background-color: forestgreen;
-    color: white;
-    border-radius: 6px;
-    padding: 12px 32px;
-    font-size: 25px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-    .btn-kaydet:hover {
-        background-color: limegreen;
-    }
-
-/* Güncelleme modunda açılan şifre alanının dikey mesafesini korur */
-#SifreGrubu {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    height: 100%;
+    object-fit: cover;
 }

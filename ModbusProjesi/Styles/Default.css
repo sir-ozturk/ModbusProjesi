@@ -1,148 +1,74 @@
-﻿.panel-konteyner {
-    display: flex;
-    min-height: 100vh;
+﻿body {
+    background-color: white;
 }
 
 .sol-panel {
     width: 260px;
     background-color: cadetblue;
     color: darkblue;
-    display: flex;
-    flex-direction: column; /* İçindeki her şeyi dikeyde alt alta hizalar */
-    position: fixed; /* Ekranın soluna tamamen sabitler */
-    top: 0;
-    left: 0;
-    bottom: 0;
-    padding: 20px 15px; /*Dikey ve yataydaki uzaklıklar*/
-    box-sizing: border-box;
     z-index: 1000;
 }
 
 .icerik-alani {
     margin-left: 260px;
+    width: calc(100% - 260px);
     padding: 30px;
     box-sizing: border-box;
     background-color: white;
-    min-height: 100vh;
-    width: calc(100% - 260px);
-}
-
-.logo-alani {
-    display: flex;
-    align-items: center;
-    margin-right:10px;
-    padding-bottom: 25px;
 }
 
 .anasayfa-img {
-    width: 50px;
-    height: 50px;
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
 }
 
 .logo-metin {
-    font-size: 30px;
-    font-weight: bold;
-    margin-left:15px;
-}
-
-.menu-konteyner {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-}
-
-.menu-ikon i{
-    margin-right: 8px;
-}
-
-.menu-grup {
-    display: flex;
-    flex-direction: column;
-    margin-right: 10px;
-    margin-bottom:15px;
-}
-
-.anasayfa-link, .grup-baslik {
-    display: flex;
-    align-items: center;
     color: darkblue;
-    text-decoration: none;
+    font-size: 30px;
+}
+
+.menu-ana-link,
+.menu-grup-baslik {
+    color: darkblue;
     font-size: 23px;
 }
 
-.alt-menu {
-    list-style: none; /*Liste görünümünü kapatır*/
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-    .alt-menu li a {
+    .menu-ana-link:hover {
         color: white;
-        text-decoration: none;
-        font-size: 20px;
-        transition: color 0.2s;
     }
 
-        .alt-menu li a:hover {
-            color: darkblue;
-        }
-
-.profil-alani {
-    margin-top: auto;
-    padding-top: 20px;
-    display: flex;
-    flex-direction: column;
+.alt-menu-link {
+    color: white;
+    font-size: 20px;
+    transition: color 0.2s;
 }
 
-.profil-bilgi {
-    display: flex;
-    align-items: center;
-    margin-right: 10px;
-    gap: 10px; 
-}
+    .alt-menu-link:hover {
+        color: darkblue;
+    }
 
 .sol-menu-pp-kutusu {
-    width: 35px !important;
-    height: 35px !important;
-    border-radius: 50% !important;
-    overflow: hidden !important;
-    border: 2px solid darkblue !important; 
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid darkblue;
     background-color: #f4f7f6;
     flex-shrink: 0;
-    display: inline-block;
 }
 
 .sol-menu-pp-resim {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     display: block;
 }
 
 .profil-isim {
-    font-size: 20px;
     color: darkblue;
-    margin-left: 5px; 
-    margin-block: 15px;
+    font-size: 20px;
 }
-
-.btn-cikis {
-    width: 100%;
-    padding: 8px;
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-    font-size:20px;
-}
-
-    .btn-cikis:hover {
-        background-color: #f13838;
-    }
 
 .grid-sayfalama {
     background-color: transparent !important;

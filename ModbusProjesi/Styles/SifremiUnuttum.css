@@ -1,74 +1,54 @@
 ﻿body {
-    margin: 0;
-    padding: 0;
     background-color: aquamarine !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
 }
 
-.giris-konteynır {
-    padding: 40px;
-    width: 450px;
-    text-align: center;
+.text-modbus {
+    color: darkblue !important;
 }
 
-.profil-img {
+.sifre-kart {
+    border-radius: 12px;
+}
+
+.sifre-logo {
     width: 150px;
     height: auto;
-    margin-bottom: 20px;
 }
 
-.baslik h2 {
-    font-size: 25px;
-    color: black;
-    font-weight: bold;
-    margin-bottom: 30px;
+.form-control-modbus {
+    background-color: cadetblue !important;
+    color: white !important;
+    border-color: cadetblue !important;
 }
 
-.giris-alanlari {
-    margin-bottom: 15px;
-}
-
-    .giris-alanlari input {
-        width: 100%;
-        padding: 12px;
-        font-size: 20px;
-        outline: none;
-        box-sizing: border-box;
-        transition: all 0.3s;
+    .form-control-modbus:focus {
+        background-color: cadetblue !important;
+        color: white !important;
+        border-color: darkblue !important;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 139, 0.15) !important;
     }
 
-.buton-aksiyonu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 25px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.sifirla-butonu {
-    width: 45%;
-    padding: 12px;
-    background-color: cornflowerblue;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-    .sifirla-butonu:hover {
-        background-color: dodgerblue;
+    .form-control-modbus::placeholder {
+        color: rgba(255, 255, 255, 0.75) !important;
     }
 
-.turnstile-alani {
-    display: flex;
-    justify-content: center;
-    margin: 15px 0;
+    .form-control-modbus:-webkit-autofill,
+    .form-control-modbus:-webkit-autofill:hover,
+    .form-control-modbus:-webkit-autofill:focus,
+    .form-control-modbus:-webkit-autofill:active {
+        -webkit-text-fill-color: white !important;
+        -webkit-box-shadow: 0 0 0 1000px cadetblue inset !important;
+        box-shadow: 0 0 0 1000px cadetblue inset !important;
+    }
+
+.btn-modbus-sifirla {
+    background-color: forestgreen !important;
+    color: white !important;
+    border-color: forestgreen !important;
 }
+
+    .btn-modbus-sifirla:hover {
+        background-color: limegreen !important;
+        color: white !important;
+        border-color: limegreen !important;
+    }

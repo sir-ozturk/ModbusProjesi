@@ -71,7 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Default.aspx" />
-    <Content Include="Files\Images\LoginSayfasi_1.png" />
+    <Content Include="Files\Images\Logo.png" />
     <Content Include="Pages\Default.aspx" />
     <Content Include="Pages\KullaniciEkle.aspx" />
     <Content Include="Pages\KullaniciListele.aspx" />
