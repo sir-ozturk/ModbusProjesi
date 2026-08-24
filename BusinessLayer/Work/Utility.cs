@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 
 public class Utility
@@ -43,6 +44,39 @@ public class Utility
         int rastgeleSayi = random.Next(1000, 999999);
 
         return rastgeleHarf1 + rastgeleHarf2 + rastgeleSayi + rastgeleHarf3 + rastgeleHarf4 + rastgeleKarakter;
+    }
+
+    public static string IpNoGetir()
+    {
+        try
+        {
+            System.Web.HttpContext context = System.Web.HttpContext.Current;
+
+            string ipAddress = context.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+
+            if (!string.IsNullOrEmpty(ipAddress))
+            {
+                string[] addresses = ipAddress.Split(',');
+
+                if (addresses.Length != 0)
+                {
+                    return addresses[0];
+                }
+            }
+
+            return context.Request.ServerVariables["REMOTE_ADDR"];
+        }
+        catch
+        {
+            try
+            {
+                return HttpContext.Current.Request.UserHostAddress;
+            }
+            catch
+            {
+                return "0.0.0.0";
+            }
+        }
     }
 
     #endregion

@@ -1,0 +1,48 @@
+﻿.log-detay-baslik {
+    color: darkblue;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.log-detay-aciklama {
+    color: red;
+    font-size: 18px;
+    margin-bottom: 0;
+}
+
+.log-detay-kart-baslik {
+    background-color: cadetblue !important;
+    color: darkblue !important;
+    font-size: 20px;
+}
+
+.log-detay-kontrol {
+    background-color: cadetblue !important;
+    color: white !important;
+    border: 1px solid cadetblue !important;
+}
+
+    .log-detay-kontrol:focus {
+        background-color: cadetblue !important;
+        color: white !important;
+        border-color: darkblue !important;
+        box-shadow: none !important;
+    }
+
+.form-label {
+    color: darkblue;
+}
+
+.btn-geri {
+    background-color: darkblue;
+    color: white;
+    border: 1px solid darkblue;
+    font-weight: 600;
+}
+
+    .btn-geri:hover {
+        background-color: cadetblue;
+        color: darkblue;
+        border-color: darkblue;
+    }

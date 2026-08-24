@@ -42,6 +42,16 @@ public class Mesajlar
         get { return "Bu mail adresi veya telefon numarası daha önce kullanılmıştır."; }
     }
 
+    public static string KayitGetirmeHatasi
+    {
+        get { return "Kayıtlar getirilemedi."; }
+    }
+
+    public static string KayitBulunamadi
+    {
+        get { return "Kayıtlar bulunamadı."; }
+    }
+
     #endregion
 
     #region DOĞRULAMA MESAJLARI
@@ -117,6 +127,15 @@ public class Mesajlar
     public static string GeciciSifreBaslik
     {
         get { return "Geçici Şifre: "; }
+    }
+
+    #endregion
+
+    #region DOĞRULAMA MESAJLARI
+
+    public static string BaslangicTarihiBitisTarihindenBuyukOlamaz
+    {
+        get { return "Başlangıç tarihi bitiş tarihinden büyük olamaz."; }
     }
 
     #endregion

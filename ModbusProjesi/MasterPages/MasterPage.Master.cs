@@ -22,15 +22,17 @@ public partial class MasterPage : System.Web.UI.MasterPage
 
         if (!Page.IsPostBack)
         {
-            lblGirisYapanKullanici.Text = currentInfo.Ad + " " + currentInfo.Soyad;
+            LogIslemleri.IslemKaydet();
 
+            lblGirisYapanKullanici.Text = currentInfo.Ad + " " + currentInfo.Soyad;
+            
             if (!string.IsNullOrEmpty(currentInfo.ProfilResim))
             {
                 imgSolMenuProfil.ImageUrl = "~/Files/" + currentInfo.ProfilResim;
             }
             else
             {
-                imgSolMenuProfil.ImageUrl = "~/Files/no-image.png";
+                imgSolMenuProfil.ImageUrl = "~/Files/Images/no-image.png";
             }
         }
     }

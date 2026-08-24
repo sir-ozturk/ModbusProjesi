@@ -1,0 +1,57 @@
+﻿.log-sayfa-baslik {
+    color: darkblue;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.log-sayfa-aciklama {
+    color: red;
+    font-size: 18px;
+    margin-bottom: 0;
+}
+
+.log-kart-baslik {
+    background-color: cadetblue !important;
+    color: darkblue !important;
+    font-size: 20px;
+}
+
+.log-form-kontrol {
+    background-color: cadetblue;
+    color: white !important;
+    border: 1px solid cadetblue;
+}
+
+    .log-form-kontrol::placeholder {
+        color: white !important;
+        opacity: 1;
+    }
+
+    .log-form-kontrol:focus {
+        background-color: cadetblue;
+        color: white;
+        border-color: darkblue;
+        box-shadow: none;
+    }
+
+    .log-form-kontrol option {
+        background-color: white;
+        color: black;
+    }
+
+.form-label {
+    color: darkblue;
+}
+
+.btn-filtrele {
+    background-color: darkblue;
+    color: white;
+    border: 1px solid darkblue;
+}
+
+    .btn-filtrele:hover {
+        background-color: cadetblue;
+        color: darkblue;
+        border-color: darkblue;
+    }

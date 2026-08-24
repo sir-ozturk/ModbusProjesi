@@ -9,87 +9,87 @@
 
 
 
-public partial class LogListesi
+public partial class LogDetay
 {
 
     /// <summary>
-    /// txtKullanici control.
+    /// txtKullaniciId control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.TextBox txtKullanici;
+    protected global::System.Web.UI.WebControls.TextBox txtKullaniciId;
 
     /// <summary>
-    /// ddlTabloAdi control.
+    /// txtUrl control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.DropDownList ddlTabloAdi;
+    protected global::System.Web.UI.WebControls.TextBox txtUrl;
 
     /// <summary>
-    /// ddlIslemAdi control.
+    /// txtTabloAdi control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.DropDownList ddlIslemAdi;
+    protected global::System.Web.UI.WebControls.TextBox txtTabloAdi;
 
     /// <summary>
-    /// ddlIslemTipi control.
+    /// txtIslemAdi control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.DropDownList ddlIslemTipi;
+    protected global::System.Web.UI.WebControls.TextBox txtIslemAdi;
 
     /// <summary>
-    /// txtBaslangicTarih control.
+    /// txtIslemTipi control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.TextBox txtBaslangicTarih;
+    protected global::System.Web.UI.WebControls.TextBox txtIslemTipi;
 
     /// <summary>
-    /// txtBitisTarih control.
+    /// txtIpAdresi control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.TextBox txtBitisTarih;
+    protected global::System.Web.UI.WebControls.TextBox txtIpAdresi;
 
     /// <summary>
-    /// btnTemizle control.
+    /// txtIslemTarihi control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Button btnTemizle;
+    protected global::System.Web.UI.WebControls.TextBox txtIslemTarihi;
 
     /// <summary>
-    /// btnFiltrele control.
+    /// txtDetay control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Button btnFiltrele;
+    protected global::System.Web.UI.WebControls.TextBox txtDetay;
 
     /// <summary>
-    /// ucLogGrid control.
+    /// btnGeri control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::ucMyGrid ucLogGrid;
+    protected global::System.Web.UI.WebControls.Button btnGeri;
 }

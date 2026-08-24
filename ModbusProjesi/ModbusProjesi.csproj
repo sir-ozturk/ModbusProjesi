@@ -75,6 +75,7 @@
     <Content Include="Pages\Default.aspx" />
     <Content Include="Pages\KullaniciEkle.aspx" />
     <Content Include="Pages\KullaniciListele.aspx" />
+    <Content Include="Pages\LogDetay.aspx" />
     <Content Include="Pages\Login.aspx" />
     <Content Include="Pages\LogListesi.aspx" />
     <Content Include="Pages\MakineEkle.aspx" />
@@ -86,7 +87,9 @@
     <Content Include="Styles\Default.css" />
     <Content Include="Styles\KullaniciEkle.css" />
     <Content Include="Styles\KullaniciListele.css" />
+    <Content Include="Styles\LogDetay.css" />
     <Content Include="Styles\Login.css" />
+    <Content Include="Styles\LogListesi.css" />
     <Content Include="Styles\SifremiUnuttum.css" />
     <Content Include="UserControls\ucMyGrid.ascx" />
     <Content Include="Web.config" />
@@ -126,6 +129,13 @@
     </Compile>
     <Compile Include="Pages\KullaniciListele.aspx.designer.cs">
       <DependentUpon>KullaniciListele.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LogDetay.aspx.cs">
+      <DependentUpon>LogDetay.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\LogDetay.aspx.designer.cs">
+      <DependentUpon>LogDetay.aspx</DependentUpon>
     </Compile>
     <Compile Include="Pages\Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>

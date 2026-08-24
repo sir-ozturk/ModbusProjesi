@@ -14,6 +14,8 @@ public partial class SifremiUnuttum : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
+            LogIslemleri.IslemKaydet();
+
             string siteKey = ConfigurationManager.AppSettings["TurnstileSiteKey"];
             turnstileWidget.Attributes["data-sitekey"] = siteKey;
         }
@@ -64,6 +66,7 @@ public partial class SifremiUnuttum : System.Web.UI.Page
                 kullanicilar.GuncelleyenIp = Request.UserHostAddress;
 
                 kullanicilar.SifreGuncelle();
+                LogIslemleri.OlayKaydet("Şifre Sıfırlama", "SIFRE", "Kullanıcının şifresi başarıyla sıfırlandı.");
                 Session["GeciciSifre"] = yeniSifre;
                 Response.Redirect("~/Pages/SifremiUnuttum.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
@@ -71,11 +74,13 @@ public partial class SifremiUnuttum : System.Web.UI.Page
             }
             else
             {
+                LogIslemleri.OlayKaydet("Başarısız Şifre Sıfırlama", "SIFRE", "Kullanıcı adı ve e-posta bilgileri eşleşmedi.");
                 Mesaj.Ver(Mesajlar.KullaniciKoduVeyaMailHatali, Mesaj.MesajTurleri.FAIL, Page);
             }
         }
         catch (Exception ex)
         {
+            LogIslemleri.HataKaydet(ex, "SIFRE");
             Mesaj.Ver(Mesajlar.SifreSifirlamaHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page);
         }
         finally

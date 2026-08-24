@@ -113,12 +113,9 @@ public partial class KullaniciEkle : System.Web.UI.Page
         // Resim seçilmişse uzantısını kontrol et ve kaydet
         if (fuProfilResmi.HasFile)
         {
-            string uzanti =
-                Path.GetExtension(fuProfilResmi.FileName).ToLower();
+            string uzanti = Path.GetExtension(fuProfilResmi.FileName).ToLower();
 
-            if (uzanti != ".jpg" &&
-                uzanti != ".jpeg" &&
-                uzanti != ".png")
+            if (uzanti != ".jpg" && uzanti != ".jpeg" && uzanti != ".png")
             {
                 Mesaj.Ver(Mesajlar.GecerliProfilResmiSeciniz, Mesaj.MesajTurleri.WARNING, Page.Master);
 

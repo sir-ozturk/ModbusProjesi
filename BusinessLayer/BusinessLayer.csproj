@@ -45,7 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entity\Kullanicilar.cs" />
+    <Compile Include="Entity\Loglar.cs" />
     <Compile Include="Work\CurrentInfo.cs" />
+    <Compile Include="Work\HataNesnesi.cs" />
+    <Compile Include="Work\IslemNesnesi.cs" />
+    <Compile Include="Work\LogIslemleri.cs" />
+    <Compile Include="Work\LogNesnesi.cs" />
     <Compile Include="Work\Mesaj.cs" />
     <Compile Include="Work\Mesajlar.cs" />
     <Compile Include="Work\OrtakAlanlar.cs" />

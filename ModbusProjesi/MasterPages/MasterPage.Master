@@ -47,7 +47,11 @@
             <aside class="sol-panel d-flex flex-column position-fixed top-0 start-0 h-100 px-3 py-3">
 
                 <a href="/Default.aspx" class="d-flex align-items-center pb-4 text-decoration-none">
-                    <asp:Image ID="Image1" runat="server" ImageUrl="~/Files/Images/LoginSayfasi_1.png" CssClass="anasayfa-img" />
+                    <asp:Image
+                        ID="Image1"
+                        runat="server"
+                        ImageUrl="~/Files/Images/Logo.png"
+                        CssClass="anasayfa-img" />
                     <span class="logo-metin fw-bold ms-3">MODBUS</span>
                 </a>
 
@@ -154,7 +158,10 @@
 
                         <div class="sol-menu-pp-kutusu">
 
-                            <asp:Image ID="imgSolMenuProfil" runat="server" ImageUrl="../Files/no-image.png" CssClass="sol-menu-pp-resim" />
+                            <asp:Image
+                                ID="imgSolMenuProfil"
+                                runat="server"
+                                CssClass="sol-menu-pp-resim" />
 
                         </div>
 

@@ -14,6 +14,8 @@ public partial class Login : System.Web.UI.Page
 
         if (!Page.IsPostBack)
         {
+            LogIslemleri.IslemKaydet();
+
             string siteKey = ConfigurationManager.AppSettings["TurnstileSiteKey"];
             turnstileWidget.Attributes["data-sitekey"] = siteKey;
         }
@@ -65,17 +67,20 @@ public partial class Login : System.Web.UI.Page
 
                 sessionlar.Current._CurrentInfo = currentInfo;
 
+                LogIslemleri.OlayKaydet("Kullanıcı Girişi", "LOGIN", "Kullanıcı sisteme başarıyla giriş yaptı.");
                 Response.Redirect("~/Default.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
                 return;
             }
             else
             {
+                LogIslemleri.OlayKaydet("Başarısız Giriş Denemesi", "LOGIN", "Kullanıcı adı veya şifre hatalı.");
                 Mesaj.Ver(Mesajlar.KullaniciAdiVeyaSifreHatali, Mesaj.MesajTurleri.FAIL, Page);
             }
         }
         catch (Exception ex)
         {
+            LogIslemleri.HataKaydet(ex, "LOGIN");
             Mesaj.Ver(Mesajlar.GirisHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page);
         }
         finally

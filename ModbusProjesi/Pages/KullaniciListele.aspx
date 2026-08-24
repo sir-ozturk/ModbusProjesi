@@ -2,7 +2,7 @@
 <%@ Register Src="~/UserControls/ucMyGrid.ascx" TagPrefix="uc" TagName="MyGrid" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <link href="../Styles/KullaniciListele.css" rel="stylesheet" />
+    <link href="../Styles/KullaniciListele.css?v=1" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
 </asp:Content>
 

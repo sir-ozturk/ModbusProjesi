@@ -63,6 +63,13 @@ public class CurrentInfo
         set { profilResim = value; }
     }
 
+    private string kullaniciEmail;
+    public string KullaniciEmail
+    {
+        get { return kullaniciEmail; }
+        set { kullaniciEmail = value; }
+    }
+
     public CurrentInfo()
     {
     }
