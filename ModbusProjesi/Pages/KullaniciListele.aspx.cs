@@ -28,7 +28,7 @@ public partial class KullaniciListele : System.Web.UI.Page
         ucMyGrid.BirlesikKolonEkle("Ad Soyad", Kullanicilar.C_Sutun_ad, Kullanicilar.C_Sutun_soyad);
         ucMyGrid.FormatliKolonEkle(Kullanicilar.C_Sutun_telefon, "Telefon", ucMyGrid.FormatTip.TELEFON);
         ucMyGrid.KolonEkle(Kullanicilar.C_Sutun_mail, "Mail");
-        ucMyGrid.KolonEkle(Roller.C_Sutun_rol_adi, "Rol Adı");
+        ucMyGrid.KolonEkle(Roller.C_Sutun_adi, "Rol Adı");
         ucMyGrid.DurumKolonEkle(Kullanicilar.C_Sutun_aktif_mi, "Durum", "Aktif", "Pasif");
         ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE, ucMyGrid.ButonTip.SIL);
     }

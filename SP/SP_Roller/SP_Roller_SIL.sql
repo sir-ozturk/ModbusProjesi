@@ -1,0 +1,11 @@
+CREATE PROCEDURE dbo.SP_Roller_SIL
+    @id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM dbo.Roller
+    WHERE id = @id;
+
+    RETURN;
+END

@@ -32,7 +32,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
                 roller.TumunuGetir();
 
                 ddlRoller.DataSource = roller.VeriTablosu;
-                ddlRoller.DataTextField = "rol_adi";
+                ddlRoller.DataTextField = "adi";
                 ddlRoller.DataValueField = "id";
                 ddlRoller.DataBind();
 

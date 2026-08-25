@@ -1,8 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="LogListesi.aspx.cs" Inherits="LogListesi" %>
 
-<%@ Register Src="~/UserControls/ucMyGrid.ascx"
-    TagPrefix="uc"
-    TagName="MyGrid" %>
+<%@ Register Src="~/UserControls/ucMyGrid.ascx" TagPrefix="uc" TagName="MyGrid" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../Styles/LogListesi.css?v=2" rel="stylesheet" />

@@ -126,7 +126,7 @@
                             <asp:DropDownList ID="ddlAktiflik" runat="server" CssClass="form-select form-select-modbus">
                                 <asp:ListItem>Seçiniz...</asp:ListItem>
                                 <asp:ListItem Value="True">Aktif</asp:ListItem>
-                                <asp:ListItem Value="False">Aktif Değil</asp:ListItem>
+                                <asp:ListItem Value="False">Pasif</asp:ListItem>
                             </asp:DropDownList>
                         </div>
 

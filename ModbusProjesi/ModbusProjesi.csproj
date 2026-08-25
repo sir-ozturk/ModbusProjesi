@@ -80,6 +80,9 @@
     <Content Include="Pages\LogListesi.aspx" />
     <Content Include="Pages\MakineEkle.aspx" />
     <Content Include="Pages\MakineListele.aspx" />
+    <Content Include="Pages\RolEkleme.aspx" />
+    <Content Include="Pages\RolListeleme.aspx" />
+    <Content Include="Pages\RolYetki.aspx" />
     <Content Include="Pages\SifremiUnuttum.aspx" />
     <Content Include="Scripts\KullaniciEkleTelefonMaskeleme.js" />
     <Content Include="Scripts\KullaniciEkleZamanlayici.js" />
@@ -164,6 +167,27 @@
     </Compile>
     <Compile Include="Pages\MakineListele.aspx.designer.cs">
       <DependentUpon>MakineListele.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\RolEkleme.aspx.cs">
+      <DependentUpon>RolEkleme.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\RolEkleme.aspx.designer.cs">
+      <DependentUpon>RolEkleme.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\RolListeleme.aspx.cs">
+      <DependentUpon>RolListeleme.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\RolListeleme.aspx.designer.cs">
+      <DependentUpon>RolListeleme.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\RolYetki.aspx.cs">
+      <DependentUpon>RolYetki.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\RolYetki.aspx.designer.cs">
+      <DependentUpon>RolYetki.aspx</DependentUpon>
     </Compile>
     <Compile Include="Pages\SifremiUnuttum.aspx.cs">
       <DependentUpon>SifremiUnuttum.aspx</DependentUpon>

@@ -16,7 +16,7 @@
 
             <div class="baslik">
                 <h2>Kullanıcı Yönetimi</h2>
-                <p>Sistemde kayıtlı olan tüm kullanıcıların listesi</p>
+                <p>Sistemde kayıtlı olan aktif kullanıcıların listesi</p>
             </div>
 
             <a href="KullaniciEkle.aspx" class="btn-ekle">

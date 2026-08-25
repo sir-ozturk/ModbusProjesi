@@ -65,7 +65,7 @@
                                 <i class="fa-solid fa-house"></i>
                             </span>
 
-                            <span>Anasayfa</span>
+                            <span class="fw-bold">Anasayfa</span>
 
                         </a>
 
@@ -132,6 +132,34 @@
                         <div class="menu-grup-baslik d-flex align-items-center">
 
                             <span class="me-2">
+                                <i class="fa-solid fa-users"></i>
+                            </span>
+
+                            <span class="fw-bold">Rol İşlemleri</span>
+
+                        </div>
+
+                        <ul class="list-unstyled mb-0 ps-4">
+
+                            <li>
+                                <a href="/Pages/RolEkleme.aspx" class="alt-menu-link text-decoration-none">➖ Rol Ekle
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/Pages/RolListeleme.aspx" class="alt-menu-link text-decoration-none">➖ Rol Listele
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <div class="menu-grup-baslik d-flex align-items-center">
+
+                            <span class="me-2">
                                 <i class="fa-solid fa-chart-simple"></i>
                             </span>
 
@@ -142,7 +170,7 @@
                         <ul class="list-unstyled mb-0 ps-4">
 
                             <li>
-                                <a href="/Pages/LogListesi.aspx" class="alt-menu-link text-decoration-none">➖ Log Listesi
+                                <a href="/Pages/LogListesi.aspx" class="alt-menu-link text-decoration-none">➖ Log Listele
                                 </a>
                             </li>
 
