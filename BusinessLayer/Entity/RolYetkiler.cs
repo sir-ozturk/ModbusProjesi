@@ -29,6 +29,8 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
     public const string C_Sp_Doldur = "dbo.SP_RolYetkiler_DOLDUR";
     public const string C_Sp_TumunuGetir = "dbo.SP_RolYetkiler_TUMUNU_GETIR";
     public const string C_Sp_YetkiVarmi = "dbo.SP_RolYetkiler_YETKI_VAR_MI";
+    public const string C_Sp_RoleGoreGetir = "dbo.SP_RolYetkiler_ROLE_GORE_GETIR";
+    public const string C_Sp_RoleGoreSil = "dbo.SP_RolYetkiler_ROLE_GORE_SIL";
 
     public const string C_Sutun_rol_id = "rol_id";
     public const string C_Sutun_ekran = "ekran";
@@ -231,6 +233,22 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
         }
 
         return Convert.ToBoolean(sonuc);
+    }
+
+    public void RoleGoreGetir()
+    {
+        VeritabaniIslem.SpAdi = C_Sp_RoleGoreGetir;
+        VeritabaniIslem.ParametreEkle(C_Sutun_rol_id, RolId);
+
+        VeriTablosu = VeritabaniIslem.TabloGetir();
+    }
+
+    public bool RoleGoreSil()
+    {
+        VeritabaniIslem.SpAdi = C_Sp_RoleGoreSil;
+        VeritabaniIslem.ParametreEkle(C_Sutun_rol_id, RolId);
+
+        return VeritabaniIslem.Calistir();
     }
 
     #endregion

@@ -76,6 +76,105 @@ public partial class MasterPage
     protected global::System.Web.UI.WebControls.Image Image1;
 
     /// <summary>
+    /// pnlMakineIslemleri control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlMakineIslemleri;
+
+    /// <summary>
+    /// lnkMakineEkle control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkMakineEkle;
+
+    /// <summary>
+    /// lnkMakineListele control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkMakineListele;
+
+    /// <summary>
+    /// pnlKullaniciIslemleri control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlKullaniciIslemleri;
+
+    /// <summary>
+    /// lnkKullaniciEkle control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkKullaniciEkle;
+
+    /// <summary>
+    /// lnkKullaniciListele control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkKullaniciListele;
+
+    /// <summary>
+    /// pnlRolIslemleri control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlRolIslemleri;
+
+    /// <summary>
+    /// lnkRolEkle control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkRolEkle;
+
+    /// <summary>
+    /// lnkRolListele control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkRolListele;
+
+    /// <summary>
+    /// pnlRaporlar control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlRaporlar;
+
+    /// <summary>
+    /// lnkLogListele control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkLogListele;
+
+    /// <summary>
     /// imgSolMenuProfil control.
     /// </summary>
     /// <remarks>

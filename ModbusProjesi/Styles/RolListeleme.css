@@ -1,0 +1,55 @@
+﻿.sayfa-ust-alan {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+}
+
+.baslik {
+    margin-right: 30px;
+}
+
+    .baslik h2 {
+        color: darkblue;
+        font-size: 30px;
+        margin-bottom: 5px;
+    }
+
+    .baslik p {
+        color: red;
+        font-size: 20px;
+    }
+
+.btn-ekle {
+    background-color: forestgreen;
+    color: white;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 20px;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+    .btn-ekle i {
+        margin-right: 8px;
+    }
+
+    .btn-ekle:hover {
+        background-color: limegreen;
+        color: white;
+    }
+
+#ContentPlaceHolder1_ucMyGrid_grdMyGrid th {
+    background-color: white;
+    color: darkblue;
+    border-bottom: 2px solid cadetblue;
+}
+
+#ContentPlaceHolder1_ucMyGrid_lblKayitSayisi {
+    background-color: cadetblue;
+    color: darkblue;
+}

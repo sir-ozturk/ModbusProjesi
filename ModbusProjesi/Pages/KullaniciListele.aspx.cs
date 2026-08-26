@@ -15,6 +15,13 @@ public partial class KullaniciListele : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (!IslemYetki.Kontrol(Ekranlar.KULLANICI_LISTELE, IslemTurleri.GORUNTULE))
+        {
+            Response.Redirect("~/Default.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+            return;
+        }
+
         if (Page.IsPostBack == false)
         {
             Listele();
@@ -30,7 +37,21 @@ public partial class KullaniciListele : System.Web.UI.Page
         ucMyGrid.KolonEkle(Kullanicilar.C_Sutun_mail, "Mail");
         ucMyGrid.KolonEkle(Roller.C_Sutun_adi, "Rol Adı");
         ucMyGrid.DurumKolonEkle(Kullanicilar.C_Sutun_aktif_mi, "Durum", "Aktif", "Pasif");
-        ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE, ucMyGrid.ButonTip.SIL);
+        bool guncellemeYetkisi = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GUNCELLE);
+        bool silmeYetkisi = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.SIL);
+
+        if (guncellemeYetkisi && silmeYetkisi)
+        {
+            ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE, ucMyGrid.ButonTip.SIL);
+        }
+        else if (guncellemeYetkisi)
+        {
+            ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE);
+        }
+        else if (silmeYetkisi)
+        {
+            ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.SIL);
+        }
     }
 
     private void Listele()
@@ -59,6 +80,11 @@ public partial class KullaniciListele : System.Web.UI.Page
     {
         if (e.ButonTip == ucMyGrid.ButonTip.GUNCELLE)
         {
+            if (!IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GUNCELLE))
+            {
+                return;
+            }
+
             Response.Redirect("~/Pages/KullaniciEkle.aspx?id=" + e.Id, false);
 
             Context.ApplicationInstance.CompleteRequest();
@@ -67,6 +93,11 @@ public partial class KullaniciListele : System.Web.UI.Page
 
         if (e.ButonTip == ucMyGrid.ButonTip.SIL)
         {
+            if (!IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.SIL))
+            {
+                return;
+            }
+
             VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
 
             try

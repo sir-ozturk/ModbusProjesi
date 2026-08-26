@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Varsayılan profil fotoğrafı">
+  <rect width="200" height="200" fill="#5f9ea0"/>
+  <circle cx="100" cy="75" r="38" fill="#ffffff" opacity=".92"/>
+  <path d="M35 190c4-43 28-67 65-67s61 24 65 67" fill="#ffffff" opacity=".92"/>
+</svg>

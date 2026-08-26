@@ -43,9 +43,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BusinessLayer">
-      <HintPath>..\BusinessLayer\bin\Debug\BusinessLayer.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -72,9 +69,11 @@
   <ItemGroup>
     <Content Include="Default.aspx" />
     <Content Include="Files\Images\Logo.png" />
+    <Content Include="Files\Images\no-image.svg" />
     <Content Include="Pages\Default.aspx" />
     <Content Include="Pages\KullaniciEkle.aspx" />
     <Content Include="Pages\KullaniciListele.aspx" />
+    <Content Include="Pages\ProfilDuzenle.aspx" />
     <Content Include="Pages\LogDetay.aspx" />
     <Content Include="Pages\Login.aspx" />
     <Content Include="Pages\LogListesi.aspx" />
@@ -90,9 +89,15 @@
     <Content Include="Styles\Default.css" />
     <Content Include="Styles\KullaniciEkle.css" />
     <Content Include="Styles\KullaniciListele.css" />
+    <Content Include="Styles\ProfilDuzenle.css" />
     <Content Include="Styles\LogDetay.css" />
     <Content Include="Styles\Login.css" />
     <Content Include="Styles\LogListesi.css" />
+    <Content Include="Styles\MakineEkle.css" />
+    <Content Include="Styles\MakineListele.css" />
+    <Content Include="Styles\RolEkleme.css" />
+    <Content Include="Styles\RolListeleme.css" />
+    <Content Include="Styles\RolYetki.css" />
     <Content Include="Styles\SifremiUnuttum.css" />
     <Content Include="UserControls\ucMyGrid.ascx" />
     <Content Include="Web.config" />
@@ -125,6 +130,13 @@
     </Compile>
     <Compile Include="Pages\KullaniciEkle.aspx.designer.cs">
       <DependentUpon>KullaniciEkle.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ProfilDuzenle.aspx.cs">
+      <DependentUpon>ProfilDuzenle.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\ProfilDuzenle.aspx.designer.cs">
+      <DependentUpon>ProfilDuzenle.aspx</DependentUpon>
     </Compile>
     <Compile Include="Pages\KullaniciListele.aspx.cs">
       <DependentUpon>KullaniciListele.aspx</DependentUpon>
@@ -217,6 +229,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AppCode\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessLayer\BusinessLayer.csproj">
+      <Project>{c3f162b1-a022-4a18-b831-7459b7c258b6}</Project>
+      <Name>BusinessLayer</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

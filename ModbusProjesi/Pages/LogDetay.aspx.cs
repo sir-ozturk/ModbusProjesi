@@ -64,10 +64,4 @@ public partial class LogDetay : System.Web.UI.Page
             veritabaniIslemleri.Bitir();
         }
     }
-
-    protected void btnGeri_Click(object sender, EventArgs e)
-    {
-        Response.Redirect("~/Pages/LogListesi.aspx", false);
-        Context.ApplicationInstance.CompleteRequest();
-    }
 }

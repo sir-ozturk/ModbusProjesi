@@ -1,0 +1,20 @@
+﻿.rol-yetki-baslik {
+    background-color: cadetblue;
+    color: darkblue;
+    font-size: 22px;
+}
+
+.rol-bilgisi {
+    color: darkblue;
+    font-size: 20px;
+}
+
+#ContentPlaceHolder1_grdYetkiler th {
+    background-color: white;
+    color: darkblue;
+    border-bottom: 2px solid cadetblue;
+}
+
+#ContentPlaceHolder1_grdYetkiler td {
+    vertical-align: middle;
+}

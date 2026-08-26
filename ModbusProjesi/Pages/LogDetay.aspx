@@ -128,12 +128,11 @@
                         </div>
 
                         <div class="d-flex justify-content-center">
-                            <asp:Button
-                                ID="btnGeri"
-                                runat="server"
-                                Text="Geri"
-                                CssClass="btn btn-geri px-5"
-                                OnClick="btnGeri_Click" />
+                            <button type="button"
+                                class="btn btn-geri px-5"
+                                onclick="window.history.back();">
+                                Geri
+                            </button>
                         </div>
 
                     </div>

@@ -11,4 +11,22 @@
 
 public partial class MakineListele
 {
+
+    /// <summary>
+    /// lnkYeniMakine control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.HyperLink lnkYeniMakine;
+
+    /// <summary>
+    /// ucMyGrid control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::ucMyGrid ucMyGrid;
 }

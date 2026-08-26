@@ -1,0 +1,15 @@
+﻿.rol-kart-baslik {
+    background-color: cadetblue;
+    color: darkblue;
+    font-size: 22px;
+}
+
+.form-label {
+    color: darkblue;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: cadetblue;
+    box-shadow: none;
+}

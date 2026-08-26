@@ -1,0 +1,37 @@
+﻿.text-modbus {
+    color: darkblue;
+}
+
+.form-control-modbus,
+.form-select-modbus {
+    background-color: cadetblue;
+    color: white;
+    border-color: cadetblue;
+    min-height: 44px;
+    font-size: 18px;
+}
+
+    .form-control-modbus:focus,
+    .form-select-modbus:focus {
+        background-color: cadetblue;
+        color: white;
+        border-color: darkblue;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 139, 0.15);
+    }
+
+    .form-control-modbus::placeholder {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+.btn-modbus-kaydet {
+    min-width: 150px;
+    background-color: forestgreen;
+    border-color: forestgreen;
+    color: white;
+}
+
+    .btn-modbus-kaydet:hover {
+        background-color: limegreen;
+        border-color: limegreen;
+        color: white;
+    }

@@ -22,17 +22,18 @@ public partial class MasterPage : System.Web.UI.MasterPage
 
         if (!Page.IsPostBack)
         {
+            MenuYetkileriniAyarla();
             LogIslemleri.IslemKaydet();
 
             lblGirisYapanKullanici.Text = currentInfo.Ad + " " + currentInfo.Soyad;
-            
+
             if (!string.IsNullOrEmpty(currentInfo.ProfilResim))
             {
                 imgSolMenuProfil.ImageUrl = "~/Files/" + currentInfo.ProfilResim;
             }
             else
             {
-                imgSolMenuProfil.ImageUrl = "~/Files/Images/no-image.png";
+                imgSolMenuProfil.ImageUrl = "~/Files/Images/no-image.svg";
             }
         }
     }
@@ -48,5 +49,21 @@ public partial class MasterPage : System.Web.UI.MasterPage
 
         Response.Redirect("~/Pages/Login.aspx", false);
         Context.ApplicationInstance.CompleteRequest();
+    }
+
+    private void MenuYetkileriniAyarla()
+    {
+        lnkMakineEkle.Visible = IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.GORUNTULE);
+        lnkMakineListele.Visible = IslemYetki.Kontrol(Ekranlar.MAKINE_LISTELE, IslemTurleri.GORUNTULE);
+        lnkKullaniciEkle.Visible = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GORUNTULE);
+        lnkKullaniciListele.Visible = IslemYetki.Kontrol(Ekranlar.KULLANICI_LISTELE, IslemTurleri.GORUNTULE);
+        lnkLogListele.Visible = IslemYetki.Kontrol(Ekranlar.LOG_LISTELE, IslemTurleri.GORUNTULE);
+        lnkRolEkle.Visible = IslemYetki.Kontrol(Ekranlar.ROL_EKLE, IslemTurleri.GORUNTULE);
+        lnkRolListele.Visible = IslemYetki.Kontrol(Ekranlar.ROL_LISTELE, IslemTurleri.GORUNTULE);
+
+        pnlMakineIslemleri.Visible = lnkMakineEkle.Visible || lnkMakineListele.Visible;
+        pnlKullaniciIslemleri.Visible = lnkKullaniciEkle.Visible || lnkKullaniciListele.Visible;
+        pnlRolIslemleri.Visible = lnkRolEkle.Visible || lnkRolListele.Visible;
+        pnlRaporlar.Visible = lnkLogListele.Visible;
     }
 }

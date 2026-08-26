@@ -71,7 +71,7 @@
 
                     </div>
 
-                    <div class="mb-3">
+                    <div id="pnlMakineIslemleri" runat="server" class="mb-3">
 
                         <div class="menu-grup-baslik d-flex align-items-center">
 
@@ -86,12 +86,12 @@
                         <ul class="list-unstyled mb-0 ps-4">
 
                             <li>
-                                <a href="/Pages/MakineEkle.aspx" class="alt-menu-link text-decoration-none">➖ Makine Ekle
+                                <a id="lnkMakineEkle" runat="server" href="/Pages/MakineEkle.aspx" class="alt-menu-link text-decoration-none">➖ Makine Ekle
                                 </a>
                             </li>
 
                             <li>
-                                <a href="/Pages/MakineListele.aspx" class="alt-menu-link text-decoration-none">➖ Makine Listele
+                                <a id="lnkMakineListele" runat="server" href="/Pages/MakineListele.aspx" class="alt-menu-link text-decoration-none">➖ Makine Listele
                                 </a>
                             </li>
 
@@ -99,7 +99,7 @@
 
                     </div>
 
-                    <div class="mb-3">
+                    <div id="pnlKullaniciIslemleri" runat="server" class="mb-3">
 
                         <div class="menu-grup-baslik d-flex align-items-center">
 
@@ -114,12 +114,12 @@
                         <ul class="list-unstyled mb-0 ps-4">
 
                             <li>
-                                <a href="/Pages/KullaniciEkle.aspx" class="alt-menu-link text-decoration-none">➖ Kullanıcı Ekle
+                                <a id="lnkKullaniciEkle" runat="server" href="/Pages/KullaniciEkle.aspx" class="alt-menu-link text-decoration-none">➖ Kullanıcı Ekle
                                 </a>
                             </li>
 
                             <li>
-                                <a href="/Pages/KullaniciListele.aspx" class="alt-menu-link text-decoration-none">➖ Kullanıcı Listele
+                                <a id="lnkKullaniciListele" runat="server" href="/Pages/KullaniciListele.aspx" class="alt-menu-link text-decoration-none">➖ Kullanıcı Listele
                                 </a>
                             </li>
 
@@ -127,7 +127,7 @@
 
                     </div>
 
-                    <div class="mb-3">
+                    <div id="pnlRolIslemleri" runat="server" class="mb-3">
 
                         <div class="menu-grup-baslik d-flex align-items-center">
 
@@ -142,12 +142,12 @@
                         <ul class="list-unstyled mb-0 ps-4">
 
                             <li>
-                                <a href="/Pages/RolEkleme.aspx" class="alt-menu-link text-decoration-none">➖ Rol Ekle
+                                <a id="lnkRolEkle" runat="server" href="/Pages/RolEkleme.aspx" class="alt-menu-link text-decoration-none">➖ Rol Ekle
                                 </a>
                             </li>
 
                             <li>
-                                <a href="/Pages/RolListeleme.aspx" class="alt-menu-link text-decoration-none">➖ Rol Listele
+                                <a id="lnkRolListele" runat="server" href="/Pages/RolListeleme.aspx" class="alt-menu-link text-decoration-none">➖ Rol Listele
                                 </a>
                             </li>
 
@@ -155,7 +155,7 @@
 
                     </div>
 
-                    <div class="mb-3">
+                   <div id="pnlRaporlar" runat="server" class="mb-3">
 
                         <div class="menu-grup-baslik d-flex align-items-center">
 
@@ -170,7 +170,7 @@
                         <ul class="list-unstyled mb-0 ps-4">
 
                             <li>
-                                <a href="/Pages/LogListesi.aspx" class="alt-menu-link text-decoration-none">➖ Log Listele
+                                <a ID="lnkLogListele" runat="server" href="/Pages/LogListesi.aspx" class="alt-menu-link text-decoration-none">➖ Log Listele
                                 </a>
                             </li>
 
@@ -182,7 +182,7 @@
 
                 <div class="mt-auto pt-3">
 
-                    <div class="d-flex align-items-center gap-2 mb-3">
+                    <a href="/Pages/ProfilDuzenle.aspx" class="profil-link d-flex align-items-center gap-2 mb-3 text-decoration-none" title="Profili düzenle">
 
                         <div class="sol-menu-pp-kutusu">
 
@@ -195,7 +195,8 @@
 
                         <asp:Label ID="lblGirisYapanKullanici" runat="server" Text="Misafir" CssClass="profil-isim fw-bold"></asp:Label>
 
-                    </div>
+                        <i class="fa-solid fa-chevron-right profil-link-ok ms-auto"></i>
+                    </a>
 
                     <asp:Button ID="btnCikis" runat="server" Text="Çıkış Yap" CssClass="btn btn-danger w-100 fw-bold" OnClick="btnCikis_Click" />
 

@@ -15,6 +15,13 @@ public partial class LogListesi : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (!IslemYetki.Kontrol(Ekranlar.LOG_LISTELE, IslemTurleri.GORUNTULE))
+        {
+            Response.Redirect("~/Default.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+            return;
+        }
+
         if (Page.IsPostBack == false)
         {
             LogIslemleri.IslemKaydet();

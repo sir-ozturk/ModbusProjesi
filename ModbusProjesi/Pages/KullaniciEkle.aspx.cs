@@ -14,6 +14,13 @@ public partial class KullaniciEkle : System.Web.UI.Page
     {
         gelenId = Request.QueryString["id"];
 
+        if (!IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GORUNTULE))
+        {
+            Response.Redirect("~/Default.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+            return;
+        }
+
         if (Page.IsPostBack == false)
         {
             VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
@@ -44,6 +51,8 @@ public partial class KullaniciEkle : System.Web.UI.Page
 
                     btnKaydet.Text = "Güncelle";
 
+                    btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GUNCELLE);
+
                     phYeniKayitNotu.Visible = false;
                     phGuncellemeSifreAlani.Visible = true;
 
@@ -57,7 +66,7 @@ public partial class KullaniciEkle : System.Web.UI.Page
                     txtTelefon.Text = Utility.TelefonFormatla(kullanicilar.Telefon);
                     txtMail.Text = kullanicilar.Mail;
                     txtKullaniciAdi.Text = kullanicilar.KullaniciAdi;
-                    txtSifre.Text = kullanicilar.Sifre;
+                    txtSifre.Text = "";
                     ddlRoller.SelectedValue = kullanicilar.RolId.ToString();
                     ddlAktiflik.SelectedValue = kullanicilar.AktifMi.ToString();
 
@@ -73,6 +82,8 @@ public partial class KullaniciEkle : System.Web.UI.Page
                     litSayfaBaslik.Text = "Yeni Kullanıcı Ekle";
 
                     btnKaydet.Text = "Kaydet";
+
+                    btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.EKLE);
 
                     phYeniKayitNotu.Visible = true;
                     phGuncellemeSifreAlani.Visible = false;
@@ -92,6 +103,21 @@ public partial class KullaniciEkle : System.Web.UI.Page
 
     protected void btnKaydet_Click(object sender, EventArgs e)
     {
+        if (string.IsNullOrEmpty(gelenId))
+        {
+            if (!IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.EKLE))
+            {
+                return;
+            }
+        }
+        else
+        {
+            if (!IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GUNCELLE))
+            {
+                return;
+            }
+        }
+
         if (string.IsNullOrEmpty(txtAd.Text) ||
             string.IsNullOrEmpty(txtSoyad.Text) ||
             string.IsNullOrEmpty(txtTelefon.Text) ||

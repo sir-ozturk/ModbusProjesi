@@ -107,7 +107,7 @@
                             </div>
 
                             <div class="col-12 col-md-9">
-                                <asp:TextBox ID="txtSifre" runat="server" CssClass="form-control form-control-modbus" placeholder="Yeni şifre belirleyin"></asp:TextBox>
+                                <asp:TextBox ID="txtSifre" runat="server" CssClass="form-control form-control-modbus" TextMode="Password" placeholder="Değiştirmek istemiyorsanız boş bırakın" autocomplete="new-password"></asp:TextBox>
                             </div>
                         </div>
 

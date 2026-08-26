@@ -18,6 +18,25 @@ public class Mesajlar
         get { return "Kullanıcı başarıyla eklendi."; }
     }
 
+    public static string RolBasariylaGuncellendi
+    {
+        get { return "Rol başarıyla güncellendi."; }
+    }
+
+    public static string RolBasariylaEklendi
+    {
+        get { return "Rol başarıyla eklendi."; }
+    }
+    public static string SilmeBasarili
+    {
+        get { return "Silme işlemi başarılı."; }
+    }
+
+    public static string KayitBasarili
+    {
+        get { return "Kayıt işlemi başarılı."; }
+    }
+
     #endregion
 
     #region HATA MESAJLARI
@@ -52,6 +71,11 @@ public class Mesajlar
         get { return "Kayıtlar bulunamadı."; }
     }
 
+    public static string YetkinizYok
+    {
+        get { return "Yetkisiz işlem."; }
+    }
+
     #endregion
 
     #region DOĞRULAMA MESAJLARI
@@ -79,6 +103,11 @@ public class Mesajlar
     public static string GecerliProfilResmiSeciniz
     {
         get { return "Lütfen sadece .jpg, .jpeg veya .png uzantılı fotoğraflar seçiniz."; }
+    }
+
+    public static string RolAlanlarBos
+    {
+        get { return "Lütfen rol adı ve aktiflik durumunu seçiniz."; }
     }
 
     #endregion
@@ -136,6 +165,104 @@ public class Mesajlar
     public static string BaslangicTarihiBitisTarihindenBuyukOlamaz
     {
         get { return "Başlangıç tarihi bitiş tarihinden büyük olamaz."; }
+    }
+
+    #endregion
+
+    #region PROFİL DÜZENLEME MESAJLARI
+
+    public static string ProfilAlanlariBos
+    {
+        get { return "Lütfen ad, soyad, telefon ve e-posta alanlarını eksiksiz doldurunuz."; }
+    }
+
+    public static string GecersizEPostaAdresi
+    {
+        get { return "Lütfen geçerli bir e-posta adresi giriniz."; }
+    }
+
+    public static string SifreAlanlariBos
+    {
+        get { return "Şifre değişikliği için mevcut şifreyi, yeni şifreyi ve tekrarını giriniz."; }
+    }
+
+    public static string YeniSifrelerEslesmiyor
+    {
+        get { return "Yeni şifre ile tekrarı aynı değil."; }
+    }
+
+    public static string MevcutSifreHatali
+    {
+        get { return "Mevcut şifreniz hatalı."; }
+    }
+
+    public static string YeniSifreMevcutSifreyleAyni
+    {
+        get { return "Yeni şifreniz mevcut şifrenizle aynı olamaz."; }
+    }
+
+    public static string ProfilBasariylaGuncellendi
+    {
+        get { return "Profil bilgileriniz başarıyla güncellendi."; }
+    }
+
+    #endregion
+
+    #region MAKİNE MESAJLARI
+
+    public static string MakineBasariylaEklendi
+    {
+        get { return "Makine başarıyla eklendi."; }
+    }
+
+    public static string MakineBasariylaGuncellendi
+    {
+        get { return "Makine başarıyla güncellendi."; }
+    }
+
+    public static string MakineBasariylaSilindi
+    {
+        get { return "Makine başarıyla silindi."; }
+    }
+
+    public static string MakineBilgileriAlinamadi
+    {
+        get { return "Makine bilgileri alınamadı."; }
+    }
+
+    public static string MakineEklemeHatasi
+    {
+        get { return "Makine ekleme işlemi başarısız."; }
+    }
+
+    public static string MakineGuncellemeHatasi
+    {
+        get { return "Makine güncelleme işlemi başarısız."; }
+    }
+
+    public static string MakineSilmeHatasi
+    {
+        get { return "Makine silme işlemi başarısız."; }
+    }
+
+    public static string MakineAlanlarBos
+    {
+        get { return "Lütfen makine bilgilerini eksiksiz doldurunuz."; }
+    }
+
+    public static string MakineKayitli
+    {
+        get { return "Aynı makine numarası, IP veya MFG bilgisine sahip bir makine zaten kayıtlı."; }
+    }
+
+    public static string GecersizIpAdresi
+    {
+        get { return "Lütfen geçerli bir IP adresi giriniz."; }
+    }
+
+    public static string MakineSayisalAlanHatasi
+    {
+        get { return "GG No, Makine No ve MFG alanlarına yalnızca rakam girilebilir."; }
     }
 
     #endregion

@@ -70,6 +70,24 @@
     font-size: 20px;
 }
 
+.profil-link {
+    padding: 8px;
+    margin-left: -8px;
+    margin-right: -8px;
+    border-radius: 10px;
+    transition: background-color .2s ease, transform .2s ease;
+}
+
+.profil-link:hover {
+    background-color: rgba(95, 158, 160, .18);
+    transform: translateX(2px);
+}
+
+.profil-link-ok {
+    color: cadetblue;
+    font-size: 13px;
+}
+
 .grid-sayfalama {
     background-color: transparent !important;
 }

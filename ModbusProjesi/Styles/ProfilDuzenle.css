@@ -1,0 +1,44 @@
+.text-modbus { color: darkblue; }
+
+.profil-kart {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.form-control-modbus {
+    background-color: cadetblue;
+    color: white;
+    border-color: cadetblue;
+    font-size: 20px;
+}
+
+.form-control-modbus:focus {
+    background-color: cadetblue;
+    color: white;
+    border-color: darkblue;
+    box-shadow: 0 0 0 .25rem rgba(0, 0, 139, .15);
+}
+
+.form-control-modbus::placeholder { color: rgba(255, 255, 255, .75); }
+
+.profil-resim-kutusu {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 4px solid cadetblue;
+    overflow: hidden;
+    background-color: #f4f7f6;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .14);
+}
+
+.profil-resim-onizleme { width: 100%; height: 100%; object-fit: cover; }
+.profil-dosya { font-size: 15px; }
+
+.btn-modbus-kaydet { background-color: forestgreen; color: white; border-color: forestgreen; }
+.btn-modbus-kaydet:hover { background-color: limegreen; color: white; border-color: limegreen; }
+
+@media (max-width: 767.98px) {
+    .profil-kart { padding: 24px !important; }
+}
