@@ -169,6 +169,30 @@ public class Mesajlar
 
     #endregion
 
+    #region ROL MESAJLARI
+
+    public static string RolSilinemedi
+    {
+        get { return "Rol silinemedi. Rolü kullanan kullanıcılar bulunuyor olabilir."; }
+    }
+
+    public static string RolYetkileriSilinemedi
+    {
+        get { return "Role ait yetki kayıtları silinemedi."; }
+    }
+
+    public static string RolYetkisiKaydedilemedi
+    {
+        get { return "Rol yetkisi kaydedilemedi."; }
+    }
+
+    public static string RolYetkisiGuncellenemedi
+    {
+        get { return "Rol yetkisi güncellenemedi."; }
+    }
+
+    #endregion
+
     #region PROFİL DÜZENLEME MESAJLARI
 
     public static string ProfilAlanlariBos

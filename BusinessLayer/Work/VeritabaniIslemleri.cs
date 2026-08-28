@@ -199,89 +199,89 @@ public class VeritabaniIslemleri
     }
 
     private DataTable LogIcinKayitGetir(List<SqlParameter> sqlParametreListesi)
-{
-    try
     {
-        string procedureAdi = SpAdi;
-
-        if (SpAdi.Contains("."))
+        try
         {
-            procedureAdi = SpAdi.Split('.')[1];
+            string procedureAdi = SpAdi;
+
+            if (SpAdi.Contains("."))
+            {
+                procedureAdi = SpAdi.Split('.')[1];
+            }
+
+            string tabloAdi = procedureAdi.Split('_')[1];
+
+            if (tabloAdi == "Loglar")
+            {
+                return null;
+            }
+
+            string procedureSorgusu = "SELECT OBJECT_DEFINITION(OBJECT_ID('" + procedureAdi + "'))";
+
+            SqlCommand procedureCommand = new SqlCommand(procedureSorgusu, sqlConnection);
+
+            if (sqlTransaction != null)
+            {
+                procedureCommand.Transaction = sqlTransaction;
+            }
+
+            object procedureIcerigiObject = procedureCommand.ExecuteScalar();
+
+            if (procedureIcerigiObject == null || procedureIcerigiObject == DBNull.Value)
+            {
+                return null;
+            }
+
+            string procedureIcerigi = procedureIcerigiObject.ToString();
+
+            string[] tumSorguStringleri = procedureIcerigi.Split(new string[] { "WHERE" }, StringSplitOptions.None);
+
+            if (tumSorguStringleri.Length < 2)
+            {
+                return null;
+            }
+
+            string whereSonrasi = tumSorguStringleri[tumSorguStringleri.Length - 1];
+
+            string filtrelemeSorgusu = whereSonrasi.Split(new string[] { "RETURN" }, StringSplitOptions.None)[0];
+
+            for (int i = 0; i < sqlParametreListesi.Count; i++)
+            {
+                string parametreAdi = sqlParametreListesi[i].ParameterName;
+                object parametreDegeri = sqlParametreListesi[i].Value;
+
+                string parametreDegeriMetin = parametreDegeri == DBNull.Value ? "NULL" : parametreDegeri.ToString();
+
+                filtrelemeSorgusu = filtrelemeSorgusu.Replace(parametreAdi, parametreDegeriMetin);
+            }
+
+            string sorguDetay = "SELECT * FROM " + tabloAdi + " WHERE " + filtrelemeSorgusu;
+
+            SqlCommand sorguCommand = new SqlCommand(sorguDetay, sqlConnection);
+
+            if (sqlTransaction != null)
+            {
+                sorguCommand.Transaction = sqlTransaction;
+            }
+
+            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sorguCommand);
+
+            DataTable dataTable = new DataTable();
+
+            sqlDataAdapter.Fill(dataTable);
+
+            if (dataTable.Rows.Count > 0)
+            {
+                return dataTable;
+            }
+
+            return null;
         }
-
-        string tabloAdi = procedureAdi.Split('_')[1];
-
-        if (tabloAdi == "Loglar")
+        catch
         {
             return null;
         }
-
-        string procedureSorgusu = "SELECT OBJECT_DEFINITION(OBJECT_ID('" + procedureAdi + "'))";
-
-        SqlCommand procedureCommand = new SqlCommand(procedureSorgusu, sqlConnection);
-
-        if (sqlTransaction != null)
-        {
-            procedureCommand.Transaction = sqlTransaction;
-        }
-
-        object procedureIcerigiObject = procedureCommand.ExecuteScalar();
-
-        if (procedureIcerigiObject == null || procedureIcerigiObject == DBNull.Value)
-        {
-            return null;
-        }
-
-        string procedureIcerigi = procedureIcerigiObject.ToString();
-
-        string[] tumSorguStringleri = procedureIcerigi.Split(new string[] { "WHERE" }, StringSplitOptions.None);
-
-        if (tumSorguStringleri.Length < 2)
-        {
-            return null;
-        }
-
-        string whereSonrasi = tumSorguStringleri[tumSorguStringleri.Length - 1];
-
-        string filtrelemeSorgusu = whereSonrasi.Split(new string[] { "RETURN" }, StringSplitOptions.None)[0];
-
-        for (int i = 0; i < sqlParametreListesi.Count; i++)
-        {
-            string parametreAdi = sqlParametreListesi[i].ParameterName;
-            object parametreDegeri = sqlParametreListesi[i].Value;
-
-            string parametreDegeriMetin = parametreDegeri == DBNull.Value ? "NULL" : parametreDegeri.ToString();
-
-            filtrelemeSorgusu = filtrelemeSorgusu.Replace(parametreAdi, parametreDegeriMetin);
-        }
-
-        string sorguDetay = "SELECT * FROM " + tabloAdi + " WHERE " + filtrelemeSorgusu;
-
-        SqlCommand sorguCommand = new SqlCommand(sorguDetay, sqlConnection);
-
-        if (sqlTransaction != null)
-        {
-            sorguCommand.Transaction = sqlTransaction;
-        }
-
-        SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sorguCommand);
-
-        DataTable dataTable = new DataTable();
-
-        sqlDataAdapter.Fill(dataTable);
-
-        if (dataTable.Rows.Count > 0)
-        {
-            return dataTable;
-        }
-
-        return null;
     }
-    catch
-    {
-        return null;
-    }
-}
 
     public DataTable TabloGetir()
     {

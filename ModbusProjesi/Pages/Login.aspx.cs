@@ -62,7 +62,7 @@ public partial class Login : System.Web.UI.Page
                 currentInfo.Soyad = kullanicilar.Soyad;
                 currentInfo.RolId = kullanicilar.RolId;
                 currentInfo.ProfilResim = kullanicilar.ProfilResim;
-                currentInfo.Ip = Request.UserHostAddress;
+                currentInfo.Ip = Utility.IpNoGetir();
                 currentInfo.LoginYapildiMi = true;
 
                 sessionlar.Current._CurrentInfo = currentInfo;

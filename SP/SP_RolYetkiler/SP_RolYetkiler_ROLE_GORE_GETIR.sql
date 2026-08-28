@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.SP_RolYetkiler_ROLE_GORE_GETIR
+CREATE OR ALTER PROCEDURE dbo.SP_RolYetkiler_ROLE_GORE_GETIR
     @rol_id INT
 AS
 BEGIN
@@ -12,7 +12,6 @@ BEGIN
         ekleme,
         guncelleme,
         silme,
-        yazdirma,
         aktif_mi,
         eklenme_tarih,
         ekleyen_id,

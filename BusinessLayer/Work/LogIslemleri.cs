@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 public class LogIslemleri
 {
-    public HataNesnesi hataNesnesi;
-
     public static void IslemKaydet()
     {
         IslemNesnesi islemNesnesi = new IslemNesnesi();
@@ -26,18 +24,11 @@ public class LogIslemleri
         }
 
         islemNesnesi.IpAdresi = Utility.IpNoGetir();
-        islemNesnesi.KritikIslemMi = false;
         islemNesnesi.IslemAdi = "Sayfa Görüntüleme " + islemNesnesi.URL;
-        islemNesnesi.IslemEtiketi = "VIEW";
         islemNesnesi.IslemIcerik = "";
-        islemNesnesi.IslemSinifi = islemNesnesi;
-        islemNesnesi.IslemTipi = "KULLANICI SAYFA GÖRÜNTÜLEME";
         islemNesnesi.Tarih = DateTime.Now;
 
-        islemNesnesi.KullaniciASoyad = "SYSTEM";
-        islemNesnesi.KullaniciEmail = "SYSTEM";
         islemNesnesi.KullaniciID = 0;
-        islemNesnesi.KullaniciKodu = "SYSTEM";
 
         try
         {
@@ -46,10 +37,7 @@ public class LogIslemleri
 
             if (currentInfo != null)
             {
-                islemNesnesi.KullaniciASoyad = currentInfo.Ad + " " + currentInfo.Soyad;
-                islemNesnesi.KullaniciEmail = currentInfo.KullaniciEmail;
                 islemNesnesi.KullaniciID = currentInfo.KullaniciId;
-                islemNesnesi.KullaniciKodu = currentInfo.KullaniciAdi;
             }
         }
         catch
@@ -87,9 +75,10 @@ public class LogIslemleri
     static public void HataKaydet(Exception exception, string hataEtiketi)
     {
         LogIslemleri logIslemleri = new LogIslemleri();
-        logIslemleri.LogKaydet(exception.Message, exception.Message, exception.GetType().Name, hataEtiketi, true);
+        logIslemleri.LogKaydet(exception.Message, exception.Message, exception.GetType().Name, hataEtiketi);
     }
-    public void LogKaydet(string hataMetni, string baslik, string hataTip, string hataEtiketi, bool kritikHataMi)
+
+    private void LogKaydet(string hataMetni, string baslik, string hataTip, string hataEtiketi)
     {
         HataNesnesi hataNesnesi = new HataNesnesi();
 
@@ -98,7 +87,6 @@ public class LogIslemleri
         hataNesnesi.HataMetni = hataMetni;
         hataNesnesi.HataTipi = hataTip;
         hataNesnesi.IpAdresi = Utility.IpNoGetir();
-        hataNesnesi.KritikHataMi = kritikHataMi;
         hataNesnesi.Tarih = DateTime.Now;
         hataNesnesi.URL = "";
 
@@ -110,20 +98,14 @@ public class LogIslemleri
         {
         }
 
-        hataNesnesi.KullaniciASoyad = "SYSTEM";
-        hataNesnesi.KullaniciEmail = "SYSTEM";
         hataNesnesi.KullaniciID = 0;
-        hataNesnesi.KullaniciKodu = "SYSTEM";
 
         try
         {
             Sessionlar sessionlar = new Sessionlar();
             CurrentInfo currentInfo = sessionlar.Current._CurrentInfo;
 
-            hataNesnesi.KullaniciASoyad = currentInfo.Ad + " " + currentInfo.Soyad;
-            hataNesnesi.KullaniciEmail = currentInfo.KullaniciEmail;
             hataNesnesi.KullaniciID = currentInfo.KullaniciId;
-            hataNesnesi.KullaniciKodu = currentInfo.KullaniciAdi;
         }
         catch
         {

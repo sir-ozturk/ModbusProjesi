@@ -1,8 +1,0 @@
-CREATE PROCEDURE dbo.SP_Loglar_MAX_ID_GETIR
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT ISNULL(MAX(id), 0) AS MaxId
-    FROM dbo.Loglar;
-END

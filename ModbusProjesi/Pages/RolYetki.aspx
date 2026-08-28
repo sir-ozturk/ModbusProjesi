@@ -75,14 +75,6 @@
                                         </ItemTemplate>
                                     </asp:TemplateField>
 
-                                    <asp:TemplateField HeaderText="Yazdırma">
-                                        <ItemTemplate>
-                                            <asp:CheckBox
-                                                ID="chkYazdirma"
-                                                runat="server" />
-                                        </ItemTemplate>
-                                    </asp:TemplateField>
-
                                 </Columns>
 
                             </asp:GridView>

@@ -10,7 +10,6 @@ public enum IslemTurleri
     GORUNTULE,
     EKLE,
     GUNCELLE,
-    SIL,
-    YAZDIR
+    SIL
 }
 

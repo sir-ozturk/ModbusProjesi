@@ -38,10 +38,7 @@ public partial class RolYetki : System.Web.UI.Page
             EkranlariDoldur();
             MevcutYetkileriDoldur();
 
-            btnKaydet.Enabled = IslemYetki.Kontrol(
-                Ekranlar.ROL_YETKI,
-                IslemTurleri.GUNCELLE
-            );
+            btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.ROL_YETKI, IslemTurleri.GUNCELLE);
         }
     }
 
@@ -132,12 +129,10 @@ public partial class RolYetki : System.Web.UI.Page
                 CheckBox chkEkleme = (CheckBox)satir.FindControl("chkEkleme");
                 CheckBox chkGuncelleme = (CheckBox)satir.FindControl("chkGuncelleme");
                 CheckBox chkSilme = (CheckBox)satir.FindControl("chkSilme");
-                CheckBox chkYazdirma = (CheckBox)satir.FindControl("chkYazdirma");
                 chkGoruntuleme.Checked = Convert.ToBoolean(yetkiSatiri[RolYetkiler.C_Sutun_goruntuleme]);
                 chkEkleme.Checked = Convert.ToBoolean(yetkiSatiri[RolYetkiler.C_Sutun_ekleme]);
                 chkGuncelleme.Checked = Convert.ToBoolean(yetkiSatiri[RolYetkiler.C_Sutun_guncelleme]);
                 chkSilme.Checked = Convert.ToBoolean(yetkiSatiri[RolYetkiler.C_Sutun_silme]);
-                chkYazdirma.Checked = Convert.ToBoolean(yetkiSatiri[RolYetkiler.C_Sutun_yazdirma]);
             }
         }
         catch (Exception ex)
@@ -152,15 +147,9 @@ public partial class RolYetki : System.Web.UI.Page
 
     protected void btnKaydet_Click(object sender, EventArgs e)
     {
-        if (!IslemYetki.Kontrol(
-    Ekranlar.ROL_YETKI,
-    IslemTurleri.GUNCELLE))
+        if (!IslemYetki.Kontrol(Ekranlar.ROL_YETKI, IslemTurleri.GUNCELLE))
         {
-            Mesaj.Ver(
-                Mesajlar.YetkinizYok,
-                Mesaj.MesajTurleri.WARNING,
-                Page.Master
-            );
+            Mesaj.Ver(Mesajlar.YetkinizYok, Mesaj.MesajTurleri.WARNING, Page.Master);
 
             return;
         }
@@ -175,13 +164,9 @@ public partial class RolYetki : System.Web.UI.Page
             RolYetkiler rolYetkiler = new RolYetkiler(veritabaniIslemleri);
 
             rolYetkiler.RolId = gelenId;
+            rolYetkiler.RoleGoreGetir();
 
-            rolYetkiler.RolId = gelenId;
-
-            if (!rolYetkiler.RoleGoreSil())
-            {
-                throw new Exception("Mevcut rol yetkileri silinemedi.");
-            }
+            DataTable mevcutYetkiler = rolYetkiler.VeriTablosu;
 
             Sessionlar sessionlar = new Sessionlar();
             CurrentInfo currentInfo = sessionlar.Current._CurrentInfo;
@@ -194,7 +179,6 @@ public partial class RolYetki : System.Web.UI.Page
                 CheckBox chkEkleme = (CheckBox)satir.FindControl("chkEkleme");
                 CheckBox chkGuncelleme = (CheckBox)satir.FindControl("chkGuncelleme");
                 CheckBox chkSilme = (CheckBox)satir.FindControl("chkSilme");
-                CheckBox chkYazdirma = (CheckBox)satir.FindControl("chkYazdirma");
 
                 rolYetkiler.RolId = gelenId;
                 rolYetkiler.Ekran = ekran;
@@ -202,15 +186,31 @@ public partial class RolYetki : System.Web.UI.Page
                 rolYetkiler.Ekleme = chkEkleme.Checked;
                 rolYetkiler.Guncelleme = chkGuncelleme.Checked;
                 rolYetkiler.Silme = chkSilme.Checked;
-                rolYetkiler.Yazdirma = chkYazdirma.Checked;
 
                 rolYetkiler.AktifMi = true;
-                rolYetkiler.EkleyenId = currentInfo.KullaniciId;
-                rolYetkiler.EkleyenIp = Request.UserHostAddress;
 
-                if (!rolYetkiler.Ekle())
+                DataRow[] mevcutYetki = mevcutYetkiler.Select(RolYetkiler.C_Sutun_ekran + " = '" + ekran.Replace("'", "''") + "'");
+
+                if (mevcutYetki.Length > 0)
                 {
-                    throw new Exception("Rol yetkisi kaydedilemedi.");
+                    rolYetkiler.Id = Convert.ToInt32(mevcutYetki[0][RolYetkiler.C_Sutun_id]);
+                    rolYetkiler.GuncelleyenId = currentInfo.KullaniciId;
+                    rolYetkiler.GuncelleyenIp = Utility.IpNoGetir();
+
+                    if (!rolYetkiler.Guncelle())
+                    {
+                        throw new Exception(Mesajlar.RolYetkisiGuncellenemedi);
+                    }
+                }
+                else
+                {
+                    rolYetkiler.EkleyenId = currentInfo.KullaniciId;
+                    rolYetkiler.EkleyenIp = Utility.IpNoGetir();
+
+                    if (!rolYetkiler.Ekle())
+                    {
+                        throw new Exception(Mesajlar.RolYetkisiKaydedilemedi);
+                    }
                 }
             }
 

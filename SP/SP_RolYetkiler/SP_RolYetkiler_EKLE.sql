@@ -1,11 +1,10 @@
-CREATE PROCEDURE dbo.SP_RolYetkiler_EKLE
+CREATE OR ALTER PROCEDURE dbo.SP_RolYetkiler_EKLE
     @rol_id INT,
     @ekran NVARCHAR(100),
     @goruntuleme BIT,
     @ekleme BIT,
     @guncelleme BIT,
     @silme BIT,
-    @yazdirma BIT,
     @aktif_mi BIT,
     @ekleyen_id INT,
     @ekleyen_ip NVARCHAR(20)
@@ -21,7 +20,6 @@ BEGIN
         ekleme,
         guncelleme,
         silme,
-        yazdirma,
         aktif_mi,
         eklenme_tarih,
         ekleyen_id,
@@ -35,7 +33,6 @@ BEGIN
         @ekleme,
         @guncelleme,
         @silme,
-        @yazdirma,
         @aktif_mi,
         GETDATE(),
         @ekleyen_id,

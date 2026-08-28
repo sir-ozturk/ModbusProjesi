@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.SP_RolYetkiler_SIL
+CREATE OR ALTER PROCEDURE dbo.SP_RolYetkiler_SIL
     @id INT
 AS
 BEGIN
@@ -6,6 +6,4 @@ BEGIN
 
     DELETE FROM dbo.RolYetkiler
     WHERE id = @id;
-
-    RETURN;
 END

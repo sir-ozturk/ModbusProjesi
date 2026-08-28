@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.SP_RolYetkiler_YETKI_VAR_MI
+CREATE OR ALTER PROCEDURE dbo.SP_RolYetkiler_YETKI_VAR_MI
     @rol_id INT,
     @ekran NVARCHAR(100),
     @islem_turu NVARCHAR(20)
@@ -12,7 +12,6 @@ BEGIN
             WHEN 'EKLE' THEN ekleme
             WHEN 'GUNCELLE' THEN guncelleme
             WHEN 'SIL' THEN silme
-            WHEN 'YAZDIR' THEN yazdirma
             ELSE 0
         END
     FROM dbo.RolYetkiler

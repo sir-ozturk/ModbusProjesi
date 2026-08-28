@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Collections;
 
 
-public class Loglar : OrtakAlanlar, IOrtakMetotlar
+public class Loglar : OrtakAlanlar
 {
     public ArrayList eskiDetay;
     private ArrayList yeniDetay;
@@ -23,11 +23,8 @@ public class Loglar : OrtakAlanlar, IOrtakMetotlar
     public const string C_Tablo = "dbo.Loglar";
 
     public const string C_Sp_Ekle = "dbo.SP_Loglar_EKLE";
-    public const string C_Sp_Guncelle = "dbo.SP_Loglar_GUNCELLE";
-    public const string C_Sp_Sil = "dbo.SP_Loglar_SIL";
     public const string C_Sp_Doldur = "dbo.SP_Loglar_DOLDUR";
     public const string C_Sp_TumunuGetir = "dbo.SP_Loglar_TUMUNU_GETIR";
-    public const string C_Sp_MaxIdGetir = "dbo.SP_Loglar_MAX_ID_GETIR";
     public const string C_Sp_IslemAdlar = "dbo.SP_Loglar_ISLEM_ADLAR";
     public const string C_Sp_TabloAdlar = "dbo.SP_Loglar_TABLO_ADLAR";
     public const string C_Sp_FiltreliGetir = "dbo.SP_Loglar_FILTRELI_GETIR";
@@ -43,8 +40,6 @@ public class Loglar : OrtakAlanlar, IOrtakMetotlar
     public const string C_Sutun_islem_tarihi = "islem_tarihi";
     public const string C_Parameter_baslangic_tarih = "baslangic_tarih";
     public const string C_Parameter_bitis_tarih = "bitis_tarih";
-
-    public LogNesnesi logNesnesi;
 
     #endregion
 
@@ -128,30 +123,6 @@ public class Loglar : OrtakAlanlar, IOrtakMetotlar
         return VeritabaniIslem.Calistir();
     }
 
-    public bool Guncelle()
-    {
-        VeritabaniIslem.SpAdi = C_Sp_Guncelle;
-        VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
-        VeritabaniIslem.ParametreEkle(C_Sutun_kullanici_id, Kullanici_id);
-        VeritabaniIslem.ParametreEkle(C_Sutun_url, Url);
-        VeritabaniIslem.ParametreEkle(C_Sutun_tablo_adi, Tablo_adi);
-        VeritabaniIslem.ParametreEkle(C_Sutun_islem_adi, Islem_adi);
-        VeritabaniIslem.ParametreEkle(C_Sutun_islem_tipi, Islem_tipi);
-        VeritabaniIslem.ParametreEkle(C_Sutun_detay, Detay);
-        VeritabaniIslem.ParametreEkle(C_Sutun_ip_adres, Ip_adres);
-        VeritabaniIslem.ParametreEkle(C_Sutun_islem_tarihi, Islem_tarihi);
-
-        return VeritabaniIslem.Calistir();
-    }
-
-    public bool Sil()
-    {
-        VeritabaniIslem.SpAdi = C_Sp_Sil;
-        VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
-
-        return VeritabaniIslem.Calistir();
-    }
-
     public bool Doldur()
     {
         VeritabaniIslem.SpAdi = C_Sp_Doldur;
@@ -183,20 +154,6 @@ public class Loglar : OrtakAlanlar, IOrtakMetotlar
         VeriTablosu = VeritabaniIslem.TabloGetir();
     }
 
-    public int MaxIdGetir()
-    {
-        VeritabaniIslem.SpAdi = C_Sp_MaxIdGetir;
-
-        object deger = VeritabaniIslem.DegerGetir();
-
-        if (deger == null || deger == DBNull.Value)
-        {
-            return 0;
-        }
-
-        return Convert.ToInt32(deger);
-    }
-
     public void IslemAdlarGetir()
     {
         VeritabaniIslem.SpAdi = C_Sp_IslemAdlar;
@@ -209,38 +166,10 @@ public class Loglar : OrtakAlanlar, IOrtakMetotlar
         VeriTablosu = VeritabaniIslem.TabloGetir();
     }
 
-    public void EskiDetayEkle(string baslik, object icerik)
-    {
-        eskiDetay.Add(baslik + " : " + icerik.ToString() + "#");
-    }
-
     public void YeniDetayEkle(string baslik, object icerik)
     {
         eskiDetay.Add(baslik.Replace("@", ""));
         yeniDetay.Add(icerik.ToString());
-    }
-
-    private void DetayOlustur()
-    {
-        detay = "";
-
-        for (int i = 0; i < yeniDetay.Count; i++)
-        {
-            try
-            {
-                detay += eskiDetay[i];
-            }
-            catch
-            {
-            }
-        }
-
-        detay += "*";
-
-        for (int i = 0; i < yeniDetay.Count; i++)
-        {
-            detay += yeniDetay[i];
-        }
     }
 
     public string DetayGetir()

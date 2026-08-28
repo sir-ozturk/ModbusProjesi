@@ -117,8 +117,7 @@ public partial class RolEkleme : System.Web.UI.Page
             }
         }
 
-        if (string.IsNullOrEmpty(txtRolAdi.Text.Trim()) ||
-            string.IsNullOrEmpty(ddlAktiflik.SelectedValue))
+        if (string.IsNullOrEmpty(txtRolAdi.Text.Trim()) || string.IsNullOrEmpty(ddlAktiflik.SelectedValue))
         {
             Mesaj.Ver(Mesajlar.RolAlanlarBos, Mesaj.MesajTurleri.WARNING, Page.Master);
 
@@ -144,7 +143,7 @@ public partial class RolEkleme : System.Web.UI.Page
             if (gelenId == 0)
             {
                 roller.EkleyenId = currentInfo.KullaniciId;
-                roller.EkleyenIp = Request.UserHostAddress;
+                roller.EkleyenIp = Utility.IpNoGetir();
 
                 if (roller.Ekle())
                 {
@@ -162,7 +161,7 @@ public partial class RolEkleme : System.Web.UI.Page
             {
                 roller.Id = gelenId;
                 roller.GuncelleyenId = currentInfo.KullaniciId;
-                roller.GuncelleyenIp = Request.UserHostAddress;
+                roller.GuncelleyenIp = Utility.IpNoGetir();
 
                 if (roller.Guncelle())
                 {
@@ -196,23 +195,40 @@ public partial class RolEkleme : System.Web.UI.Page
 
         try
         {
-            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
+            veritabaniIslemleri.LogYasak = true;
+
+            RolYetkiler rolYetkiler = new RolYetkiler(veritabaniIslemleri);
+            rolYetkiler.RolId = gelenId;
+
+            if (!rolYetkiler.RoleGoreSil())
+            {
+                veritabaniIslemleri.GeriAl();
+                Mesaj.Ver(Mesajlar.RolYetkileriSilinemedi, Mesaj.MesajTurleri.FAIL, Page.Master);
+                return;
+            }
 
             Roller roller = new Roller(veritabaniIslemleri);
 
             roller.Id = gelenId;
 
-            if (roller.Sil())
+            if (!roller.Sil())
             {
-                Session["BasariMesaji"] = Mesajlar.SilmeBasarili;
-
-                Response.Redirect("~/Pages/RolListeleme.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                veritabaniIslemleri.GeriAl();
+                Mesaj.Ver(Mesajlar.RolSilinemedi, Mesaj.MesajTurleri.WARNING, Page.Master);
                 return;
             }
+
+            veritabaniIslemleri.Uygula();
+            Session["BasariMesaji"] = Mesajlar.SilmeBasarili;
+
+            Response.Redirect("~/Pages/RolListeleme.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+            return;
         }
         catch (Exception ex)
         {
+            veritabaniIslemleri.GeriAl();
             Mesaj.Ver(Mesajlar.SilmeHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page.Master);
         }
         finally

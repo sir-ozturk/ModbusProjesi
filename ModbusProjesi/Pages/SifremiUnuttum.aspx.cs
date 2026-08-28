@@ -63,7 +63,7 @@ public partial class SifremiUnuttum : System.Web.UI.Page
 
                 kullanicilar.Sifre = yeniSifre;
                 kullanicilar.GuncelleyenId = kullanicilar.Id;
-                kullanicilar.GuncelleyenIp = Request.UserHostAddress;
+                kullanicilar.GuncelleyenIp = Utility.IpNoGetir();
 
                 kullanicilar.SifreGuncelle();
                 LogIslemleri.OlayKaydet("Şifre Sıfırlama", "SIFRE", "Kullanıcının şifresi başarıyla sıfırlandı.");

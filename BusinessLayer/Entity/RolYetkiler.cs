@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
 {
@@ -38,8 +33,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
     public const string C_Sutun_ekleme = "ekleme";
     public const string C_Sutun_guncelleme = "guncelleme";
     public const string C_Sutun_silme = "silme";
-    public const string C_Sutun_yazdirma = "yazdirma";
-
     #endregion
 
     #region NESNELER
@@ -122,19 +115,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
         }
     }
 
-    private bool yazdirma;
-    public bool Yazdirma
-    {
-        get
-        {
-            return yazdirma;
-        }
-        set
-        {
-            yazdirma = value;
-        }
-    }
-
     #endregion
 
     #region METOTLAR
@@ -149,7 +129,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
         VeritabaniIslem.ParametreEkle(C_Sutun_ekleme, Ekleme);
         VeritabaniIslem.ParametreEkle(C_Sutun_guncelleme, Guncelleme);
         VeritabaniIslem.ParametreEkle(C_Sutun_silme, Silme);
-        VeritabaniIslem.ParametreEkle(C_Sutun_yazdirma, Yazdirma);
         VeritabaniIslem.ParametreEkle(C_Sutun_aktif_mi, AktifMi);
         VeritabaniIslem.ParametreEkle(C_Sutun_ekleyen_id, EkleyenId);
         VeritabaniIslem.ParametreEkle(C_Sutun_ekleyen_ip, EkleyenIp);
@@ -168,7 +147,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
         VeritabaniIslem.ParametreEkle(C_Sutun_ekleme, Ekleme);
         VeritabaniIslem.ParametreEkle(C_Sutun_guncelleme, Guncelleme);
         VeritabaniIslem.ParametreEkle(C_Sutun_silme, Silme);
-        VeritabaniIslem.ParametreEkle(C_Sutun_yazdirma, Yazdirma);
         VeritabaniIslem.ParametreEkle(C_Sutun_aktif_mi, AktifMi);
         VeritabaniIslem.ParametreEkle(C_Sutun_guncelleyen_id, GuncelleyenId);
         VeritabaniIslem.ParametreEkle(C_Sutun_guncelleyen_ip, GuncelleyenIp);
@@ -179,7 +157,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
     public bool Sil()
     {
         VeritabaniIslem.SpAdi = C_Sp_Sil;
-
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
 
         return VeritabaniIslem.Calistir();
@@ -188,7 +165,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
     public bool Doldur()
     {
         VeritabaniIslem.SpAdi = C_Sp_Doldur;
-        
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
 
         DataRow veriSatiri = VeritabaniIslem.SatirGetir();
@@ -204,7 +180,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
         Ekleme = veriSatiri[C_Sutun_ekleme] != DBNull.Value && Convert.ToBoolean(veriSatiri[C_Sutun_ekleme]);
         Guncelleme = veriSatiri[C_Sutun_guncelleme] != DBNull.Value && Convert.ToBoolean(veriSatiri[C_Sutun_guncelleme]);
         Silme = veriSatiri[C_Sutun_silme] != DBNull.Value && Convert.ToBoolean(veriSatiri[C_Sutun_silme]);
-        Yazdirma = veriSatiri[C_Sutun_yazdirma] != DBNull.Value && Convert.ToBoolean(veriSatiri[C_Sutun_yazdirma]);
         AktifMi = veriSatiri[C_Sutun_aktif_mi] != DBNull.Value && Convert.ToBoolean(veriSatiri[C_Sutun_aktif_mi]);
 
         return true;
@@ -213,7 +188,6 @@ public class RolYetkiler : OrtakAlanlar, IOrtakMetotlar
     public void TumunuGetir()
     {
         VeritabaniIslem.SpAdi = C_Sp_TumunuGetir;
-
         VeriTablosu = VeritabaniIslem.TabloGetir();
     }
 

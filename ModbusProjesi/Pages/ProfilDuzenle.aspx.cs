@@ -177,7 +177,7 @@ public partial class ProfilDuzenle : System.Web.UI.Page
             kullanici.Sifre = sifreDegistiriliyor ? yeniSifre : null;
             kullanici.ProfilResim = string.IsNullOrEmpty(yeniFotoAdi) ? null : yeniFotoAdi;
             kullanici.GuncelleyenId = currentInfo.KullaniciId;
-            kullanici.GuncelleyenIp = currentInfo.Ip;
+            kullanici.GuncelleyenIp = Utility.IpNoGetir();
 
             if (!kullanici.Guncelle())
             {
