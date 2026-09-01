@@ -35,6 +35,7 @@ public partial class MakineListele : System.Web.UI.Page
         ucMyGrid.KolonEkle(Makineler.C_Sutun_model_ad, "Model");
         ucMyGrid.KolonEkle(Makineler.C_Sutun_gg_no, "GG No");
         ucMyGrid.KolonEkle(Makineler.C_Sutun_makine_no, "Makine No");
+        ucMyGrid.KolonEkle(Makineler.C_Sutun_makine_adi, "Makine Adı");
         ucMyGrid.KolonEkle(Makineler.C_Sutun_band_no, "Band No");
         ucMyGrid.KolonEkle(Makineler.C_Sutun_ip, "IP");
         ucMyGrid.KolonEkle(Makineler.C_Sutun_mfg, "MFG");

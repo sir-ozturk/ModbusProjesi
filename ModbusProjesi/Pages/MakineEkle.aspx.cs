@@ -63,6 +63,7 @@ public partial class MakineEkle : System.Web.UI.Page
                 txtEntegrasyonKod.Text = makineler.EntegrasyonKod;
                 txtGgNo.Text = makineler.GgNo;
                 txtMakineNo.Text = makineler.MakineNo;
+                txtMakineAdi.Text = makineler.MakineAdi;
                 txtBandNo.Text = makineler.BandNo;
                 txtIp.Text = makineler.Ip;
                 txtMfg.Text = makineler.Mfg;
@@ -105,7 +106,8 @@ public partial class MakineEkle : System.Web.UI.Page
             }
         }
 
-        if (string.IsNullOrEmpty(txtModelAd.Text.Trim()) ||
+        if (string.IsNullOrEmpty(txtMakineAdi.Text.Trim()) ||
+            string.IsNullOrEmpty(txtModelAd.Text.Trim()) ||
             string.IsNullOrEmpty(txtEntegrasyonKod.Text.Trim()) ||
             string.IsNullOrEmpty(txtGgNo.Text.Trim()) ||
             string.IsNullOrEmpty(txtMakineNo.Text.Trim()) ||
@@ -150,6 +152,7 @@ public partial class MakineEkle : System.Web.UI.Page
             makineler.EntegrasyonKod = txtEntegrasyonKod.Text.Trim();
             makineler.GgNo = txtGgNo.Text.Trim();
             makineler.MakineNo = txtMakineNo.Text.Trim();
+            makineler.MakineAdi = txtMakineAdi.Text.Trim();
             makineler.BandNo = txtBandNo.Text.Trim();
             makineler.Ip = txtIp.Text.Trim();
             makineler.Mfg = txtMfg.Text.Trim();

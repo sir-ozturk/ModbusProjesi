@@ -29,6 +29,8 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
     public const string C_Sutun_entegrasyon_kod = "entegrasyon_kod";
     public const string C_Sutun_gg_no = "gg_no";
     public const string C_Sutun_makine_no = "makine_no";
+    public const string C_Sutun_makine_adi = "makine_adi";
+    public const string C_Sutun_sira_no = "sira_no";
     public const string C_Sutun_band_no = "band_no";
     public const string C_Sutun_ip = "ip";
     public const string C_Sutun_mfg = "mfg";
@@ -40,50 +42,118 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
     private string modelAd;
     public string ModelAd
     {
-        get { return modelAd; }
-        set { modelAd = value; }
+        get 
+        { 
+            return modelAd; 
+        }
+        set 
+        { 
+            modelAd = value; 
+        }
     }
 
     private string entegrasyonKod;
     public string EntegrasyonKod
     {
-        get { return entegrasyonKod; }
-        set { entegrasyonKod = value; }
+        get
+        {
+            return entegrasyonKod;
+        }
+        set
+        {
+            entegrasyonKod = value;
+        }
     }
 
     private string ggNo;
     public string GgNo
     {
-        get { return ggNo; }
-        set { ggNo = value; }
+        get
+        {
+            return ggNo;
+        }
+        set
+        {
+            ggNo = value;
+        }
     }
 
     private string makineNo;
     public string MakineNo
     {
-        get { return makineNo; }
-        set { makineNo = value; }
+        get
+        {
+            return makineNo;
+        }
+        set
+        {
+            makineNo = value;
+        }
+    }
+
+    private string makineAdi;
+    public string MakineAdi
+    {
+        get
+        {
+            return makineAdi;
+        }
+        set
+        {
+            makineAdi = value;
+        }
     }
 
     private string bandNo;
     public string BandNo
     {
-        get { return bandNo; }
-        set { bandNo = value; }
+        get 
+        { 
+            return bandNo; 
+        }
+        set 
+        { 
+            bandNo = value; 
+        }
+    }
+
+    private int siraNo;
+    public int SiraNo
+    {
+        get
+        {
+            return siraNo;
+        }
+        set
+        {
+            siraNo = value;
+        }
     }
 
     private string ip;
     public string Ip
     {
-        get { return ip; }
-        set { ip = value; }
+        get
+        {
+            return ip;
+        }
+        set
+        {
+            ip = value;
+        }
     }
 
     private string mfg;
     public string Mfg
     {
-        get { return mfg; }
-        set { mfg = value; }
+        get
+        {
+            return mfg;
+        }
+        set
+        {
+            mfg = value;
+        }
     }
 
     #endregion
@@ -98,6 +168,7 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
         VeritabaniIslem.ParametreEkle(C_Sutun_entegrasyon_kod, EntegrasyonKod);
         VeritabaniIslem.ParametreEkle(C_Sutun_gg_no, GgNo);
         VeritabaniIslem.ParametreEkle(C_Sutun_makine_no, MakineNo);
+        VeritabaniIslem.ParametreEkle(C_Sutun_makine_adi, MakineAdi);
         VeritabaniIslem.ParametreEkle(C_Sutun_band_no, BandNo);
         VeritabaniIslem.ParametreEkle(C_Sutun_ip, Ip);
         VeritabaniIslem.ParametreEkle(C_Sutun_mfg, Mfg);
@@ -117,6 +188,7 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
         VeritabaniIslem.ParametreEkle(C_Sutun_entegrasyon_kod, EntegrasyonKod);
         VeritabaniIslem.ParametreEkle(C_Sutun_gg_no, GgNo);
         VeritabaniIslem.ParametreEkle(C_Sutun_makine_no, MakineNo);
+        VeritabaniIslem.ParametreEkle(C_Sutun_makine_adi, MakineAdi);
         VeritabaniIslem.ParametreEkle(C_Sutun_band_no, BandNo);
         VeritabaniIslem.ParametreEkle(C_Sutun_ip, Ip);
         VeritabaniIslem.ParametreEkle(C_Sutun_mfg, Mfg);
@@ -153,6 +225,8 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
         EntegrasyonKod = SonucKayit[C_Sutun_entegrasyon_kod].ToString();
         GgNo = SonucKayit[C_Sutun_gg_no].ToString();
         MakineNo = SonucKayit[C_Sutun_makine_no].ToString();
+        MakineAdi = SonucKayit[C_Sutun_makine_adi].ToString();
+        SiraNo = Convert.ToInt32(SonucKayit[C_Sutun_sira_no]);
         BandNo = SonucKayit[C_Sutun_band_no].ToString();
         Ip = SonucKayit[C_Sutun_ip].ToString();
         Mfg = SonucKayit[C_Sutun_mfg].ToString();

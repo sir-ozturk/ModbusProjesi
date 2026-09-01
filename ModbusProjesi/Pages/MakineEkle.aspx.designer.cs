@@ -58,6 +58,15 @@ public partial class MakineEkle
     protected global::System.Web.UI.WebControls.TextBox txtMakineNo;
 
     /// <summary>
+    /// txtMakineAdi control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.TextBox txtMakineAdi;
+
+    /// <summary>
     /// txtBandNo control.
     /// </summary>
     /// <remarks>

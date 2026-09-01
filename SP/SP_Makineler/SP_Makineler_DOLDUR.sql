@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.SP_Makineler_DOLDUR
+CREATE OR ALTER PROCEDURE dbo.SP_Makineler_DOLDUR
     @id INT
 AS
 BEGIN
@@ -10,6 +10,8 @@ BEGIN
         entegrasyon_kod,
         gg_no,
         makine_no,
+        makine_adi,
+        sira_no,
         band_no,
         ip,
         mfg,

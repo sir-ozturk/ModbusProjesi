@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Entity\Kullanicilar.cs" />
     <Compile Include="Entity\Loglar.cs" />
+    <Compile Include="Entity\MakineLoglari.cs" />
     <Compile Include="Entity\Makineler.cs" />
     <Compile Include="Entity\RolYetkiler.cs" />
     <Compile Include="Work\CurrentInfo.cs" />

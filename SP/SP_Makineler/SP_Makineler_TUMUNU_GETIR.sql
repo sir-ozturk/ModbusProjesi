@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.SP_Makineler_TUMUNU_GETIR
+CREATE OR ALTER PROCEDURE dbo.SP_Makineler_TUMUNU_GETIR
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -9,6 +9,8 @@ BEGIN
         entegrasyon_kod,
         gg_no,
         makine_no,
+        makine_adi,
+        sira_no,
         band_no,
         ip,
         mfg,
@@ -20,5 +22,5 @@ BEGIN
         guncelleyen_ip,
         guncellenme_tarih
     FROM dbo.Makineler
-    ORDER BY model_ad, makine_no;
+    ORDER BY sira_no;
 END

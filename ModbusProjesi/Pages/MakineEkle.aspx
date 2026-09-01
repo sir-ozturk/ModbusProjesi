@@ -4,7 +4,7 @@
     Inherits="MakineEkle" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-<link href="../Styles/MakineEkle.css" rel="stylesheet" />
+    <link href="../Styles/MakineEkle.css" rel="stylesheet" />
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -91,6 +91,22 @@
                             CssClass="form-control form-control-modbus"
                             MaxLength="5"
                             oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                        </asp:TextBox>
+                    </div>
+                </div>
+
+                <!-- MAKİNE ADI -->
+                <div class="row mb-3 align-items-center">
+                    <label class="col-12 col-md-3 fw-bold text-modbus">
+                        Makine Adı
+                    </label>
+
+                    <div class="col-12 col-md-9">
+                        <asp:TextBox
+                            ID="txtMakineAdi"
+                            runat="server"
+                            CssClass="form-control form-control-modbus"
+                            MaxLength="100">
                         </asp:TextBox>
                     </div>
                 </div>
