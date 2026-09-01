@@ -33,8 +33,20 @@ public partial class RolListeleme : System.Web.UI.Page
 
         if (Page.IsPostBack == false)
         {
+            BasariMesajiniGoster();
             Listele();
         }
+    }
+
+    private void BasariMesajiniGoster()
+    {
+        if (Session["BasariMesaji"] == null)
+        {
+            return;
+        }
+
+        Mesaj.Ver(Session["BasariMesaji"].ToString(), Mesaj.MesajTurleri.SUCCESS, Page.Master);
+        Session.Remove("BasariMesaji");
     }
 
     private void Listele()

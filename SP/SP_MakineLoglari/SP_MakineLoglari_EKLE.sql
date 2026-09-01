@@ -1,3 +1,9 @@
+SET ANSI_NULLS ON;
+GO
+
+SET QUOTED_IDENTIFIER ON;
+GO
+
 CREATE OR ALTER PROCEDURE dbo.SP_MakineLoglari_EKLE
     @makine_id INT,
     @islem_tipi NVARCHAR(30),

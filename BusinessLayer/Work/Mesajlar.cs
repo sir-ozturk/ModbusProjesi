@@ -289,6 +289,51 @@ public class Mesajlar
         get { return "GG No, Makine No ve MFG alanlarına yalnızca rakam girilebilir."; }
     }
 
+    public static string MakineSiralamasiGuncellendi
+    {
+        get { return "Makine sıralaması başarıyla güncellendi."; }
+    }
+
+    public static string MakineSiralamasiGuncellenemedi
+    {
+        get { return "Makine sıralaması güncellenemedi."; }
+    }
+
+    public static string MakineBasariylaDurduruldu
+    {
+        get { return "Makine başarıyla durduruldu."; }
+    }
+
+    public static string MakineDurdurulamadi
+    {
+        get { return "Makine durdurulamadı."; }
+    }
+
+    public static string MakineZatenDuruyor
+    {
+        get { return "Makine zaten duruyor."; }
+    }
+
+    public static string DurusNedeniSeciniz
+    {
+        get { return "Lütfen bir duruş nedeni seçiniz veya özel neden giriniz."; }
+    }
+
+    public static string MakineSimulasyondaCalistirildi
+    {
+        get { return "Makine simülasyonda yeniden çalıştırıldı."; }
+    }
+
+    public static string MakineCalistirilamadi
+    {
+        get { return "Makine çalıştırma kaydı kapatılamadı."; }
+    }
+
+    public static string MakineZatenCalisiyor
+    {
+        get { return "Makine zaten çalışıyor."; }
+    }
+
     #endregion
 }
 

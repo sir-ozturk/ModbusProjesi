@@ -23,6 +23,8 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
     public const string C_Sp_Sil = "dbo.SP_Makineler_SIL";
     public const string C_Sp_Doldur = "dbo.SP_Makineler_DOLDUR";
     public const string C_Sp_TumunuGetir = "dbo.SP_Makineler_TUMUNU_GETIR";
+    public const string C_Sp_DashboardGetir = "dbo.SP_Makineler_DASHBOARD_GETIR";
+    public const string C_Sp_SiralamayiGuncelle = "dbo.SP_Makineler_SIRALAMAYI_GUNCELLE";
     public const string C_Sp_KayitVarMi = "dbo.SP_Makineler_KAYIT_VAR_MI";
 
     public const string C_Sutun_model_ad = "model_ad";
@@ -240,6 +242,24 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
         VeritabaniIslem.SpAdi = C_Sp_TumunuGetir;
 
         VeriTablosu = VeritabaniIslem.TabloGetir();
+    }
+
+    public void DashboardGetir()
+    {
+        VeritabaniIslem.SpAdi = C_Sp_DashboardGetir;
+
+        VeriTablosu = VeritabaniIslem.TabloGetir();
+    }
+
+    public bool SiralamayiGuncelle(string siralamaXml)
+    {
+        VeritabaniIslem.SpAdi = C_Sp_SiralamayiGuncelle;
+
+        VeritabaniIslem.ParametreEkle("siralama_xml", siralamaXml);
+        VeritabaniIslem.ParametreEkle(C_Sutun_guncelleyen_id, GuncelleyenId);
+        VeritabaniIslem.ParametreEkle(C_Sutun_guncelleyen_ip, GuncelleyenIp);
+
+        return VeritabaniIslem.Calistir();
     }
 
     public bool KayitVarMi()

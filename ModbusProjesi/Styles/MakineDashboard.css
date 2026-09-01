@@ -1,0 +1,171 @@
+.dashboard-baslik {
+    color: darkblue;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.dashboard-mod-badge {
+    color: darkblue;
+    background-color: rgba(95, 158, 160, .25);
+    border: 1px solid cadetblue;
+}
+
+.makine-kart {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 310px;
+    border: 2px solid;
+    border-radius: 14px;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+}
+
+.makine-kart-calisiyor {
+    border-color: #198754;
+}
+
+.makine-kart-duruyor {
+    border-color: #dc3545;
+}
+
+.makine-kart-baslik {
+    overflow: hidden;
+    padding: 8px 10px;
+    color: white;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.makine-kart-calisiyor .makine-kart-baslik {
+    background-color: #198754;
+}
+
+.makine-kart-duruyor .makine-kart-baslik {
+    background-color: #dc3545;
+}
+
+.makine-kart-govde {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 12px;
+}
+
+.makine-kart-govde > .btn {
+    margin-top: auto;
+}
+
+.makine-durum,
+.makine-sure {
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.makine-kart-calisiyor .makine-durum,
+.makine-kart-calisiyor .makine-sure {
+    color: #198754;
+}
+
+.makine-kart-duruyor .makine-durum,
+.makine-kart-duruyor .makine-sure {
+    color: #dc3545;
+}
+
+.makine-bilgiler > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 3px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: .75rem;
+}
+
+.makine-bilgiler dt,
+.makine-bilgiler dd {
+    overflow: hidden;
+    margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.makine-siralama-listesi {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.makine-siralama-ogesi {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: white;
+    cursor: grab;
+    user-select: none;
+}
+
+.makine-siralama-ogesi:active {
+    cursor: grabbing;
+}
+
+.makine-siralama-ogesi.surukleniyor {
+    opacity: .45;
+}
+
+.makine-sira-degeri {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: white;
+    background-color: cadetblue;
+    font-weight: 700;
+}
+
+.makine-bilgiler dt {
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.makine-bilgiler dd {
+    color: darkblue;
+    font-weight: 700;
+    text-align: right;
+}
+
+.makine-neden-satiri {
+    align-items: flex-start;
+    min-height: 72px;
+}
+
+.makine-neden-satiri dd {
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+@media (min-width: 1600px) {
+    .makine-kolon {
+        flex: 0 0 auto;
+        width: 10%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .dashboard-baslik {
+        font-size: 1.4rem;
+    }
+
+    .makine-siralama-listesi {
+        grid-template-columns: 1fr;
+    }
+}

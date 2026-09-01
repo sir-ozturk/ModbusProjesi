@@ -94,6 +94,7 @@
     <Content Include="Styles\Login.css" />
     <Content Include="Styles\LogListesi.css" />
     <Content Include="Styles\MakineEkle.css" />
+    <Content Include="Styles\MakineDashboard.css" />
     <Content Include="Styles\MakineListele.css" />
     <Content Include="Styles\RolEkleme.css" />
     <Content Include="Styles\RolListeleme.css" />

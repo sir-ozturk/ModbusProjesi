@@ -26,6 +26,8 @@ public partial class RolEkleme : System.Web.UI.Page
 
         if (Page.IsPostBack == false)
         {
+            BasariMesajiniGoster();
+
             if (gelenId > 0)
             {
                 RolDoldur();
@@ -44,6 +46,17 @@ public partial class RolEkleme : System.Web.UI.Page
                 btnYetkiler.Enabled = false;
             }
         }
+    }
+
+    private void BasariMesajiniGoster()
+    {
+        if (Session["BasariMesaji"] == null)
+        {
+            return;
+        }
+
+        Mesaj.Ver(Session["BasariMesaji"].ToString(), Mesaj.MesajTurleri.SUCCESS, Page.Master);
+        Session.Remove("BasariMesaji");
     }
 
     private void YeniRolHazirla()
@@ -198,6 +211,19 @@ public partial class RolEkleme : System.Web.UI.Page
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
             veritabaniIslemleri.LogYasak = true;
 
+            Roller roller = new Roller(veritabaniIslemleri);
+            roller.Id = gelenId;
+
+            if (!roller.Doldur())
+            {
+                veritabaniIslemleri.GeriAl();
+                Mesaj.Ver(Mesajlar.RolSilinemedi, Mesaj.MesajTurleri.WARNING, Page.Master);
+                return;
+            }
+
+            string silinenRolKodu = roller.RolKodu;
+            string silinenRolAdi = roller.Adi;
+
             RolYetkiler rolYetkiler = new RolYetkiler(veritabaniIslemleri);
             rolYetkiler.RolId = gelenId;
 
@@ -208,10 +234,6 @@ public partial class RolEkleme : System.Web.UI.Page
                 return;
             }
 
-            Roller roller = new Roller(veritabaniIslemleri);
-
-            roller.Id = gelenId;
-
             if (!roller.Sil())
             {
                 veritabaniIslemleri.GeriAl();
@@ -220,6 +242,12 @@ public partial class RolEkleme : System.Web.UI.Page
             }
 
             veritabaniIslemleri.Uygula();
+
+            LogIslemleri.OlayKaydet(
+                "Rol Silindi",
+                "Roller",
+                "Rol Id: " + gelenId + ", Rol Kodu: " + silinenRolKodu + ", Rol Adı: " + silinenRolAdi);
+
             Session["BasariMesaji"] = Mesajlar.SilmeBasarili;
 
             Response.Redirect("~/Pages/RolListeleme.aspx", false);
