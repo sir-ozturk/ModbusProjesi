@@ -334,6 +334,51 @@ public class Mesajlar
         get { return "Makine zaten çalışıyor."; }
     }
 
+    public static string MakineRoleAtamasiYok
+    {
+        get { return "Bu makine 1 numaralı röleye atanmamış veya aktif değil."; }
+    }
+
+    public static string RoleCihazAyariGecersiz
+    {
+        get { return "Makine kontrol cihazının adres ayarı geçersiz."; }
+    }
+
+    public static string RoleCihazinaUlasilamadi
+    {
+        get { return "Makine kontrol cihazına ulaşılamadı. Komut sonucu doğrulanamadı; röle durumunu kontrol ediniz."; }
+    }
+
+    public static string RoleCihazZamanAsimi
+    {
+        get { return "Makine kontrol cihazı 4 saniye içinde yanıt vermedi. Komut uygulanmış olabilir; röle durumunu kontrol ediniz."; }
+    }
+
+    public static string RoleCihazYanitiBasarisiz
+    {
+        get { return "Makine kontrol cihazından başarılı yanıt alınamadı. Röle durumunu kontrol ediniz."; }
+    }
+
+    public static string RoleKomutuKaydedilemedi
+    {
+        get { return "Röle komutu cihaz tarafından kabul edildi ancak veritabanı kaydı tamamlanamadı. Ekrandaki durum güncel olmayabilir; röle durumunu kontrol ediniz."; }
+    }
+
+    public static string RoleKomutuIsleniyor
+    {
+        get { return "Röle için başka bir işlem devam ediyor. Tamamlandıktan sonra tekrar deneyiniz."; }
+    }
+
+    public static string RoleDurdurmaKomutuGonderildi
+    {
+        get { return "1 numaralı röleye durdurma komutu gönderildi."; }
+    }
+
+    public static string RoleBaslatmaKomutuGonderildi
+    {
+        get { return "1 numaralı röleye başlatma komutu gönderildi."; }
+    }
+
     #endregion
 }
 

@@ -1,4 +1,4 @@
-<%@ Page Title="Makine Kontrol" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
+<%@ Page Title="Makine Kontrol" Language="C#" Async="true" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../Styles/MakineDashboard.css?v=1" rel="stylesheet" />
@@ -9,7 +9,7 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
                 <h1 class="dashboard-baslik mb-1">Makine Kontrol Ekranı</h1>
-                <p class="text-secondary mb-0">Aktif makinelerin anlık durumları</p>
+                <p class="text-secondary mb-0">Aktif makinelerin kayıtlı durumları</p>
             </div>
 
             <div class="d-flex align-items-center gap-2">
@@ -20,7 +20,7 @@
 
                 <span class="badge dashboard-mod-badge px-3 py-2">
                     <i class="fa-solid fa-flask me-1"></i>
-                    Simülasyon Modu
+                    Röle 1 Testi
                 </span>
             </div>
         </div>
@@ -82,7 +82,7 @@
                                     runat="server"
                                     Text="Durdur"
                                     Visible='<%# !Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineYonetimYetkisiVarMi() %>'
+                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no")) %>'
                                     OnClientClick='<%# DurdurmaModalAcmaKodu(Eval("id"), Eval("makine_adi"), Eval("makine_no"), Eval("ip")) %>'
                                     UseSubmitBehavior="false"
                                     CssClass="btn btn-danger w-100 fw-bold" />
@@ -90,9 +90,9 @@
                                 <asp:Button
                                     ID="btnMakineCalistir"
                                     runat="server"
-                                    Text="Çalıştır (Test)"
+                                    Text="Başlat (Röle 1)"
                                     Visible='<%# Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineYonetimYetkisiVarMi() %>'
+                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no")) %>'
                                     CommandArgument='<%# Eval("id") %>'
                                     OnCommand="btnMakineCalistir_Command"
                                     CssClass="btn btn-success w-100 fw-bold" />
@@ -125,7 +125,7 @@
                     <div class="modal-body">
                         <div class="alert alert-warning small" role="alert">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                            Simülasyon modunda durdurma kaydı oluşturulacaktır.
+                            1 numaralı röleye durdurma komutu gönderilecek ve duruş kaydı oluşturulacaktır.
                         </div>
 
                         <label class="form-label fw-bold">Duruş Nedeni *</label>
