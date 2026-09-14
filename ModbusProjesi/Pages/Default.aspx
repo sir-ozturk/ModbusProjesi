@@ -1,10 +1,11 @@
-<%@ Page Title="Makine Kontrol" Language="C#" Async="true" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
+<%@ Page Language="C#" Async="true" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../Styles/MakineDashboard.css?v=1" rel="stylesheet" />
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <asp:ScriptManager ID="smDashboard" runat="server" />
     <div class="container-fluid px-0">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
@@ -25,6 +26,10 @@
             </div>
         </div>
 
+        <asp:UpdatePanel ID="upDurum" runat="server" UpdateMode="Conditional">
+        <ContentTemplate>
+        <asp:Button ID="btnDurumYenile" runat="server" OnClick="btnDurumYenile_Click" CausesValidation="false" Style="display:none" />
+        <asp:Label ID="lblDonanimDurumu" runat="server" Visible="false" CssClass="d-block text-secondary mb-2" />
         <asp:Panel ID="pnlHata" runat="server" Visible="false" CssClass="alert alert-danger" role="alert">
             <asp:Label ID="lblHata" runat="server"></asp:Label>
         </asp:Panel>
@@ -82,7 +87,7 @@
                                     runat="server"
                                     Text="Durdur"
                                     Visible='<%# !Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no")) %>'
+                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no"), Eval("relay_channel")) %>'
                                     OnClientClick='<%# DurdurmaModalAcmaKodu(Eval("id"), Eval("makine_adi"), Eval("makine_no"), Eval("ip")) %>'
                                     UseSubmitBehavior="false"
                                     CssClass="btn btn-danger w-100 fw-bold" />
@@ -92,7 +97,7 @@
                                     runat="server"
                                     Text="Başlat (Röle 1)"
                                     Visible='<%# Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no")) %>'
+                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no"), Eval("relay_channel")) %>'
                                     CommandArgument='<%# Eval("id") %>'
                                     OnCommand="btnMakineCalistir_Command"
                                     CssClass="btn btn-success w-100 fw-bold" />
@@ -103,6 +108,8 @@
             </asp:Repeater>
         </div>
 
+        </ContentTemplate>
+        </asp:UpdatePanel>
         <asp:HiddenField ID="hdnMakineSiralamasi" runat="server" />
         <asp:HiddenField ID="hdnDurdurMakineId" runat="server" />
         <asp:HiddenField ID="hdnDurusNedeni" runat="server" />
@@ -338,13 +345,12 @@
             });
 
             window.setTimeout(function sayfayiYenile() {
-                if (document.querySelector(".modal.show")) {
-                    window.setTimeout(sayfayiYenile, 10000);
-                    return;
+                if (!document.querySelector(".modal.show") && !document.hidden &&
+                    !Sys.WebForms.PageRequestManager.getInstance().get_isInAsyncPostBack()) {
+                    document.getElementById("<%= btnDurumYenile.ClientID %>").click();
                 }
-
-                window.location.reload();
-            }, 120000);
+                window.setTimeout(sayfayiYenile, 5000);
+            }, 5000);
         })();
     </script>
 </asp:Content>

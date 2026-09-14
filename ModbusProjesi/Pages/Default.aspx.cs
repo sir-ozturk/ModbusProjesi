@@ -21,8 +21,73 @@ public partial class Default : System.Web.UI.Page
         if (!IsPostBack)
         {
             BasariMesajiniGoster();
-            MakineleriGetir();
+            RegisterAsyncTask(new PageAsyncTask(DonanimDurumunuYenileAsync));
         }
+    }
+
+    protected void btnDurumYenile_Click(object sender, EventArgs e)
+    {
+        RegisterAsyncTask(new PageAsyncTask(DonanimDurumunuYenileAsync));
+    }
+
+    private async Task DonanimDurumunuYenileAsync()
+    {
+        CurrentInfo kullanici = new Sessionlar().Current._CurrentInfo;
+        if (kullanici == null || !kullanici.LoginYapildiMi) return;
+        if (!await roleIslemKilidi.WaitAsync(0))
+        {
+            lblDonanimDurumu.Text = "Röle işlemi sürüyor; IO durumu sonraki okumada yenilenecek.";
+            lblDonanimDurumu.Visible = true;
+            lblDonanimDurumu.CssClass = "d-block text-secondary mb-2";
+            MakineleriGetir();
+            return;
+        }
+        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+        try
+        {
+            // Aynı kilit, okuma sırasında uygulamadan karşıt komut gönderilmesini önler.
+            string durum = await MakineRoleIslemleri.DurumOkuAsync();
+            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
+            Makineler makineler = new Makineler(veritabaniIslemleri);
+            makineler.DashboardGetir();
+            foreach (DataRow satir in makineler.VeriTablosu.Rows)
+            {
+                if (satir["relay_channel"] == DBNull.Value) continue;
+                bool duruyor = MakineRoleIslemleri.DurumdanDuruyorMu(durum, Convert.ToInt32(satir["relay_channel"]));
+                MakineLoglari log = new MakineLoglari(veritabaniIslemleri) { MakineId = Convert.ToInt32(satir["id"]) };
+                bool acikKayit = log.AcikKayitGetir();
+                if (duruyor == acikKayit) continue;
+                // Kullanıcı kaydı gözlemleyen oturumdur; duruş nedeni donanım kaynağını belirtir.
+                if (duruyor)
+                {
+                    log.IslemTipi = MakineLoglari.C_IslemTipi_Durdur;
+                    log.IslemNedeni = "Donanım üzerinden durduruldu (IO Control)";
+                    log.DevamEdiyorMu = true;
+                    log.BasariliMi = true;
+                    log.AktifMi = true;
+                    log.EkleyenId = kullanici.KullaniciId;
+                    log.EkleyenIp = Utility.IpNoGetir();
+                    if (!log.Ekle()) throw new InvalidOperationException("Duruş kaydı oluşturulamadı.");
+                }
+                else if (!log.Kapat()) throw new InvalidOperationException("Duruş kaydı kapatılamadı.");
+            }
+            veritabaniIslemleri.Uygula();
+            lblDonanimDurumu.Text = string.Empty;
+            lblDonanimDurumu.Visible = false;
+        }
+        catch
+        {
+            veritabaniIslemleri.GeriAl();
+            lblDonanimDurumu.Text = "Donanım durumu doğrulanamadı veya kaydedilemedi. Gösterilen bilgiler son veritabanı kayıtlarıdır.";
+            lblDonanimDurumu.Visible = true;
+            lblDonanimDurumu.CssClass = "d-block text-danger mb-2";
+        }
+        finally
+        {
+            veritabaniIslemleri.Bitir();
+            roleIslemKilidi.Release();
+        }
+        MakineleriGetir();
     }
 
     private void BasariMesajiniGoster()
@@ -52,11 +117,7 @@ public partial class Default : System.Web.UI.Page
 
             DataTable makineTablosu = makineler.VeriTablosu;
 
-            if (makineTablosu == null || makineTablosu.Rows.Count == 0)
-            {
-                pnlMakineYok.Visible = true;
-                return;
-            }
+            pnlMakineYok.Visible = makineTablosu == null || makineTablosu.Rows.Count == 0;
 
             rptMakineler.DataSource = makineTablosu;
             rptMakineler.DataBind();
@@ -209,7 +270,7 @@ public partial class Default : System.Web.UI.Page
             Makineler makineler = new Makineler(veritabaniIslemleri);
             makineler.Id = makineId;
 
-            if (!makineler.Doldur() || !makineler.AktifMi || !MakineRoleIslemleri.RoleBirMakinesiMi(makineler.MakineNo))
+            if (!makineler.Doldur() || !makineler.AktifMi || makineler.RelayChannel != 1 || !MakineRoleIslemleri.RoleBirMakinesiMi(makineler.MakineNo))
             {
                 hataMesaji = Mesajlar.MakineRoleAtamasiYok;
                 veritabaniIslemleri.GeriAl();
@@ -319,7 +380,7 @@ public partial class Default : System.Web.UI.Page
 
             Makineler makineler = new Makineler(veritabaniIslemleri);
             makineler.Id = makineId;
-            bool roleAtamasiVar = makineler.Doldur() && makineler.AktifMi
+            bool roleAtamasiVar = makineler.Doldur() && makineler.AktifMi && makineler.RelayChannel == 1
                 && MakineRoleIslemleri.RoleBirMakinesiMi(makineler.MakineNo);
 
             MakineLoglari makineLoglari = new MakineLoglari(veritabaniIslemleri);
@@ -440,9 +501,10 @@ public partial class Default : System.Web.UI.Page
         return "makineDurdurmaModaliniAc(" + Convert.ToInt32(id) + ", '" + guvenliMakineAdi + "', '" + guvenliMakineNo + "', '" + guvenliIp + "'); return false;";
     }
 
-    protected bool MakineRoleKontrolYetkisiVarMi(object makineNo)
+    protected bool MakineRoleKontrolYetkisiVarMi(object makineNo, object relayChannel)
     {
-        return makineYonetimYetkisiVar && MakineRoleIslemleri.RoleBirMakinesiMi(Convert.ToString(makineNo));
+        return makineYonetimYetkisiVar && relayChannel != DBNull.Value && Convert.ToInt32(relayChannel) == 1
+            && MakineRoleIslemleri.RoleBirMakinesiMi(Convert.ToString(makineNo));
     }
 
     protected string MakineKartSinifi(object duruyorMu)

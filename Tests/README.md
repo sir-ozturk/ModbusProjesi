@@ -1,6 +1,18 @@
 # Röle 1 entegrasyonu
 
-Mevcut Web Forms ekranı → BusinessLayer/Work/MakineRoleIslemleri → HW-584 HTTP akışı kullanılır. Veritabanı şeması veya stored procedure değişikliği gerekmez.
+Mevcut Web Forms ekranı → BusinessLayer/Work/MakineRoleIslemleri → HW-584 HTTP akışı kullanılır.
+
+## Çift yönlü durum senkronizasyonu
+
+Kurulum: `./Tests/DonanimSenkronizasyonKur.ps1` komutunu çalıştırın. Web.config içindeki veritabanına tek transaction içinde nullable `relay_channel` alanını, kanal doğrulama/tekillik kısıtlarını, güncel makine sorgularını ve açık duruş indeksini uygular. Mevcut makine_no 18, kanal 1 olarak atanır; var olan atamalar korunur. İşlem hata verirse tamamı geri alınır.
+
+Dashboard ilk açılışta ve görünürken yaklaşık 5 saniyede bir sunucu üzerinden GET /98 okur. Açık modal sırasında yenileme bekler. Dashboard kapalıyken arka plan takibi yapılmaz. Bir okuma 16 kanalın tamamını kapsar. Yanıt, çevresindeki boşluklar temizlendikten sonra tam 16 adet 0/1 olmalıdır; indeks `16 - relay_channel`, bit 1 duruyor, bit 0 çalışıyor anlamına gelir.
+
+Yalnızca relay_channel atanmış aktif makineler aynı RoleCihazAdresi üzerinden izlenir. Kanal NULL ise donanım senkronizasyonuna dahil edilmez. Başka bir makineyi bu karta eşlemek için veritabanında relay_channel alanına 1–16 arasında benzersiz bir değer verin. Makine formu bu alanı değiştirmez. Birden fazla Ethernet kartı bu sürümün kapsamında değildir. Uygulamadan komut gönderme mevcut test kapsamındaki makine ve kanal 1 ile sınırlıdır; diğer kanallar okunabilir.
+
+Donanım durumu açık MakineLoglari kaydıyla karşılaştırılır. Duruşa geçişte “Donanım üzerinden durduruldu (IO Control)” nedeni ile kayıt açılır, çalışmaya geçişte açık kayıt kapatılır. Aynı durum yeni kayıt oluşturmaz; mevcut duruş nedeni korunur. Ekleyen kullanıcı, gözlemi yapan dashboard oturumudur; bu kullanıcının donanım komutunu verdiği anlamına gelmez. Kapatma donanım gözlemi olduğundan kullanıcı alanı NULL kalır. Tüm gözlemler tek transaction içinde uygulanır. Hatalı yanıt veya kayıt hatasında değişiklikler geri alınır ve ekranda kayıtlı bilgilerin gösterildiği bildirilir.
+
+Okuma ve uygulama komutları aynı süreç kilidini kullanır. Tek IIS worker süreci gereklidir. Gözlem gerçek IO çıkışını gösterir; motorun fiziksel hareketini doğrulamaz. İki okuma arasındaki kısa aç/kapa hareketleri ve dashboard kapalıyken gerçekleşen hareketlerin tam zamanı tespit edilemez; duruş zamanı tespit anıdır.
 
 ## Ayarlar
 
@@ -17,7 +29,7 @@ Başlat butonu mevcut akıştaki gibi açık duruş kaydı olduğunda görünür
 
 Komutlar ortak HttpClient üzerinden, 4 saniye zaman aşımıyla gönderilir. HTTP yönlendirmeleri izlenmez. Duruş kaydı değişikliği işlem içinde hazırlanır; cihazdan başarılı yanıt alınırsa veritabanı işlemi tamamlanır. Hatalı yanıtta işlem geri alınır. Zaman aşımı komutun uygulanmadığını kanıtlamaz; kullanıcıya bu belirsizlik bildirilir. Cihaz yanıtından sonraki veritabanı hatası ayrıca bildirilir; otomatik ters komut gönderilmez.
 
-Ekrandaki durum veritabanı kaydına dayanır; fiziksel röle geri bildirimi değildir. Eşzamanlı komut kilidi tek uygulama süreci içindir. Bu tek cihaz testi bir IIS worker süreciyle çalıştırılmalıdır.
+Ekrandaki durum, başarılı IO okumalarıyla senkronize edilen veritabanı kaydına dayanır. Son okuma sonucu dashboard üzerinde gösterilir.
 
 ## Doğrulama
 

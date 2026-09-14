@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="RolEkleme.aspx.cs" Inherits="RolEkleme" %>
+﻿<%@ Page Title="Rol Ekle" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="RolEkleme.aspx.cs" Inherits="RolEkleme" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../Styles/RolEkleme.css" rel="stylesheet" />

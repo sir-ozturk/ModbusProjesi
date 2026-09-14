@@ -62,10 +62,70 @@ internal static class RoleEntegrasyonTestleri
         finally { sunucu.Stop(); }
     }
 
+    private static async Task DurumOkumaTesti(string govde, string durum, bool basarili)
+    {
+        TcpListener sunucu = new TcpListener(IPAddress.Loopback, 0);
+        sunucu.Start();
+        Ayar("RoleCihazAdresi", "http://127.0.0.1:" + ((IPEndPoint)sunucu.LocalEndpoint).Port + "/");
+        Task<string> istek = Task.Run(async () =>
+        {
+            using (TcpClient istemci = await sunucu.AcceptTcpClientAsync())
+            using (NetworkStream akis = istemci.GetStream())
+            using (StreamReader okuyucu = new StreamReader(akis))
+            {
+                string yol = await okuyucu.ReadLineAsync();
+                while (!string.IsNullOrEmpty(await okuyucu.ReadLineAsync())) { }
+                byte[] cevap = Encoding.ASCII.GetBytes("HTTP/1.1 " + durum + "\r\nLocation: /00\r\nContent-Length: " + Encoding.ASCII.GetByteCount(govde) + "\r\nConnection: close\r\n\r\n" + govde);
+                await akis.WriteAsync(cevap, 0, cevap.Length);
+                return yol;
+            }
+        });
+        try
+        {
+            bool okundu = false;
+            string sonuc = null;
+            try { sonuc = await MakineRoleIslemleri.DurumOkuAsync(); okundu = true; }
+            catch (ArgumentException) { }
+            catch (System.Net.Http.HttpRequestException) { }
+            Kontrol(okundu == basarili, "Durum okuma: " + durum + "/" + govde);
+            if (basarili) Kontrol(sonuc == govde.Trim(), "IO yanıtı korunur");
+            Kontrol(await istek == "GET /98 HTTP/1.1", "Okuma yalnızca /98 kullanır");
+        }
+        finally { sunucu.Stop(); }
+    }
+
     private static async Task Calistir()
     {
+        await DurumOkumaTesti("0000000000000000", "200 OK", true);
+        await DurumOkumaTesti(" 0000000000000001\r\n", "200 OK", true);
+        await DurumOkumaTesti("1111111111111111", "200 OK", true);
+        await DurumOkumaTesti("000", "200 OK", false);
+        await DurumOkumaTesti("000000000000000x", "200 OK", false);
+        await DurumOkumaTesti("0000000000000000", "500 Error", false);
+        await DurumOkumaTesti("0000000000000000", "302 Found", false);
+        for (int kanal = 1; kanal <= 16; kanal++)
+        {
+            char[] bitler = new string('0', 16).ToCharArray();
+            bitler[16 - kanal] = '1';
+            for (int okunan = 1; okunan <= 16; okunan++)
+                Kontrol(MakineRoleIslemleri.DurumdanDuruyorMu(new string(bitler), okunan) == (kanal == okunan), "IO bit sırası " + kanal + "/" + okunan);
+        }
+        foreach (string bozuk in new[] { "", "0", "00000000000000000", "000000000000000x", "<html>hata</html>", null })
+        {
+            bool reddedildi = false;
+            try { MakineRoleIslemleri.DurumdanDuruyorMu(bozuk, 1); }
+            catch (ArgumentException) { reddedildi = true; }
+            Kontrol(reddedildi, "Bozuk durum reddedilir");
+        }
+        foreach (int kanal in new[] { 0, 17, -1 })
+        {
+            bool reddedildi = false;
+            try { MakineRoleIslemleri.DurumdanDuruyorMu("0000000000000000", kanal); }
+            catch (ArgumentException) { reddedildi = true; }
+            Kontrol(reddedildi, "Geçersiz kanal reddedilir");
+        }
         Ayar("RoleBirMakineNo", "18");
-        Makineler makine = new Makineler(null) { MakineNo = "18", AktifMi = true };
+        Makineler makine = new Makineler(null) { MakineNo = "18", AktifMi = true, RelayChannel = 1 };
         await YanitTesti(makine, false, "200 OK", null, 0);
         await YanitTesti(makine, true, "200 OK", null, 0);
         await YanitTesti(makine, false, "500 Error", Mesajlar.RoleCihazYanitiBasarisiz, 0);

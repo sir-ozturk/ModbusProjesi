@@ -41,6 +41,19 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
 
     #region NESNELER
 
+    private int? relayChannel;
+    public int? RelayChannel
+    {
+        get
+        {
+            return relayChannel;
+        }
+        set
+        {
+            relayChannel = value;
+        }
+    }
+
     private string modelAd;
     public string ModelAd
     {
@@ -227,6 +240,7 @@ public class Makineler : OrtakAlanlar, IOrtakMetotlar
         EntegrasyonKod = SonucKayit[C_Sutun_entegrasyon_kod].ToString();
         GgNo = SonucKayit[C_Sutun_gg_no].ToString();
         MakineNo = SonucKayit[C_Sutun_makine_no].ToString();
+        RelayChannel = SonucKayit["relay_channel"] == DBNull.Value ? (int?)null : Convert.ToInt32(SonucKayit["relay_channel"]);
         MakineAdi = SonucKayit[C_Sutun_makine_adi].ToString();
         SiraNo = Convert.ToInt32(SonucKayit[C_Sutun_sira_no]);
         BandNo = SonucKayit[C_Sutun_band_no].ToString();

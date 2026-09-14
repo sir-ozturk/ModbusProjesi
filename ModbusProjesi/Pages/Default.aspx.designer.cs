@@ -11,6 +11,10 @@
 
 public partial class Default
 {
+    protected global::System.Web.UI.ScriptManager smDashboard;
+    protected global::System.Web.UI.UpdatePanel upDurum;
+    protected global::System.Web.UI.WebControls.Button btnDurumYenile;
+    protected global::System.Web.UI.WebControls.Label lblDonanimDurumu;
 
     /// <summary>
     /// btnSiralamaAc control.
@@ -84,12 +88,40 @@ public partial class Default
     /// </remarks>
     protected global::System.Web.UI.WebControls.HiddenField hdnMakineSiralamasi;
 
+    /// <summary>
+    /// hdnDurdurMakineId control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
     protected global::System.Web.UI.WebControls.HiddenField hdnDurdurMakineId;
 
+    /// <summary>
+    /// hdnDurusNedeni control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
     protected global::System.Web.UI.WebControls.HiddenField hdnDurusNedeni;
 
+    /// <summary>
+    /// txtOzelDurusNedeni control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
     protected global::System.Web.UI.WebControls.TextBox txtOzelDurusNedeni;
 
+    /// <summary>
+    /// btnDurdurmayiOnayla control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
     protected global::System.Web.UI.WebControls.Button btnDurdurmayiOnayla;
 
     /// <summary>
