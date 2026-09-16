@@ -29,7 +29,16 @@ Mevcut makine yönetimi yetkileri denk yeni ekranlara taşınır. Mevcut rol/yet
 
 Ana sayfa, makine ID'siyle aktif bağlantıyı SQL'den bulur. HTTP komutları HW-584 için `(kanal-1)*2` (Başlat/OFF) ve bir sonraki sayı (Durdur/ON) olarak iki haneli hazırlanır. Kanal 1: /00 ve /01; Kanal 16: /30 ve /31. Fiziksel olarak doğrulanan mevcut bağlantı Kanal 1'dir. Diğer kanalların Ethernet IO–röle giriş kablolaması ayrıca doğrulanmalıdır.
 
-Ortak HttpClient 4 saniye timeout kullanır; yönlendirmeyi takip etmez. SQL transaction'ı içinde kayıt değişikliği hazırlanır, HTTP başarı yanıtında commit yapılır; hata durumunda rollback yapılır. HTTP yanıtı fiziksel kontağın geri bildirimi değildir. Timeout halinde komut uygulanmış olabilir. HTTP başarısından sonraki commit hatasında kullanıcıya kayıt/donanım durumunun farklı olabileceği bildirilir; otomatik ters komut gönderilmez.
+Ortak HttpClient yönlendirmeyi takip etmez. Her istekte Hw584TimeoutSeconds (varsayılan 3 saniye) uygulanır. Komuttan önce /98 okunur; komuttan sonra hedef kanal tekrar doğrulanır. MakineLoglari ancak doğrulama sonrası güncellenir. Doğrulama tekrarları RelayVerificationAttempts ve RelayVerificationWaitMilliseconds ile ayarlanır. IO çıkışı, fiziksel motor hareketinin geri bildirimi değildir. Timeout halinde komut uygulanmış olabilir; otomatik ters komut gönderilmez.
+
+## Çift yönlü durum senkronizasyonu
+
+Dashboard ilk açılışta ve görünürken yaklaşık 5 saniyede bir /98 okur; açık modal sırasında yenileme bekler. Dashboard kapalıyken arka plan takibi yapılmaz. Aktif bağlantılar MakineRoleBaglantilari üzerinden bulunur; her Ethernet kartı kendi SQL IP/port adresinden bir kez okunur. Yanıt tam 16 bit olmalıdır; sağdaki bit kanal 1'dir.
+
+Okuma ve log güncellemesi, komutlarla aynı SQL cihaz kilidini kullanır. Donanım durumu açık MakineLoglari ile karşılaştırılır; yalnızca değişiklik olduğunda duruş açılır veya kapatılır. Mevcut duruş nedeni korunur. Gözlenen duruşun nedeni “Donanım üzerinden durduruldu (IO Control)” olur. Ekleyen kullanıcı gözlemleyen oturumdur; komutu verdiği anlamına gelmez. Hatalı okuma veya kayıt hatasında transaction geri alınır ve son kayıtlı bilgilerin gösterildiği bildirilir. İki okuma arasındaki kısa hareketler tespit edilemeyebilir.
+
+Eski DonanimSenkronizasyonKur.ps1 ve Makineler.relay_channel düzeni kullanılmaz; bağlantılar Röle İşlemleri ekranlarından yönetilir. Eski migration dosyası geçmiş için korunmuştur.
+
 
 SQL sp_getapplock kilitleri uygulama süreçleri arasında da geçerlidir: komutlar ortak ayar kilidini Shared, cihaz kilidini Exclusive alır. Ayar yazmaları Exclusive ayar kilidi alır. Bekleme süresi sıfırdır; meşgulse mesaj döner. Farklı cihazlar paralel komut işleyebilir. Kilitler transaction bitince bırakılır. Yönetim değişiklikleri uygulamanın prosedürleri üzerinden yapılmalıdır.
 
@@ -43,7 +52,7 @@ Açık duruş kaydında makine bağlantısı ve cihaz adresi değiştirilemez. A
 .\Tests\RoleEntegrasyonTestleri.ps1
 ```
 
-22 kontrol: Kanal 1/16 HTTP yolları, yönlendirme, hata, timeout, bozuk yanıt, geçersiz kanal/adres. Yalnızca localhost sahte HTTP sunucusu kullanılır.
+HTTP ve IO kontrolleri: Kanal 1/16 HTTP yolları, yönlendirme, hata, timeout, bozuk yanıt, geçersiz kanal/adres. Yalnızca localhost sahte HTTP sunucusu kullanılır.
 
 SQL testleri için yedeği ayrı bir `DB_MODBUS_DonanimTest_*` veritabanına geri yükleyin, geçişi bu kopyada çalıştırın:
 

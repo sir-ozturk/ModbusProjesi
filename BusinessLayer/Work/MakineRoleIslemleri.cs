@@ -5,17 +5,27 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Configuration;
-using System.Text.RegularExpressions;
+
 
 public static class MakineRoleIslemleri
 {
+    public static bool DurumdanDuruyorMu(string durum, int relayChannel)
+    {
+        if (durum == null || durum.Length != 16 || relayChannel < 1 || relayChannel > 16)
+            throw new ArgumentException("Geçersiz IO durumu veya röle kanalı.");
+        foreach (char bit in durum)
+            if (bit != '0' && bit != '1')
+                throw new ArgumentException("IO yanıtı yalnızca 16 adet 0/1 içermelidir.");
+        return durum[16 - relayChannel] == '1';
+    }
+
     private static readonly HttpClient httpClient = new HttpClient(new HttpClientHandler
     {
         AllowAutoRedirect = false,
         UseProxy = false
     })
     {
-        Timeout = TimeSpan.FromSeconds(3)
+        Timeout = System.Threading.Timeout.InfiniteTimeSpan
     };
 
     public sealed class KanalDurumSonucu
@@ -51,10 +61,8 @@ public static class MakineRoleIslemleri
             {
                 sonuc.HamCevap = await yanit.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (!yanit.IsSuccessStatusCode) { sonuc.Hata = Mesajlar.RoleCihazYanitiBasarisiz; return sonuc; }
-                Match eslesen = Regex.Match(sonuc.HamCevap ?? string.Empty, "[01]{16}");
-                if (!eslesen.Success) { sonuc.Hata = Mesajlar.RoleDurumuOkunamadi; return sonuc; }
-                int indeks = 16 - baglanti.KanalNo;
-                sonuc.DuruyorMu = eslesen.Value[indeks] == '1';
+                try { sonuc.DuruyorMu = DurumdanDuruyorMu((sonuc.HamCevap ?? string.Empty).Trim(), baglanti.KanalNo); }
+                catch (ArgumentException) { sonuc.Hata = Mesajlar.RoleDurumuOkunamadi; return sonuc; }
                 sonuc.Basarili = true;
             }
         }

@@ -20,8 +20,75 @@ public partial class Default : System.Web.UI.Page
         if (!IsPostBack)
         {
             BasariMesajiniGoster();
-            MakineleriGetir();
+            RegisterAsyncTask(new PageAsyncTask(DonanimDurumunuYenileAsync));
         }
+    }
+
+    protected void btnDurumYenile_Click(object sender, EventArgs e)
+    {
+        RegisterAsyncTask(new PageAsyncTask(DonanimDurumunuYenileAsync));
+    }
+
+    private async Task DonanimDurumunuYenileAsync()
+    {
+        CurrentInfo kullanici = new Sessionlar().Current._CurrentInfo;
+        if (kullanici == null || !kullanici.LoginYapildiMi) return;
+        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+        try
+        {
+            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
+            Makineler makineler = new Makineler(veritabaniIslemleri);
+            makineler.DashboardGetir();
+            Dictionary<int, string> cihazDurumlari = new Dictionary<int, string>();
+            foreach (DataRow satir in makineler.VeriTablosu.Rows)
+            {
+                if (!Convert.ToBoolean(satir["role_bagli_mi"])) continue;
+                MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(veritabaniIslemleri);
+                baglanti.MakineId = Convert.ToInt32(satir["id"]);
+                // Komutlarla aynı SQL cihaz kilidi, okuma ve log kaydı boyunca tutulur.
+                if (!baglanti.KomutBaglantisiniGetir()) throw new InvalidOperationException(Mesajlar.MakineRoleAtamasiYok);
+                string durum;
+                if (!cihazDurumlari.TryGetValue(baglanti.EthernetKartId, out durum))
+                {
+                    MakineRoleIslemleri.KanalDurumSonucu sonuc = await MakineRoleIslemleri.KanalDurumunuGetirAsync(baglanti);
+                    if (!sonuc.Basarili) throw new InvalidOperationException(sonuc.Hata);
+                    durum = sonuc.HamCevap.Trim();
+                    cihazDurumlari.Add(baglanti.EthernetKartId, durum);
+                }
+                bool duruyor = MakineRoleIslemleri.DurumdanDuruyorMu(durum, baglanti.KanalNo);
+                MakineLoglari log = new MakineLoglari(veritabaniIslemleri) { MakineId = Convert.ToInt32(satir["id"]) };
+                bool acikKayit = log.AcikKayitGetir();
+                if (duruyor == acikKayit) continue;
+                // Kullanıcı kaydı gözlemleyen oturumdur; duruş nedeni donanım kaynağını belirtir.
+                if (duruyor)
+                {
+                    log.IslemTipi = MakineLoglari.C_IslemTipi_Durdur;
+                    log.IslemNedeni = "Donanım üzerinden durduruldu (IO Control)";
+                    log.DevamEdiyorMu = true;
+                    log.BasariliMi = true;
+                    log.AktifMi = true;
+                    log.EkleyenId = kullanici.KullaniciId;
+                    log.EkleyenIp = Utility.IpNoGetir();
+                    if (!log.Ekle()) throw new InvalidOperationException("Duruş kaydı oluşturulamadı.");
+                }
+                else if (!log.Kapat()) throw new InvalidOperationException("Duruş kaydı kapatılamadı.");
+            }
+            veritabaniIslemleri.Uygula();
+            lblDonanimDurumu.Text = string.Empty;
+            lblDonanimDurumu.Visible = false;
+        }
+        catch
+        {
+            veritabaniIslemleri.GeriAl();
+            lblDonanimDurumu.Text = "Donanım durumu doğrulanamadı veya kaydedilemedi. Gösterilen bilgiler son veritabanı kayıtlarıdır.";
+            lblDonanimDurumu.Visible = true;
+            lblDonanimDurumu.CssClass = "d-block text-danger mb-2";
+        }
+        finally
+        {
+            veritabaniIslemleri.Bitir();
+        }
+        MakineleriGetir();
     }
 
     private void BasariMesajiniGoster()
@@ -51,11 +118,7 @@ public partial class Default : System.Web.UI.Page
 
             DataTable makineTablosu = makineler.VeriTablosu;
 
-            if (makineTablosu == null || makineTablosu.Rows.Count == 0)
-            {
-                pnlMakineYok.Visible = true;
-                return;
-            }
+            pnlMakineYok.Visible = makineTablosu == null || makineTablosu.Rows.Count == 0;
 
             rptMakineler.DataSource = makineTablosu;
             rptMakineler.DataBind();

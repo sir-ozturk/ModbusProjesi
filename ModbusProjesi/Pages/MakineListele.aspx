@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master"
+﻿<%@ Page Title="Makine Listele" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master"
     AutoEventWireup="true"
     CodeBehind="MakineListele.aspx.cs"
     Inherits="MakineListele" %>

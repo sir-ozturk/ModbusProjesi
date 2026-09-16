@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="RolListeleme.aspx.cs" Inherits="RolListeleme" %>
+﻿<%@ Page Title="Rol Listele" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="RolListeleme.aspx.cs" Inherits="RolListeleme" %>
 
 <%@ Register Src="~/UserControls/ucMyGrid.ascx" TagPrefix="uc" TagName="MyGrid" %>
 
