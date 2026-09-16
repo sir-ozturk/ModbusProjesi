@@ -53,6 +53,13 @@ public partial class MasterPage : System.Web.UI.MasterPage
 
     private void MenuYetkileriniAyarla()
     {
+        lnkEthernetKartEkle.Visible = IslemYetki.Kontrol(Ekranlar.ETHERNET_KART_EKLE, IslemTurleri.GORUNTULE);
+        lnkEthernetKartListele.Visible = IslemYetki.Kontrol(Ekranlar.ETHERNET_KART_LISTELE, IslemTurleri.GORUNTULE);
+        lnkRoleKartEkle.Visible = IslemYetki.Kontrol(Ekranlar.ROLE_KART_EKLE, IslemTurleri.GORUNTULE);
+        lnkRoleKartListele.Visible = IslemYetki.Kontrol(Ekranlar.ROLE_KART_LISTELE, IslemTurleri.GORUNTULE);
+        lnkMakineRoleBaglantilari.Visible = IslemYetki.Kontrol(Ekranlar.MAKINE_ROLE_BAGLANTI, IslemTurleri.GORUNTULE);
+        pnlRoleDonanimIslemleri.Visible = lnkEthernetKartEkle.Visible || lnkEthernetKartListele.Visible || lnkRoleKartEkle.Visible || lnkRoleKartListele.Visible || lnkMakineRoleBaglantilari.Visible;
+
         lnkMakineEkle.Visible = IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.GORUNTULE);
         lnkMakineListele.Visible = IslemYetki.Kontrol(Ekranlar.MAKINE_LISTELE, IslemTurleri.GORUNTULE);
         lnkKullaniciEkle.Visible = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GORUNTULE);

@@ -99,6 +99,17 @@
 
                     </div>
 
+                    <div id="pnlRoleDonanimIslemleri" runat="server" class="mb-3">
+                        <div class="menu-grup-baslik d-flex align-items-center"><span class="me-2"><i class="fa-solid fa-microchip"></i></span><span class="fw-bold">Röle İşlemleri</span></div>
+                        <ul class="list-unstyled mb-0 ps-4">
+                            <li><a id="lnkEthernetKartEkle" runat="server" href="/Pages/EthernetKartEkle.aspx" class="alt-menu-link text-decoration-none">➖ Ethernet Kartı Ekle</a></li>
+                            <li><a id="lnkEthernetKartListele" runat="server" href="/Pages/EthernetKartListele.aspx" class="alt-menu-link text-decoration-none">➖ Ethernet Kartı Listele</a></li>
+                            <li><a id="lnkRoleKartEkle" runat="server" href="/Pages/RoleKartEkle.aspx" class="alt-menu-link text-decoration-none">➖ Röle Kartı Ekle</a></li>
+                            <li><a id="lnkRoleKartListele" runat="server" href="/Pages/RoleKartListele.aspx" class="alt-menu-link text-decoration-none">➖ Röle Kartı Listele</a></li>
+                            <li><a id="lnkMakineRoleBaglantilari" runat="server" href="/Pages/MakineRoleBaglantilari.aspx" class="alt-menu-link text-decoration-none">➖ Makine–Röle Bağlantıları</a></li>
+                        </ul>
+                    </div>
+
                     <div id="pnlKullaniciIslemleri" runat="server" class="mb-3">
 
                         <div class="menu-grup-baslik d-flex align-items-center">

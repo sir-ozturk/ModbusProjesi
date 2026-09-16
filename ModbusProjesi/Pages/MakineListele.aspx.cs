@@ -85,6 +85,11 @@ public partial class MakineListele : System.Web.UI.Page
 
         if (e.ButonTip == ucMyGrid.ButonTip.SIL)
         {
+            if (!IslemYetki.Kontrol(Ekranlar.MAKINE_LISTELE, IslemTurleri.SIL))
+            {
+                Mesaj.Ver(Mesajlar.YetkinizYok, Mesaj.MesajTurleri.WARNING, Page.Master);
+                return;
+            }
             VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
 
             try
@@ -98,6 +103,10 @@ public partial class MakineListele : System.Web.UI.Page
                 if (makineler.Sil())
                 {
                     Mesaj.Ver(Mesajlar.SilmeBasarili, Mesaj.MesajTurleri.SUCCESS, Page.Master);
+                }
+                else
+                {
+                    Mesaj.Ver(Server.HtmlEncode(veritabaniIslemleri.SonHataMesaji ?? "Makine silinemedi. Röle bağlantılarını kontrol ediniz."), Mesaj.MesajTurleri.FAIL, Page.Master);
                 }
             }
             catch (Exception ex)

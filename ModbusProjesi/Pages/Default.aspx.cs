@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Web.UI;
 
@@ -11,7 +11,6 @@ public partial class Default : System.Web.UI.Page
 {
     private const string C_Session_DashboardBasari = "MakineDashboardBasari";
     private bool makineYonetimYetkisiVar;
-    private static readonly SemaphoreSlim roleIslemKilidi = new SemaphoreSlim(1, 1);
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -145,28 +144,7 @@ public partial class Default : System.Web.UI.Page
 
     protected void btnDurdurmayiOnayla_Click(object sender, EventArgs e)
     {
-        RegisterAsyncTask(new PageAsyncTask(() => RoleIsleminiYurutAsync(MakineDurdurAsync)));
-    }
-
-    private async Task RoleIsleminiYurutAsync(Func<Task> islem)
-    {
-        // Aynı uygulamadaki farklı oturumlardan gelen karşıt komutları da engelle.
-        if (!await roleIslemKilidi.WaitAsync(0))
-        {
-            pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.RoleKomutuIsleniyor;
-            MakineleriGetir();
-            return;
-        }
-
-        try
-        {
-            await islem();
-        }
-        finally
-        {
-            roleIslemKilidi.Release();
-        }
+        RegisterAsyncTask(new PageAsyncTask(MakineDurdurAsync));
     }
 
     private async Task MakineDurdurAsync()
@@ -206,10 +184,16 @@ public partial class Default : System.Web.UI.Page
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
 
+            MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(veritabaniIslemleri);
+            baglanti.MakineId = makineId;
+            if (!baglanti.KomutBaglantisiniGetir())
+                throw new InvalidOperationException(Mesajlar.MakineRoleAtamasiYok);
+
+
             Makineler makineler = new Makineler(veritabaniIslemleri);
             makineler.Id = makineId;
 
-            if (!makineler.Doldur() || !makineler.AktifMi || !MakineRoleIslemleri.RoleBirMakinesiMi(makineler.MakineNo))
+            if (!makineler.Doldur() || !makineler.AktifMi)
             {
                 hataMesaji = Mesajlar.MakineRoleAtamasiYok;
                 veritabaniIslemleri.GeriAl();
@@ -239,27 +223,41 @@ public partial class Default : System.Web.UI.Page
                     makineLoglari.EkleyenId = currentInfo.KullaniciId;
                     makineLoglari.EkleyenIp = Utility.IpNoGetir();
 
-                    if (makineLoglari.Ekle())
+                    MakineRoleIslemleri.KanalDurumSonucu mevcutDurum = await MakineRoleIslemleri.KanalDurumunuGetirAsync(baglanti);
+                    if (!mevcutDurum.Basarili)
                     {
-                        string roleHatasi = await MakineRoleIslemleri.MakineDurdurAsync(makineler);
-                        if (roleHatasi == null)
-                        {
-                            hataMesaji = Mesajlar.RoleKomutuKaydedilemedi;
-                            veritabaniIslemleri.Uygula();
-                            durdurmaBasarili = true;
-                        }
-                        else
-                        {
-                            hataMesaji = roleHatasi;
-                            veritabaniIslemleri.GeriAl();
-                        }
+                        hataMesaji = mevcutDurum.Hata;
+                        veritabaniIslemleri.GeriAl();
+                    }
+                    else if (mevcutDurum.DuruyorMu)
+                    {
+                        hataMesaji = Mesajlar.MakineZatenDuruyor;
+                        veritabaniIslemleri.GeriAl();
                     }
                     else
                     {
-                        veritabaniIslemleri.GeriAl();
+                        string roleHatasi = await MakineRoleIslemleri.MakineDurdurAsync(baglanti);
+                        if (roleHatasi != null) { hataMesaji = roleHatasi; veritabaniIslemleri.GeriAl(); }
+                        else
+                        {
+                            roleHatasi = await MakineRoleIslemleri.KanalDurumunuDogrulaAsync(baglanti, true);
+                            if (roleHatasi != null) { hataMesaji = roleHatasi; veritabaniIslemleri.GeriAl(); }
+                            else if (makineLoglari.Ekle()) { veritabaniIslemleri.Uygula(); durdurmaBasarili = true; }
+                            else veritabaniIslemleri.GeriAl();
+                        }
                     }
                 }
             }
+        }
+        catch (SqlException ex)
+        {
+            if (ex.Number >= 51000 && ex.Number <= 51010) hataMesaji = ex.Message;
+            veritabaniIslemleri.GeriAl();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == Mesajlar.MakineRoleAtamasiYok) hataMesaji = ex.Message;
+            veritabaniIslemleri.GeriAl();
         }
         catch
         {
@@ -279,14 +277,14 @@ public partial class Default : System.Web.UI.Page
         }
 
         pnlHata.Visible = true;
-        lblHata.Text = hataMesaji;
+        lblHata.Text = Server.HtmlEncode(hataMesaji);
         MakineleriGetir();
     }
 
     protected void btnMakineCalistir_Command(object sender, System.Web.UI.WebControls.CommandEventArgs e)
     {
         string makineIdDegeri = Convert.ToString(e.CommandArgument);
-        RegisterAsyncTask(new PageAsyncTask(() => RoleIsleminiYurutAsync(() => MakineBaslatAsync(makineIdDegeri))));
+        RegisterAsyncTask(new PageAsyncTask(() => MakineBaslatAsync(makineIdDegeri)));
     }
 
     private async Task MakineBaslatAsync(string makineIdDegeri)
@@ -317,10 +315,15 @@ public partial class Default : System.Web.UI.Page
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
 
+            MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(veritabaniIslemleri);
+            baglanti.MakineId = makineId;
+            if (!baglanti.KomutBaglantisiniGetir())
+                throw new InvalidOperationException(Mesajlar.MakineRoleAtamasiYok);
+
+
             Makineler makineler = new Makineler(veritabaniIslemleri);
             makineler.Id = makineId;
-            bool roleAtamasiVar = makineler.Doldur() && makineler.AktifMi
-                && MakineRoleIslemleri.RoleBirMakinesiMi(makineler.MakineNo);
+            bool roleAtamasiVar = makineler.Doldur() && makineler.AktifMi;
 
             MakineLoglari makineLoglari = new MakineLoglari(veritabaniIslemleri);
             makineLoglari.MakineId = makineId;
@@ -343,26 +346,45 @@ public partial class Default : System.Web.UI.Page
                 makineLoglari.GuncelleyenId = currentInfo.KullaniciId;
                 makineLoglari.GuncelleyenIp = Utility.IpNoGetir();
 
-                if (makineLoglari.Kapat())
+                MakineRoleIslemleri.KanalDurumSonucu mevcutDurum = await MakineRoleIslemleri.KanalDurumunuGetirAsync(baglanti);
+                if (!mevcutDurum.Basarili)
                 {
-                    string roleHatasi = await MakineRoleIslemleri.MakineBaslatAsync(makineler);
-                    if (roleHatasi == null)
+                    hataMesaji = mevcutDurum.Hata;
+                    veritabaniIslemleri.GeriAl();
+                }
+                else if (!mevcutDurum.DuruyorMu)
+                {
+                    if (makineLoglari.Kapat()) { veritabaniIslemleri.Uygula(); calistirmaBasarili = true; }
+                    else veritabaniIslemleri.GeriAl();
+                }
+                else
+                {
+                    string roleHatasi = await MakineRoleIslemleri.MakineBaslatAsync(baglanti);
+                    if (roleHatasi == null) roleHatasi = await MakineRoleIslemleri.KanalDurumunuDogrulaAsync(baglanti, false);
+                    if (roleHatasi != null)
+                    {
+                        hataMesaji = roleHatasi;
+                        veritabaniIslemleri.GeriAl();
+                    }
+                    else if (makineLoglari.Kapat())
                     {
                         hataMesaji = Mesajlar.RoleKomutuKaydedilemedi;
                         veritabaniIslemleri.Uygula();
                         calistirmaBasarili = true;
                     }
-                    else
-                    {
-                        hataMesaji = roleHatasi;
-                        veritabaniIslemleri.GeriAl();
-                    }
-                }
-                else
-                {
-                    veritabaniIslemleri.GeriAl();
+                    else veritabaniIslemleri.GeriAl();
                 }
             }
+        }
+        catch (SqlException ex)
+        {
+            if (ex.Number >= 51000 && ex.Number <= 51010) hataMesaji = ex.Message;
+            veritabaniIslemleri.GeriAl();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == Mesajlar.MakineRoleAtamasiYok) hataMesaji = ex.Message;
+            veritabaniIslemleri.GeriAl();
         }
         catch
         {
@@ -382,7 +404,7 @@ public partial class Default : System.Web.UI.Page
         }
 
         pnlHata.Visible = true;
-        lblHata.Text = hataMesaji;
+        lblHata.Text = Server.HtmlEncode(hataMesaji);
         MakineleriGetir();
     }
 
@@ -440,9 +462,9 @@ public partial class Default : System.Web.UI.Page
         return "makineDurdurmaModaliniAc(" + Convert.ToInt32(id) + ", '" + guvenliMakineAdi + "', '" + guvenliMakineNo + "', '" + guvenliIp + "'); return false;";
     }
 
-    protected bool MakineRoleKontrolYetkisiVarMi(object makineNo)
+    protected bool MakineRoleKontrolYetkisiVarMi(object roleBagliMi)
     {
-        return makineYonetimYetkisiVar && MakineRoleIslemleri.RoleBirMakinesiMi(Convert.ToString(makineNo));
+        return makineYonetimYetkisiVar && Convert.ToBoolean(roleBagliMi);
     }
 
     protected string MakineKartSinifi(object duruyorMu)

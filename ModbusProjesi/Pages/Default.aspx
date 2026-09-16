@@ -1,4 +1,4 @@
-<%@ Page Title="Makine Kontrol" Language="C#" Async="true" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
+﻿<%@ Page Title="Makine Kontrol" Language="C#" Async="true" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../Styles/MakineDashboard.css?v=1" rel="stylesheet" />
@@ -20,7 +20,7 @@
 
                 <span class="badge dashboard-mod-badge px-3 py-2">
                     <i class="fa-solid fa-flask me-1"></i>
-                    Röle 1 Testi
+                    Röle Kontrolü
                 </span>
             </div>
         </div>
@@ -75,6 +75,7 @@
                                         <dt>Neden</dt>
                                         <dd><%# DurusNedeniMetni(Eval("duruyor_mu"), Eval("islem_nedeni")) %></dd>
                                     </div>
+                                    <div><dt>Röle bağlantısı</dt><dd><%# Convert.ToBoolean(Eval("role_bagli_mi")) ? Server.HtmlEncode(Eval("role_adi") + " / Kanal " + Eval("kanal_no")) : "Aktif bağlantı yok" %></dd></div>
                                 </dl>
 
                                 <asp:Button
@@ -82,17 +83,17 @@
                                     runat="server"
                                     Text="Durdur"
                                     Visible='<%# !Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no")) %>'
-                                    OnClientClick='<%# DurdurmaModalAcmaKodu(Eval("id"), Eval("makine_adi"), Eval("makine_no"), Eval("ip")) %>'
+                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("role_bagli_mi")) %>'
+                                    OnClientClick='<%# DurdurmaModalAcmaKodu(Eval("id"), Eval("makine_adi"), Eval("makine_no"), Eval("role_ip")) %>'
                                     UseSubmitBehavior="false"
                                     CssClass="btn btn-danger w-100 fw-bold" />
 
                                 <asp:Button
                                     ID="btnMakineCalistir"
                                     runat="server"
-                                    Text="Başlat (Röle 1)"
+                                    Text="Başlat"
                                     Visible='<%# Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("makine_no")) %>'
+                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("role_bagli_mi")) %>'
                                     CommandArgument='<%# Eval("id") %>'
                                     OnCommand="btnMakineCalistir_Command"
                                     CssClass="btn btn-success w-100 fw-bold" />
@@ -125,7 +126,7 @@
                     <div class="modal-body">
                         <div class="alert alert-warning small" role="alert">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                            1 numaralı röleye durdurma komutu gönderilecek ve duruş kaydı oluşturulacaktır.
+                            Makineye atanmış röle kanalına durdurma komutu gönderilecek ve duruş kaydı oluşturulacaktır.
                         </div>
 
                         <label class="form-label fw-bold">Duruş Nedeni *</label>

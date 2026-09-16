@@ -201,7 +201,7 @@ public partial class MakineEkle : System.Web.UI.Page
                 }
             }
 
-            Mesaj.Ver(Mesajlar.MakineGuncellemeHatasi, Mesaj.MesajTurleri.FAIL, Page.Master);
+            Mesaj.Ver(Server.HtmlEncode(veritabaniIslemleri.SonHataMesaji ?? Mesajlar.MakineGuncellemeHatasi), Mesaj.MesajTurleri.FAIL, Page.Master);
         }
         catch (Exception ex)
         {

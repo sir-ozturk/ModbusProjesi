@@ -48,6 +48,10 @@
     <Compile Include="Entity\Loglar.cs" />
     <Compile Include="Entity\MakineLoglari.cs" />
     <Compile Include="Entity\Makineler.cs" />
+    <Compile Include="Entity\EthernetKartlari.cs" />
+    <Compile Include="Entity\RoleKartlari.cs" />
+    <Compile Include="Entity\MakineRoleBaglantilari.cs" />
+
     <Compile Include="Entity\RolYetkiler.cs" />
     <Compile Include="Work\CurrentInfo.cs" />
     <Compile Include="Work\Ekranlar.cs" />

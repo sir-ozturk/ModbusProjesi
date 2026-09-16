@@ -336,7 +336,7 @@ public class Mesajlar
 
     public static string MakineRoleAtamasiYok
     {
-        get { return "Bu makine 1 numaralı röleye atanmamış veya aktif değil."; }
+        get { return "Makinenin aktif röle bağlantısı bulunamadı. Makine, röle ve Ethernet kartının aktifliğini kontrol ediniz."; }
     }
 
     public static string RoleCihazAyariGecersiz
@@ -351,13 +351,16 @@ public class Mesajlar
 
     public static string RoleCihazZamanAsimi
     {
-        get { return "Makine kontrol cihazı 4 saniye içinde yanıt vermedi. Komut uygulanmış olabilir; röle durumunu kontrol ediniz."; }
+        get { return "Makine kontrol cihazı zamanında yanıt vermedi. Komut uygulanmış olabilir; röle durumunu kontrol ediniz."; }
     }
 
     public static string RoleCihazYanitiBasarisiz
     {
         get { return "Makine kontrol cihazından başarılı yanıt alınamadı. Röle durumunu kontrol ediniz."; }
     }
+
+    public static string RoleDurumuOkunamadi { get { return "Röle kanal durumu okunamadı."; } }
+    public static string RoleDurumuDogrulanamadi { get { return "Röle komutu gönderildi ancak kanalın fiziksel durumu doğrulanamadı."; } }
 
     public static string RoleKomutuKaydedilemedi
     {
@@ -371,12 +374,12 @@ public class Mesajlar
 
     public static string RoleDurdurmaKomutuGonderildi
     {
-        get { return "1 numaralı röleye durdurma komutu gönderildi."; }
+        get { return "Makinenin bağlı olduğu röle kanalına durdurma komutu gönderildi."; }
     }
 
     public static string RoleBaslatmaKomutuGonderildi
     {
-        get { return "1 numaralı röleye başlatma komutu gönderildi."; }
+        get { return "Makinenin bağlı olduğu röle kanalına başlatma komutu gönderildi."; }
     }
 
     #endregion

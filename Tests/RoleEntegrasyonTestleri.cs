@@ -18,24 +18,16 @@ internal static class RoleEntegrasyonTestleri
         Console.WriteLine("OK: " + ad);
     }
 
-    private static void Ayar(string anahtar, string deger)
-    {
-        Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-        config.AppSettings.Settings.Remove(anahtar);
-        config.AppSettings.Settings.Add(anahtar, deger);
-        config.Save(ConfigurationSaveMode.Modified);
-        ConfigurationManager.RefreshSection("appSettings");
-    }
-
-    private static async Task YanitTesti(Makineler makine, bool baslat, string durum, string beklenenHata, int gecikme)
+    private static async Task YanitTesti(MakineRoleBaglantilari baglanti, bool baslat, string durum, string beklenenHata, int gecikme)
     {
         TcpListener sunucu = new TcpListener(IPAddress.Loopback, 0);
         sunucu.Start();
-        Ayar("RoleCihazAdresi", "http://127.0.0.1:" + ((IPEndPoint)sunucu.LocalEndpoint).Port + "/");
+        baglanti.Ip="127.0.0.1";
+        baglanti.HttpPort=((IPEndPoint)sunucu.LocalEndpoint).Port;
         Task<string> istek = Task.Run(async () =>
         {
-            using (TcpClient baglanti = await sunucu.AcceptTcpClientAsync())
-            using (NetworkStream akis = baglanti.GetStream())
+            using (TcpClient tcpBaglanti = await sunucu.AcceptTcpClientAsync())
+            using (NetworkStream akis = tcpBaglanti.GetStream())
             using (StreamReader okuyucu = new StreamReader(akis))
             {
                 string ilkSatir = await okuyucu.ReadLineAsync();
@@ -53,36 +45,38 @@ internal static class RoleEntegrasyonTestleri
         try
         {
             Stopwatch sure = Stopwatch.StartNew();
-            string hata = baslat ? await MakineRoleIslemleri.MakineBaslatAsync(makine)
-                : await MakineRoleIslemleri.MakineDurdurAsync(makine);
+            string hata = baslat ? await MakineRoleIslemleri.MakineBaslatAsync(baglanti)
+                : await MakineRoleIslemleri.MakineDurdurAsync(baglanti);
             Kontrol(hata == beklenenHata, "HTTP " + durum + " / hata sonucu");
             if (gecikme > 0) Kontrol(sure.Elapsed.TotalSeconds >= 3 && sure.Elapsed.TotalSeconds < 5.5, "4 saniye zaman asimi");
-            Kontrol(await istek == "GET /" + (baslat ? "00" : "01") + " HTTP/1.1", "Yalnizca IO1 GET komutu");
+            Kontrol(await istek == "GET /" + (((baglanti.KanalNo-1)*2)+(baslat ? 0 : 1)).ToString("D2") + " HTTP/1.1", "Secilen kanalin GET komutu");
         }
         finally { sunucu.Stop(); }
     }
 
     private static async Task Calistir()
     {
-        Ayar("RoleBirMakineNo", "18");
-        Makineler makine = new Makineler(null) { MakineNo = "18", AktifMi = true };
-        await YanitTesti(makine, false, "200 OK", null, 0);
-        await YanitTesti(makine, true, "200 OK", null, 0);
-        await YanitTesti(makine, false, "500 Error", Mesajlar.RoleCihazYanitiBasarisiz, 0);
-        await YanitTesti(makine, false, "302 Found", Mesajlar.RoleCihazYanitiBasarisiz, 0);
-        await YanitTesti(makine, false, "timeout", Mesajlar.RoleCihazZamanAsimi, 4600);
-        // Gecersiz HTTP govdesi HttpRequestException uretir.
-        await YanitTesti(makine, false, "invalid", Mesajlar.RoleCihazinaUlasilamadi, 0);
-        makine.MakineNo = "1";
-        Kontrol(await MakineRoleIslemleri.MakineDurdurAsync(makine) == Mesajlar.MakineRoleAtamasiYok, "Makine no 1 reddedilir");
-        makine.MakineNo = "18";
-        makine.AktifMi = false;
-        Kontrol(await MakineRoleIslemleri.MakineBaslatAsync(makine) == Mesajlar.MakineRoleAtamasiYok, "Pasif makine reddedilir");
-        makine.AktifMi = true;
-        Ayar("RoleCihazAdresi", "http://127.0.0.1/55");
-        Kontrol(await MakineRoleIslemleri.MakineDurdurAsync(makine) == Mesajlar.RoleCihazAyariGecersiz, "Komut iceren cihaz adresi reddedilir");
-        Ayar("RoleBirMakineNo", "");
-        Kontrol(await MakineRoleIslemleri.MakineBaslatAsync(makine) == Mesajlar.MakineRoleAtamasiYok, "Eksik eslesme reddedilir");
+        MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(null) { KanalNo=1, AktifMi=true };
+        await YanitTesti(baglanti, false, "200 OK", null, 0);
+        await YanitTesti(baglanti, true, "200 OK", null, 0);
+        baglanti.KanalNo=16;
+        await YanitTesti(baglanti, false, "200 OK", null, 0);
+        await YanitTesti(baglanti, true, "200 OK", null, 0);
+        await YanitTesti(baglanti, false, "500 Error", Mesajlar.RoleCihazYanitiBasarisiz, 0);
+        await YanitTesti(baglanti, false, "302 Found", Mesajlar.RoleCihazYanitiBasarisiz, 0);
+        await YanitTesti(baglanti, false, "timeout", Mesajlar.RoleCihazZamanAsimi, 4600);
+        await YanitTesti(baglanti, false, "invalid", Mesajlar.RoleCihazinaUlasilamadi, 0);
+        baglanti.KanalNo=0;
+        Kontrol(await MakineRoleIslemleri.MakineDurdurAsync(baglanti)==Mesajlar.MakineRoleAtamasiYok,"Kanal 0 reddedilir");
+        baglanti.KanalNo=17;
+        Kontrol(await MakineRoleIslemleri.MakineDurdurAsync(baglanti)==Mesajlar.MakineRoleAtamasiYok,"Kanal 17 reddedilir");
+        baglanti.KanalNo=1; baglanti.AktifMi=false;
+        Kontrol(await MakineRoleIslemleri.MakineBaslatAsync(baglanti)==Mesajlar.MakineRoleAtamasiYok,"Pasif baglanti reddedilir");
+        baglanti.AktifMi=true; baglanti.HttpPort=65536;
+        Kontrol(await MakineRoleIslemleri.MakineBaslatAsync(baglanti)==Mesajlar.RoleCihazAyariGecersiz,"Gecersiz HTTP portu");
+        baglanti.HttpPort=8080; baglanti.Ip="hatali";
+        Kontrol(await MakineRoleIslemleri.MakineBaslatAsync(baglanti)==Mesajlar.RoleCihazAyariGecersiz,"Gecersiz IP");
+
     }
 
     private static int Main()

@@ -16,6 +16,7 @@ public class VeritabaniIslemleri
     private List<SqlParameter> sqlParametreListesi;
 
     public bool LogYasak = false;
+    public string SonHataMesaji { get; private set; }
 
     public string SpAdi { get; set; }
 
@@ -62,6 +63,7 @@ public class VeritabaniIslemleri
 
     public bool Calistir()
     {
+        SonHataMesaji = null;
         try
         {
             sqlCommand.CommandType = CommandType.StoredProcedure;
@@ -188,6 +190,14 @@ public class VeritabaniIslemleri
                 return true;
             }
 
+            ParametreleriSil();
+            return false;
+        }
+        catch (SqlException ex)
+        {
+            SonHataMesaji = ex.Number >= 51000 && ex.Number <= 51010
+                ? ex.Message
+                : "Kayıt işlemi tamamlanamadı. Bağlantı veya benzersizlik kurallarını kontrol ediniz.";
             ParametreleriSil();
             return false;
         }

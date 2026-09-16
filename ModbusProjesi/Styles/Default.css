@@ -3,6 +3,7 @@
 }
 
 .sol-panel {
+    overflow-y: auto;
     width: 260px;
     background-color: cadetblue;
     color: darkblue;

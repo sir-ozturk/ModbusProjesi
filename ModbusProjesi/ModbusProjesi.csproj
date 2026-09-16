@@ -67,6 +67,46 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Pages\EthernetKartEkle.aspx" />
+    <Compile Include="Pages\EthernetKartEkle.aspx.cs">
+      <DependentUpon>EthernetKartEkle.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\EthernetKartEkle.aspx.designer.cs">
+      <DependentUpon>EthernetKartEkle.aspx</DependentUpon>
+    </Compile>
+    <Content Include="Pages\EthernetKartListele.aspx" />
+    <Compile Include="Pages\EthernetKartListele.aspx.cs">
+      <DependentUpon>EthernetKartListele.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\EthernetKartListele.aspx.designer.cs">
+      <DependentUpon>EthernetKartListele.aspx</DependentUpon>
+    </Compile>
+    <Content Include="Pages\RoleKartEkle.aspx" />
+    <Compile Include="Pages\RoleKartEkle.aspx.cs">
+      <DependentUpon>RoleKartEkle.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\RoleKartEkle.aspx.designer.cs">
+      <DependentUpon>RoleKartEkle.aspx</DependentUpon>
+    </Compile>
+    <Content Include="Pages\RoleKartListele.aspx" />
+    <Compile Include="Pages\RoleKartListele.aspx.cs">
+      <DependentUpon>RoleKartListele.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\RoleKartListele.aspx.designer.cs">
+      <DependentUpon>RoleKartListele.aspx</DependentUpon>
+    </Compile>
+    <Content Include="Pages\MakineRoleBaglantilari.aspx" />
+    <Compile Include="Pages\MakineRoleBaglantilari.aspx.cs">
+      <DependentUpon>MakineRoleBaglantilari.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\MakineRoleBaglantilari.aspx.designer.cs">
+      <DependentUpon>MakineRoleBaglantilari.aspx</DependentUpon>
+    </Compile>
     <Content Include="Default.aspx" />
     <Content Include="Files\Images\Logo.png" />
     <Content Include="Files\Images\no-image.svg" />

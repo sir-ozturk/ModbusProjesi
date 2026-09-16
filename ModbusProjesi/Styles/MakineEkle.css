@@ -11,6 +11,33 @@
     font-size: 18px;
 }
 
+.form-select:not(.form-select-modbus) {
+    background-color: cadetblue;
+    color: white;
+    border-color: cadetblue;
+    min-height: 44px;
+    font-size: 18px;
+}
+
+.form-select:not(.form-select-modbus):focus {
+    background-color: cadetblue;
+    color: white;
+    border-color: darkblue;
+    box-shadow: 0 0 0 0.25rem rgba(0, 0, 139, 0.15);
+}
+
+.form-check-input {
+    width: 1.25em;
+    height: 1.25em;
+    border: 2px solid cadetblue;
+    background-color: white;
+}
+
+.form-check-input:checked {
+    border-color: darkblue;
+    background-color: darkblue;
+}
+
     .form-control-modbus:focus,
     .form-select-modbus:focus {
         background-color: cadetblue;

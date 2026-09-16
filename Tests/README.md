@@ -1,32 +1,54 @@
-# Röle 1 entegrasyonu
+﻿# SQL tabanlı röle yönetimi
 
-Mevcut Web Forms ekranı → BusinessLayer/Work/MakineRoleIslemleri → HW-584 HTTP akışı kullanılır. Veritabanı şeması veya stored procedure değişikliği gerekmez.
+## Yapı ve kullanım
 
-## Ayarlar
+Sol menü → Röle İşlemleri:
+1. Ethernet Kartı Ekle: ad, model, IPv4 adresi, HTTP portu, aktiflik.
+2. Röle Kartı Ekle: ad ve bağlı Ethernet kartı. Kanal sayısı 16'dır. Bir Ethernet kartına bir röle kartı atanır.
+3. Makine–Röle Bağlantıları: röle kartı, 1–16 kanalı ve makine dropdown'larından seçim yapılır. Liste aynı sayfadadır; düzenleme ve silme buradan yapılır.
 
-ModbusProjesi/Web.config:
-- RoleBirMakineNo: varsayılan `18`; Makineler tablosundaki `makine_no` değeridir, `id` değildir. Aktif test makinesinin numarasıyla eşleşmelidir.
-- RoleCihazAdresi: `http://192.168.5.190:8080/`.
+Her aktif kanal tek makineye, her makine tek aktif kanala bağlanır. Dolu seçenekler devre dışıdır; SQL benzersiz indeksleri eşzamanlı çakışmaları da engeller. Pasif kayıtları yeniden aktifleştirirken aynı kontroller geçerlidir. Pasif bağlantılar kanalı rezerve etmez.
 
-Yalnızca eşleşen makinenin kontrol butonları kullanılabilir. Mevcut güncelleme yetkisi gereklidir. Diğer makineler sunucu tarafında da reddedilir.
+IP ve HTTP portu EthernetKartlari tablosundadır. RoleKartlari fiziksel kartı, MakineRoleBaglantilari makinenin kayıt ID'si ile kanal ilişkisini tutar. Web.config içindeki eski röle ayarları artık kullanılmaz. Veritabanı bağlantısı ve diğer uygulama ayarları Web.config içinde kalır.
 
-Durdur → GET /01 → active-low röle bırakır.
-Başlat → GET /00 → active-low röle çeker.
+## Geçiş
 
-Başlat butonu mevcut akıştaki gibi açık duruş kaydı olduğunda görünür. İlk testte Durdur işlemi, ardından Başlat kullanılmalıdır. Uygulama açılışında otomatik donanım komutu gönderilmez.
+Önce veritabanı yedeği alın. SQLCMD ile doğru sunucu/veritabanına aşağıdaki betiği `-b` seçeneğiyle çalıştırın:
 
-Komutlar ortak HttpClient üzerinden, 4 saniye zaman aşımıyla gönderilir. HTTP yönlendirmeleri izlenmez. Duruş kaydı değişikliği işlem içinde hazırlanır; cihazdan başarılı yanıt alınırsa veritabanı işlemi tamamlanır. Hatalı yanıtta işlem geri alınır. Zaman aşımı komutun uygulanmadığını kanıtlamaz; kullanıcıya bu belirsizlik bildirilir. Cihaz yanıtından sonraki veritabanı hatası ayrıca bildirilir; otomatik ters komut gönderilmez.
+```powershell
+sqlcmd -S SUNUCU -d DB_MODBUS -E -C -b -i SP\Donanim\001_DonanimYonetimi.sql
+```
 
-Ekrandaki durum veritabanı kaydına dayanır; fiziksel röle geri bildirimi değildir. Eşzamanlı komut kilidi tek uygulama süreci içindir. Bu tek cihaz testi bir IIS worker süreciyle çalıştırılmalıdır.
+Betik tek transaction içinde tabloları, indeksleri, prosedürleri, makine koruma trigger'ını ve dashboard sorgusunu kurar. İlk çalışmada Makine No 18'in tek aktif kaydını 192.168.5.190:8080 üzerindeki röle kartının Kanal 1 çıkışına taşır. Tek eşleşme yoksa veya çakışma varsa hata verir. Geçiş işareti ikinci çalışmada eski bağlantının tekrar oluşturulmasını önler; SQLCMD hata durumunda durmalıdır.
 
-## Doğrulama
+Mevcut makine yönetimi yetkileri denk yeni ekranlara taşınır. Mevcut rol/yetki ekranından daha sonra değiştirilebilir. Yeni ekranlar Ekranlar enum'unun sonuna eklenmiştir.
 
-Çözümü Debug yapılandırmasıyla derledikten sonra:
+16 Eylül 2026 uygulaması: DB_MODBUS üzerinde geçiş uygulandı. Makine No 18 / Pekin / ID 8 → Kanal 1 korundu. Öncesinde SQL Server varsayılan yedek klasörüne DB_MODBUS_DonanimOncesi_20260916_01.bak COPY_ONLY yedeği alınıp VERIFYONLY ile doğrulandı. Geri dönüşte eski kod ile veritabanı sürümünün birlikte ele alınması gerekir; yedek sonrası işlemler geri yüklemede kaybolabileceğinden otomatik geri dönüş yapılmaz.
+
+## Komut ve veri tutarlılığı
+
+Ana sayfa, makine ID'siyle aktif bağlantıyı SQL'den bulur. HTTP komutları HW-584 için `(kanal-1)*2` (Başlat/OFF) ve bir sonraki sayı (Durdur/ON) olarak iki haneli hazırlanır. Kanal 1: /00 ve /01; Kanal 16: /30 ve /31. Fiziksel olarak doğrulanan mevcut bağlantı Kanal 1'dir. Diğer kanalların Ethernet IO–röle giriş kablolaması ayrıca doğrulanmalıdır.
+
+Ortak HttpClient 4 saniye timeout kullanır; yönlendirmeyi takip etmez. SQL transaction'ı içinde kayıt değişikliği hazırlanır, HTTP başarı yanıtında commit yapılır; hata durumunda rollback yapılır. HTTP yanıtı fiziksel kontağın geri bildirimi değildir. Timeout halinde komut uygulanmış olabilir. HTTP başarısından sonraki commit hatasında kullanıcıya kayıt/donanım durumunun farklı olabileceği bildirilir; otomatik ters komut gönderilmez.
+
+SQL sp_getapplock kilitleri uygulama süreçleri arasında da geçerlidir: komutlar ortak ayar kilidini Shared, cihaz kilidini Exclusive alır. Ayar yazmaları Exclusive ayar kilidi alır. Bekleme süresi sıfırdır; meşgulse mesaj döner. Farklı cihazlar paralel komut işleyebilir. Kilitler transaction bitince bırakılır. Yönetim değişiklikleri uygulamanın prosedürleri üzerinden yapılmalıdır.
+
+Açık duruş kaydında makine bağlantısı ve cihaz adresi değiştirilemez. Aktif bağlantı varken makine/röle pasife alınamaz; bağlı üst kayıtlar silinemez. Yabancı anahtarlar silme zincirini korur. Tanımlama, pasifleştirme ve silme fiziksel komut göndermez. Süreli darbe kontrolü eklenmemiştir.
+
+## Testler
+
+Çözümü Debug derledikten sonra:
 
 ```powershell
 .\Tests\RoleEntegrasyonTestleri.ps1
 ```
 
-Testler yalnızca dinamik localhost portları kullanır; gerçek cihaza veya veritabanına bağlanmaz. Başlat/durdur yolları, başarısız HTTP yanıtı, yönlendirme, zaman aşımı, bozuk yanıt, yanlış/pasif makine ve hatalı ayarlar kontrol edilir. Test çalıştırıcısı geçici dizinde derlenir ve ayrı yapılandırma kullanır.
+22 kontrol: Kanal 1/16 HTTP yolları, yönlendirme, hata, timeout, bozuk yanıt, geçersiz kanal/adres. Yalnızca localhost sahte HTTP sunucusu kullanılır.
 
-Gerçek cihaz ve veritabanıyla uçtan uca doğrulama ayrıca uygulama üzerinden yapılmalıdır: yetkili kullanıcıyla test makinesinde Durdur, ardından Başlat; LED değişimi ve duruş kaydı kontrol edilir.
+SQL testleri için yedeği ayrı bir `DB_MODBUS_DonanimTest_*` veritabanına geri yükleyin, geçişi bu kopyada çalıştırın:
+
+```powershell
+.\Tests\DonanimVeritabaniTestleri.ps1 -Sunucu SUNUCU -Veritabani DB_MODBUS_DonanimTest_20260916
+```
+
+20 kontrol: atama sınırları, mükerrer makine/kanal, pasiflik, silme ilişkileri, açık duruş, iki bağlantıyla SQL kilitleri. Test betiği asıl DB_MODBUS adını reddeder; yalnızca test kopyasında sahte makine/kart kayıtları bırakır. Gerçek cihaza komut göndermez.
