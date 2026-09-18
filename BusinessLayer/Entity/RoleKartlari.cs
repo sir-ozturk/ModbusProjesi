@@ -57,6 +57,12 @@ public class RoleKartlari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Ekle()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.RoleKontrol(this, DonanimKontrolleri.Islem.EKLE))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Ekle;
         VeritabaniIslem.ParametreEkle(C_Sutun_role_adi, RoleAdi);
         VeritabaniIslem.ParametreEkle(C_Sutun_ethernet_kart_id, EthernetKartId);
@@ -69,6 +75,12 @@ public class RoleKartlari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Guncelle()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.RoleKontrol(this, DonanimKontrolleri.Islem.GUNCELLE))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Guncelle;
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
         VeritabaniIslem.ParametreEkle(C_Sutun_role_adi, RoleAdi);
@@ -82,6 +94,12 @@ public class RoleKartlari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Sil()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.RoleKontrol(this, DonanimKontrolleri.Islem.SIL))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Sil;
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
 

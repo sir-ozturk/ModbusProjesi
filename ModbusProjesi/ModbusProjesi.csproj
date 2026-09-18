@@ -107,6 +107,7 @@
     <Compile Include="Pages\MakineRoleBaglantilari.aspx.designer.cs">
       <DependentUpon>MakineRoleBaglantilari.aspx</DependentUpon>
     </Compile>
+    <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
     <Content Include="Files\Images\Logo.png" />
     <Content Include="Files\Images\no-image.svg" />
@@ -144,6 +145,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Global.asax.cs"><DependentUpon>Global.asax</DependentUpon></Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

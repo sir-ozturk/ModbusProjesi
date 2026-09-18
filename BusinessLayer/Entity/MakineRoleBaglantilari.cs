@@ -114,6 +114,12 @@ public class MakineRoleBaglantilari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Ekle()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.BaglantiKontrol(this, DonanimKontrolleri.Islem.EKLE))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Ekle;
         VeritabaniIslem.ParametreEkle(C_Sutun_role_kart_id, RoleKartId);
         VeritabaniIslem.ParametreEkle(C_Sutun_kanal_no, KanalNo);
@@ -127,6 +133,12 @@ public class MakineRoleBaglantilari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Guncelle()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.BaglantiKontrol(this, DonanimKontrolleri.Islem.GUNCELLE))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Guncelle;
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
         VeritabaniIslem.ParametreEkle(C_Sutun_role_kart_id, RoleKartId);
@@ -141,6 +153,12 @@ public class MakineRoleBaglantilari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Sil()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.BaglantiKontrol(this, DonanimKontrolleri.Islem.SIL))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Sil;
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
 
@@ -176,6 +194,12 @@ public class MakineRoleBaglantilari : OrtakAlanlar, IOrtakMetotlar
     // Transaction içindeki SQL kilitleri komut tamamlanana kadar korunur.
     public bool KomutBaglantisiniGetir()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.KomutAyarKilidiAl())
+        {
+            throw new DonanimIslemHatasi(VeritabaniIslem.SonHataMesaji);
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_KomutGetir;
         VeritabaniIslem.ParametreEkle(C_Sutun_makine_id, MakineId);
 
@@ -192,6 +216,11 @@ public class MakineRoleBaglantilari : OrtakAlanlar, IOrtakMetotlar
         Ip = SonucKayit[C_Sutun_ip].ToString();
         HttpPort = Convert.ToInt32(SonucKayit[C_Sutun_http_port]);
         EthernetKartId = Convert.ToInt32(SonucKayit[C_Sutun_ethernet_kart_id]);
+        if (!kontrol.CihazKilidiAl(EthernetKartId))
+        {
+            throw new DonanimIslemHatasi(VeritabaniIslem.SonHataMesaji);
+        }
+
         AktifMi = true;
 
         return true;

@@ -29,68 +29,28 @@ public partial class Default : System.Web.UI.Page
         RegisterAsyncTask(new PageAsyncTask(DonanimDurumunuYenileAsync));
     }
 
-    private async Task DonanimDurumunuYenileAsync()
+    private Task DonanimDurumunuYenileAsync()
     {
         CurrentInfo kullanici = new Sessionlar().Current._CurrentInfo;
-        if (kullanici == null || !kullanici.LoginYapildiMi) return;
-        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+        if (kullanici == null || !kullanici.LoginYapildiMi) return Task.FromResult(0);
+        // IO yalnız fiziksel tetiklemedir; makinenin durumu MakineLoglari içinde tutulur.
         try
         {
-            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
-            Makineler makineler = new Makineler(veritabaniIslemleri);
-            makineler.DashboardGetir();
-            Dictionary<int, string> cihazDurumlari = new Dictionary<int, string>();
-            foreach (DataRow satir in makineler.VeriTablosu.Rows)
-            {
-                if (!Convert.ToBoolean(satir["role_bagli_mi"])) continue;
-                MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(veritabaniIslemleri);
-                baglanti.MakineId = Convert.ToInt32(satir["id"]);
-                // Komutlarla aynı SQL cihaz kilidi, okuma ve log kaydı boyunca tutulur.
-                if (!baglanti.KomutBaglantisiniGetir()) throw new InvalidOperationException(Mesajlar.MakineRoleAtamasiYok);
-                string durum;
-                if (!cihazDurumlari.TryGetValue(baglanti.EthernetKartId, out durum))
-                {
-                    MakineRoleIslemleri.KanalDurumSonucu sonuc = await MakineRoleIslemleri.KanalDurumunuGetirAsync(baglanti);
-                    if (!sonuc.Basarili) throw new InvalidOperationException(sonuc.Hata);
-                    durum = sonuc.HamCevap.Trim();
-                    cihazDurumlari.Add(baglanti.EthernetKartId, durum);
-                }
-                bool duruyor = MakineRoleIslemleri.DurumdanDuruyorMu(durum, baglanti.KanalNo);
-                MakineLoglari log = new MakineLoglari(veritabaniIslemleri) { MakineId = Convert.ToInt32(satir["id"]) };
-                bool acikKayit = log.AcikKayitGetir();
-                if (duruyor == acikKayit) continue;
-                // Kullanıcı kaydı gözlemleyen oturumdur; duruş nedeni donanım kaynağını belirtir.
-                if (duruyor)
-                {
-                    log.IslemTipi = MakineLoglari.C_IslemTipi_Durdur;
-                    log.IslemNedeni = "Donanım üzerinden durduruldu (IO Control)";
-                    log.DevamEdiyorMu = true;
-                    log.BasariliMi = true;
-                    log.AktifMi = true;
-                    log.EkleyenId = kullanici.KullaniciId;
-                    log.EkleyenIp = Utility.IpNoGetir();
-                    if (!log.Ekle()) throw new InvalidOperationException("Duruş kaydı oluşturulamadı.");
-                }
-                else if (!log.Kapat()) throw new InvalidOperationException("Duruş kaydı kapatılamadı.");
-            }
-            veritabaniIslemleri.Uygula();
-            lblDonanimDurumu.Text = string.Empty;
-            lblDonanimDurumu.Visible = false;
+            string warning = RelayPulseService.Default.GetWarnings();
+            lblDonanimDurumu.Text = Server.HtmlEncode(warning);
+            lblDonanimDurumu.Visible = !string.IsNullOrEmpty(warning);
+            lblDonanimDurumu.CssClass = "d-block text-danger mb-2";
         }
-        catch
+        catch (Exception ex)
         {
-            veritabaniIslemleri.GeriAl();
-            lblDonanimDurumu.Text = "Donanım durumu doğrulanamadı veya kaydedilemedi. Gösterilen bilgiler son veritabanı kayıtlarıdır.";
+            System.Diagnostics.Trace.TraceError("Pulse uyarıları okunamadı: " + ex);
+            lblDonanimDurumu.Text = "KRİTİK: Röle güvenlik kayıtları okunamıyor. Veritabanını ve watchdog durumunu kontrol ediniz.";
             lblDonanimDurumu.Visible = true;
             lblDonanimDurumu.CssClass = "d-block text-danger mb-2";
         }
-        finally
-        {
-            veritabaniIslemleri.Bitir();
-        }
         MakineleriGetir();
+        return Task.FromResult(0);
     }
-
     private void BasariMesajiniGoster()
     {
         object basariMesaji = Session[C_Session_DashboardBasari];
@@ -286,44 +246,47 @@ public partial class Default : System.Web.UI.Page
                     makineLoglari.EkleyenId = currentInfo.KullaniciId;
                     makineLoglari.EkleyenIp = Utility.IpNoGetir();
 
-                    MakineRoleIslemleri.KanalDurumSonucu mevcutDurum = await MakineRoleIslemleri.KanalDurumunuGetirAsync(baglanti);
-                    if (!mevcutDurum.Basarili)
+                    string roleHatasi = await RelayPulseService.Default.TriggerStopPulse(baglanti);
+                    if (roleHatasi != null)
                     {
-                        hataMesaji = mevcutDurum.Hata;
+                        hataMesaji = roleHatasi;
                         veritabaniIslemleri.GeriAl();
                     }
-                    else if (mevcutDurum.DuruyorMu)
+                    else if (makineLoglari.Ekle())
                     {
-                        hataMesaji = Mesajlar.MakineZatenDuruyor;
-                        veritabaniIslemleri.GeriAl();
+                        veritabaniIslemleri.Uygula();
+                        durdurmaBasarili = true;
                     }
                     else
                     {
-                        string roleHatasi = await MakineRoleIslemleri.MakineDurdurAsync(baglanti);
-                        if (roleHatasi != null) { hataMesaji = roleHatasi; veritabaniIslemleri.GeriAl(); }
-                        else
-                        {
-                            roleHatasi = await MakineRoleIslemleri.KanalDurumunuDogrulaAsync(baglanti, true);
-                            if (roleHatasi != null) { hataMesaji = roleHatasi; veritabaniIslemleri.GeriAl(); }
-                            else if (makineLoglari.Ekle()) { veritabaniIslemleri.Uygula(); durdurmaBasarili = true; }
-                            else veritabaniIslemleri.GeriAl();
-                        }
+                        hataMesaji = "OFF doğrulandı ancak makine duruş kaydı yazılamadı. Pulse güvenlik takibi devam ediyor.";
+                        System.Diagnostics.Trace.TraceError("Makine " + makineId + ": " + hataMesaji);
+                        veritabaniIslemleri.GeriAl();
                     }
                 }
             }
         }
         catch (SqlException ex)
         {
+            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
             if (ex.Number >= 51000 && ex.Number <= 51010) hataMesaji = ex.Message;
+            veritabaniIslemleri.GeriAl();
+        }
+        catch (DonanimIslemHatasi ex)
+        {
+            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
+            hataMesaji = ex.Message;
             veritabaniIslemleri.GeriAl();
         }
         catch (InvalidOperationException ex)
         {
+            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
             if (ex.Message == Mesajlar.MakineRoleAtamasiYok) hataMesaji = ex.Message;
             veritabaniIslemleri.GeriAl();
         }
-        catch
+        catch (Exception ex)
         {
+            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
             veritabaniIslemleri.GeriAl();
         }
         finally
@@ -391,7 +354,12 @@ public partial class Default : System.Web.UI.Page
             MakineLoglari makineLoglari = new MakineLoglari(veritabaniIslemleri);
             makineLoglari.MakineId = makineId;
 
-            if (!roleAtamasiVar)
+            if (RelayPulseService.Default.HasActivePulse(makineId))
+            {
+                hataMesaji = "Röle pulse işlemi henüz tamamlanmadı. ON doğrulamasını bekleyiniz.";
+                veritabaniIslemleri.GeriAl();
+            }
+            else if (!roleAtamasiVar)
             {
                 hataMesaji = Mesajlar.MakineRoleAtamasiYok;
                 veritabaniIslemleri.GeriAl();
@@ -442,6 +410,11 @@ public partial class Default : System.Web.UI.Page
         catch (SqlException ex)
         {
             if (ex.Number >= 51000 && ex.Number <= 51010) hataMesaji = ex.Message;
+            veritabaniIslemleri.GeriAl();
+        }
+        catch (DonanimIslemHatasi ex)
+        {
+            hataMesaji = ex.Message;
             veritabaniIslemleri.GeriAl();
         }
         catch (InvalidOperationException ex)

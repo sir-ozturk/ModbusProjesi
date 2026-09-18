@@ -47,6 +47,11 @@
     <Compile Include="Entity\Kullanicilar.cs" />
     <Compile Include="Entity\Loglar.cs" />
     <Compile Include="Entity\MakineLoglari.cs" />
+    <Compile Include="Entity\RelayPulse.cs" />
+    <Compile Include="Entity\RelayPulses.cs" />
+    <Compile Include="Entity\RelayPulseEvents.cs" />
+    <Compile Include="Interfaces\IRelayPulseStore.cs" />
+    <Compile Include="Interfaces\IRelayPulseIo.cs" />
     <Compile Include="Entity\Makineler.cs" />
     <Compile Include="Entity\EthernetKartlari.cs" />
     <Compile Include="Entity\RoleKartlari.cs" />
@@ -63,6 +68,11 @@
     <Compile Include="Work\Mesaj.cs" />
     <Compile Include="Work\Mesajlar.cs" />
     <Compile Include="Work\MakineRoleIslemleri.cs" />
+    <Compile Include="Work\RelayPulseStore.cs" />
+    <Compile Include="Work\RelayPulseService.cs" />
+    <Compile Include="Work\RelayPulseDiagnostics.cs" />
+    <Compile Include="Work\RelayPulseClock.cs" />
+    <Compile Include="Work\DonanimKontrolleri.cs" />
     <Compile Include="Work\OrtakAlanlar.cs" />
     <Compile Include="Entity\Roller.cs" />
     <Compile Include="Interfaces\IOrtakMetotlar.cs" />

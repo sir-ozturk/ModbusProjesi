@@ -76,7 +76,7 @@ public partial class RoleKartEkle : System.Web.UI.Page
         VeritabaniIslemleri db=new VeritabaniIslemleri();
         try
         {
-            db.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+            db.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
             RoleKartlari kayit=new RoleKartlari(db);
             kayit.Id=gelenId;
             kayit.RoleAdi=txtRoleAdi.Text.Trim();
@@ -86,12 +86,13 @@ public partial class RoleKartEkle : System.Web.UI.Page
             kayit.EkleyenId=kayit.GuncelleyenId=kullanici.KullaniciId;
             kayit.EkleyenIp=kayit.GuncelleyenIp=Utility.IpNoGetir();
             if (!(gelenId>0 ? kayit.Guncelle() : kayit.Ekle()))
-            { Hata(db.SonHataMesaji ?? "Kayıt tamamlanamadı."); return; }
+            { db.GeriAl(); Hata(db.SonHataMesaji ?? "Kayıt tamamlanamadı."); return; }
+            db.Uygula();
             Session["DonanimBasari"]="Donanım kaydı kaydedildi.";
             Response.Redirect("~/Pages/RoleKartListele.aspx",false);
             Context.ApplicationInstance.CompleteRequest();
         }
-        catch { Hata("Kayıt işlemi tamamlanamadı."); }
+        catch { db.GeriAl(); Hata("Kayıt işlemi tamamlanamadı."); }
         finally { db.Bitir(); }
     }
 

@@ -16,9 +16,48 @@ public class VeritabaniIslemleri
     private List<SqlParameter> sqlParametreListesi;
 
     public bool LogYasak = false;
+    // Güvenlik işlemlerinde SQL hatası çağırana iletilir; mevcut ekranların davranışı değişmez.
+    public bool HatalariFirlat { get; set; }
+    private bool baglantiHavuzuKullan = true;
     public string SonHataMesaji { get; private set; }
 
     public string SpAdi { get; set; }
+
+    public bool HataBildir(string mesaj)
+    {
+        SonHataMesaji = mesaj;
+        return false;
+    }
+
+    public bool UygulamaKilidiAl(string kaynak, bool paylasimli)
+    {
+        SonHataMesaji = null;
+
+        if (sqlTransaction == null)
+        {
+            return HataBildir("Donanım işlemi için bağlı işlem başlatılmalıdır.");
+        }
+
+        using (SqlCommand komut = new SqlCommand("sys.sp_getapplock", sqlConnection, sqlTransaction))
+        {
+            komut.CommandType = CommandType.StoredProcedure;
+            komut.Parameters.Add("@Resource", SqlDbType.NVarChar, 255).Value = kaynak;
+            komut.Parameters.Add("@LockMode", SqlDbType.VarChar, 32).Value = paylasimli ? "Shared" : "Exclusive";
+            komut.Parameters.Add("@LockOwner", SqlDbType.VarChar, 32).Value = "Transaction";
+            komut.Parameters.Add("@LockTimeout", SqlDbType.Int).Value = 0;
+            SqlParameter sonuc = komut.Parameters.Add("@RETURN_VALUE", SqlDbType.Int);
+            sonuc.Direction = ParameterDirection.ReturnValue;
+
+            komut.ExecuteNonQuery();
+
+            if (Convert.ToInt32(sonuc.Value) < 0)
+            {
+                return HataBildir("Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.");
+            }
+        }
+
+        return true;
+    }
 
     public enum IslemTip
     {
@@ -30,12 +69,26 @@ public class VeritabaniIslemleri
 
     public void Baslat(IslemTip tip)
     {
+        Baslat(tip, null, true);
+    }
+
+    public void Baslat(IslemTip tip, int? zamanAsimiSaniye, bool havuzKullan)
+    {
         islemTip = tip;
 
         string connectionString = ConfigurationManager.ConnectionStrings["ModbusDb"].ConnectionString;
+        baglantiHavuzuKullan = havuzKullan;
+        if (zamanAsimiSaniye.HasValue || !havuzKullan)
+        {
+            SqlConnectionStringBuilder ayarlar = new SqlConnectionStringBuilder(connectionString);
+            if (zamanAsimiSaniye.HasValue) ayarlar.ConnectTimeout = zamanAsimiSaniye.Value;
+            ayarlar.Pooling = havuzKullan;
+            connectionString = ayarlar.ConnectionString;
+        }
 
         sqlParametreListesi = new List<SqlParameter>();
         sqlCommand = new SqlCommand();
+        if (zamanAsimiSaniye.HasValue) sqlCommand.CommandTimeout = zamanAsimiSaniye.Value;
         sqlConnection = new SqlConnection(connectionString);
         sqlConnection.Open();
 
@@ -199,11 +252,13 @@ public class VeritabaniIslemleri
                 ? ex.Message
                 : "Kayıt işlemi tamamlanamadı. Bağlantı veya benzersizlik kurallarını kontrol ediniz.";
             ParametreleriSil();
+            if (HatalariFirlat) throw;
             return false;
         }
         catch
         {
             ParametreleriSil();
+            if (HatalariFirlat) throw;
             return false;
         }
     }
@@ -357,7 +412,7 @@ public class VeritabaniIslemleri
                 sqlConnection.Dispose();
                 sqlConnection = null;
 
-                SqlConnection.ClearAllPools();
+                if (baglantiHavuzuKullan) SqlConnection.ClearAllPools();
             }
 
             return true;

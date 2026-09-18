@@ -85,6 +85,12 @@ public class EthernetKartlari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Ekle()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.EthernetKontrol(this, DonanimKontrolleri.Islem.EKLE))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Ekle;
         VeritabaniIslem.ParametreEkle(C_Sutun_kart_adi, KartAdi);
         VeritabaniIslem.ParametreEkle(C_Sutun_model, Model);
@@ -99,6 +105,12 @@ public class EthernetKartlari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Guncelle()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.EthernetKontrol(this, DonanimKontrolleri.Islem.GUNCELLE))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Guncelle;
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
         VeritabaniIslem.ParametreEkle(C_Sutun_kart_adi, KartAdi);
@@ -114,6 +126,12 @@ public class EthernetKartlari : OrtakAlanlar, IOrtakMetotlar
 
     public bool Sil()
     {
+        DonanimKontrolleri kontrol = new DonanimKontrolleri(VeritabaniIslem);
+        if (!kontrol.EthernetKontrol(this, DonanimKontrolleri.Islem.SIL))
+        {
+            return false;
+        }
+
         VeritabaniIslem.SpAdi = C_Sp_Sil;
         VeritabaniIslem.ParametreEkle(C_Sutun_id, Id);
 

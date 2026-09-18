@@ -84,7 +84,7 @@ public partial class EthernetKartEkle : System.Web.UI.Page
         VeritabaniIslemleri db=new VeritabaniIslemleri();
         try
         {
-            db.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+            db.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
             EthernetKartlari kayit=new EthernetKartlari(db);
             kayit.Id=gelenId;
             kayit.KartAdi=txtKartAdi.Text.Trim();
@@ -96,12 +96,13 @@ public partial class EthernetKartEkle : System.Web.UI.Page
             kayit.EkleyenId=kayit.GuncelleyenId=kullanici.KullaniciId;
             kayit.EkleyenIp=kayit.GuncelleyenIp=Utility.IpNoGetir();
             if (!(gelenId>0 ? kayit.Guncelle() : kayit.Ekle()))
-            { Hata(db.SonHataMesaji ?? "Kayıt tamamlanamadı."); return; }
+            { db.GeriAl(); Hata(db.SonHataMesaji ?? "Kayıt tamamlanamadı."); return; }
+            db.Uygula();
             Session["DonanimBasari"]="Donanım kaydı kaydedildi.";
             Response.Redirect("~/Pages/EthernetKartListele.aspx",false);
             Context.ApplicationInstance.CompleteRequest();
         }
-        catch { Hata("Kayıt işlemi tamamlanamadı."); }
+        catch { db.GeriAl(); Hata("Kayıt işlemi tamamlanamadı."); }
         finally { db.Bitir(); }
     }
 

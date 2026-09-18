@@ -47,12 +47,12 @@ public partial class EthernetKartListele : System.Web.UI.Page
         VeritabaniIslemleri db=new VeritabaniIslemleri();
         try
         {
-            db.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+            db.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
             EthernetKartlari kayit=new EthernetKartlari(db); kayit.Id=e.Id;
-            if(!kayit.Sil()) Hata(db.SonHataMesaji ?? "Kayıt silinemedi.");
-            else { Session["DonanimBasari"]="Kayıt silindi."; Response.Redirect("~/Pages/EthernetKartListele.aspx",false); Context.ApplicationInstance.CompleteRequest(); }
+            if(!kayit.Sil()) { db.GeriAl(); Hata(db.SonHataMesaji ?? "Kayıt silinemedi."); }
+            else { db.Uygula(); Session["DonanimBasari"]="Kayıt silindi."; Response.Redirect("~/Pages/EthernetKartListele.aspx",false); Context.ApplicationInstance.CompleteRequest(); }
         }
-        catch { Hata("Kayıt silinemedi."); }
+        catch { db.GeriAl(); Hata("Kayıt silinemedi."); }
         finally { db.Bitir(); }
         Listele();
     }

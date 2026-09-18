@@ -49,7 +49,10 @@ internal static class RoleEntegrasyonTestleri
                 : await MakineRoleIslemleri.MakineDurdurAsync(baglanti);
             Kontrol(hata == beklenenHata, "HTTP " + durum + " / hata sonucu");
             if (gecikme > 0) Kontrol(sure.Elapsed.TotalSeconds >= 3 && sure.Elapsed.TotalSeconds < 5.5, "3 saniye zaman asimi");
-            Kontrol(await istek == "GET /" + (((baglanti.KanalNo-1)*2)+(baslat ? 0 : 1)).ToString("D2") + " HTTP/1.1", "Secilen kanalin GET komutu");
+            string[] offYollari = { "00", "02", "04", "06", "08", "10", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30" };
+            string[] onYollari = { "01", "03", "05", "07", "09", "11", "13", "15", "17", "19", "21", "23", "25", "27", "29", "31" };
+            string beklenenYol = (baslat ? onYollari : offYollari)[baglanti.KanalNo - 1];
+            Kontrol(await istek == "GET /" + beklenenYol + " HTTP/1.1", "Kanal " + baglanti.KanalNo + (baslat ? " Baslat ON /" : " Durdur OFF /") + beklenenYol);
         }
         finally { sunucu.Stop(); }
     }
@@ -75,12 +78,14 @@ internal static class RoleEntegrasyonTestleri
         try
         {
             bool okundu = false;
+            bool duruyorMu = false;
             string sonuc = null;
-            try { var cevap = await MakineRoleIslemleri.KanalDurumunuGetirAsync(baglanti); sonuc = cevap.HamCevap == null ? null : cevap.HamCevap.Trim(); okundu = cevap.Basarili; }
+            try { var cevap = await MakineRoleIslemleri.KanalDurumunuGetirAsync(baglanti); sonuc = cevap.HamCevap == null ? null : cevap.HamCevap.Trim(); okundu = cevap.Basarili; duruyorMu = cevap.DuruyorMu; }
             catch (ArgumentException) { }
             catch (System.Net.Http.HttpRequestException) { }
             Kontrol(okundu == basarili, "Durum okuma: " + durum + "/" + govde);
             if (basarili) Kontrol(sonuc == govde.Trim(), "IO yanıtı korunur");
+            if (basarili) Kontrol(duruyorMu == (govde.Trim()[15] == '0'), "IO yorumu: OFF tetik, ON normal");
             Kontrol(await istek == "GET /98 HTTP/1.1", "Okuma yalnızca /98 kullanır");
         }
         finally { sunucu.Stop(); }
@@ -100,7 +105,7 @@ internal static class RoleEntegrasyonTestleri
             char[] bitler = new string('0', 16).ToCharArray();
             bitler[16 - kanal] = '1';
             for (int okunan = 1; okunan <= 16; okunan++)
-                Kontrol(MakineRoleIslemleri.DurumdanDuruyorMu(new string(bitler), okunan) == (kanal == okunan), "IO bit sırası " + kanal + "/" + okunan);
+                Kontrol(MakineRoleIslemleri.DurumdanDuruyorMu(new string(bitler), okunan) == (kanal != okunan), "IO bit sırası: yalnız belirtilen kanal ON " + kanal + "/" + okunan);
         }
         foreach (string bozuk in new[] { "", "0", "00000000000000000", "000000000000000x", "<html>hata</html>", null })
         {
@@ -118,11 +123,12 @@ internal static class RoleEntegrasyonTestleri
         }
 
         MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(null) { KanalNo=1, AktifMi=true };
-        await YanitTesti(baglanti, false, "200 OK", null, 0);
-        await YanitTesti(baglanti, true, "200 OK", null, 0);
-        baglanti.KanalNo=16;
-        await YanitTesti(baglanti, false, "200 OK", null, 0);
-        await YanitTesti(baglanti, true, "200 OK", null, 0);
+        for (int kanal = 1; kanal <= 16; kanal++)
+        {
+            baglanti.KanalNo = kanal;
+            await YanitTesti(baglanti, false, "200 OK", null, 0);
+            await YanitTesti(baglanti, true, "200 OK", null, 0);
+        }
         await YanitTesti(baglanti, false, "500 Error", Mesajlar.RoleCihazYanitiBasarisiz, 0);
         await YanitTesti(baglanti, false, "302 Found", Mesajlar.RoleCihazYanitiBasarisiz, 0);
         await YanitTesti(baglanti, false, "timeout", Mesajlar.RoleCihazZamanAsimi, 4600);

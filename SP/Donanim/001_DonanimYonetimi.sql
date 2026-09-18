@@ -53,303 +53,40 @@ CREATE UNIQUE INDEX UX_MakineRole_Kanal ON dbo.MakineRoleBaglantilari(role_kart_
 CREATE UNIQUE INDEX UX_MakineRole_Makine ON dbo.MakineRoleBaglantilari(makine_id) WHERE aktif_mi=1;
 END;
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_EthernetKartlari_EKLE
-    @kart_adi NVARCHAR(100),
-    @model NVARCHAR(50),
-    @ip VARCHAR(15),
-    @http_port INT,
-    @aktif_mi BIT, @ekleyen_id INT, @ekleyen_ip NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET XACT_ABORT ON;
-    BEGIN TRY
-    BEGIN TRANSACTION;
-    DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-DECLARE @id INT=0;
-    IF NULLIF(LTRIM(RTRIM(@kart_adi)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@model)),N'') IS NULL OR @http_port NOT BETWEEN 1 AND 65535
-        THROW 51002,N'Kart adı, model veya HTTP portu geçersiz.',1;
-    IF EXISTS(SELECT 1 FROM dbo.EthernetKartlari WHERE ip=@ip AND http_port=@http_port AND id<>@id)
-        THROW 51002,N'Bu IP ve HTTP portu zaten tanımlı.',1;
-    IF @aktif_mi=0 AND EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE ethernet_kart_id=@id AND aktif_mi=1)
-        THROW 51002,N'Önce bağlı röle kartını pasife alınız.',1;
-    IF EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari B JOIN dbo.RoleKartlari R ON R.id=B.role_kart_id
-        JOIN dbo.MakineLoglari L ON L.makine_id=B.makine_id
-        WHERE R.ethernet_kart_id=@id AND B.aktif_mi=1 AND L.devam_ediyor_mu=1 AND L.basarili_mi=1 AND L.aktif_mi=1 AND L.islem_tipi=N'DURDUR')
-        THROW 51002,N'Açık duruş kaydı olan makine bulunduğu için cihaz değiştirilemez.',1;
-
-    INSERT dbo.EthernetKartlari (kart_adi,model,ip,http_port,aktif_mi,ekleyen_id,ekleyen_ip) VALUES (@kart_adi,@model,@ip,@http_port,@aktif_mi,@ekleyen_id,@ekleyen_ip);
-    COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF XACT_STATE()<>0 ROLLBACK;
-        THROW;
-    END CATCH
-END;
+-- Prosedürler kendi klasörlerindeki dosyalardan yüklenir.
+:r "SP\SP_EthernetKartlari\SP_EthernetKartlari_EKLE.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_EthernetKartlari_GUNCELLE
-    @id INT,
-    @kart_adi NVARCHAR(100),
-    @model NVARCHAR(50),
-    @ip VARCHAR(15),
-    @http_port INT,
-    @aktif_mi BIT, @guncelleyen_id INT, @guncelleyen_ip NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET XACT_ABORT ON;
-    BEGIN TRY
-    BEGIN TRANSACTION;
-    DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-IF NOT EXISTS(SELECT 1 FROM dbo.EthernetKartlari WHERE id=@id) THROW 51002,N'Kayıt bulunamadı.',1;
-    IF NULLIF(LTRIM(RTRIM(@kart_adi)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@model)),N'') IS NULL OR @http_port NOT BETWEEN 1 AND 65535
-        THROW 51002,N'Kart adı, model veya HTTP portu geçersiz.',1;
-    IF EXISTS(SELECT 1 FROM dbo.EthernetKartlari WHERE ip=@ip AND http_port=@http_port AND id<>@id)
-        THROW 51002,N'Bu IP ve HTTP portu zaten tanımlı.',1;
-    IF @aktif_mi=0 AND EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE ethernet_kart_id=@id AND aktif_mi=1)
-        THROW 51002,N'Önce bağlı röle kartını pasife alınız.',1;
-    IF EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari B JOIN dbo.RoleKartlari R ON R.id=B.role_kart_id
-        JOIN dbo.MakineLoglari L ON L.makine_id=B.makine_id
-        WHERE R.ethernet_kart_id=@id AND B.aktif_mi=1 AND L.devam_ediyor_mu=1 AND L.basarili_mi=1 AND L.aktif_mi=1 AND L.islem_tipi=N'DURDUR')
-        THROW 51002,N'Açık duruş kaydı olan makine bulunduğu için cihaz değiştirilemez.',1;
-
-    UPDATE dbo.EthernetKartlari SET kart_adi=@kart_adi,model=@model,ip=@ip,http_port=@http_port,aktif_mi=@aktif_mi,guncelleyen_id=@guncelleyen_id,guncelleyen_ip=@guncelleyen_ip,guncellenme_tarih=GETDATE() WHERE id=@id;
-    COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF XACT_STATE()<>0 ROLLBACK;
-        THROW;
-    END CATCH
-END;
+:r "SP\SP_EthernetKartlari\SP_EthernetKartlari_GUNCELLE.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_EthernetKartlari_DOLDUR @id INT
-AS BEGIN SET NOCOUNT ON; SELECT E.*, E.ip+':'+CONVERT(VARCHAR(5),E.http_port) AS adres FROM dbo.EthernetKartlari E WHERE E.id=@id; END;
+:r "SP\SP_EthernetKartlari\SP_EthernetKartlari_DOLDUR.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_EthernetKartlari_TUMUNU_GETIR 
-AS BEGIN SET NOCOUNT ON; SELECT E.*, E.ip+':'+CONVERT(VARCHAR(5),E.http_port) AS adres FROM dbo.EthernetKartlari E ORDER BY E.id; END;
+:r "SP\SP_EthernetKartlari\SP_EthernetKartlari_TUMUNU_GETIR.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_EthernetKartlari_SIL @id INT
-AS BEGIN
- SET NOCOUNT ON; SET XACT_ABORT ON;
- BEGIN TRY
- BEGIN TRANSACTION;
- DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-
- IF EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE ethernet_kart_id=@id) THROW 51002,N'Bağlı röle kartı olan Ethernet kartı silinemez.',1;
- DELETE FROM dbo.EthernetKartlari WHERE id=@id;
- IF @@ROWCOUNT=0 THROW 51002,N'Kayıt bulunamadı.',1;
- COMMIT;
- END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK; THROW; END CATCH
-END;
+:r "SP\SP_EthernetKartlari\SP_EthernetKartlari_SIL.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_RoleKartlari_EKLE
-    @role_adi NVARCHAR(100),
-    @ethernet_kart_id INT,
-    @aktif_mi BIT, @ekleyen_id INT, @ekleyen_ip NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET XACT_ABORT ON;
-    BEGIN TRY
-    BEGIN TRANSACTION;
-    DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-DECLARE @id INT=0;
-    IF NULLIF(LTRIM(RTRIM(@role_adi)),N'') IS NULL THROW 51002,N'Röle adı gereklidir.',1;
-    IF NOT EXISTS(SELECT 1 FROM dbo.EthernetKartlari WHERE id=@ethernet_kart_id AND (aktif_mi=1 OR @aktif_mi=0))
-        THROW 51002,N'Aktif bir Ethernet kartı seçiniz.',1;
-    IF EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE ethernet_kart_id=@ethernet_kart_id AND id<>@id)
-        THROW 51002,N'Bu Ethernet kartına başka bir röle kartı bağlı.',1;
-    IF EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari WHERE role_kart_id=@id AND aktif_mi=1)
-       AND (@aktif_mi=0 OR EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE id=@id AND ethernet_kart_id<>@ethernet_kart_id))
-        THROW 51002,N'Önce röle kartının aktif makine bağlantılarını kaldırınız.',1;
-
-    INSERT dbo.RoleKartlari (role_adi,ethernet_kart_id,aktif_mi,ekleyen_id,ekleyen_ip) VALUES (@role_adi,@ethernet_kart_id,@aktif_mi,@ekleyen_id,@ekleyen_ip);
-    COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF XACT_STATE()<>0 ROLLBACK;
-        THROW;
-    END CATCH
-END;
+:r "SP\SP_RoleKartlari\SP_RoleKartlari_EKLE.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_RoleKartlari_GUNCELLE
-    @id INT,
-    @role_adi NVARCHAR(100),
-    @ethernet_kart_id INT,
-    @aktif_mi BIT, @guncelleyen_id INT, @guncelleyen_ip NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET XACT_ABORT ON;
-    BEGIN TRY
-    BEGIN TRANSACTION;
-    DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-IF NOT EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE id=@id) THROW 51002,N'Kayıt bulunamadı.',1;
-    IF NULLIF(LTRIM(RTRIM(@role_adi)),N'') IS NULL THROW 51002,N'Röle adı gereklidir.',1;
-    IF NOT EXISTS(SELECT 1 FROM dbo.EthernetKartlari WHERE id=@ethernet_kart_id AND (aktif_mi=1 OR @aktif_mi=0))
-        THROW 51002,N'Aktif bir Ethernet kartı seçiniz.',1;
-    IF EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE ethernet_kart_id=@ethernet_kart_id AND id<>@id)
-        THROW 51002,N'Bu Ethernet kartına başka bir röle kartı bağlı.',1;
-    IF EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari WHERE role_kart_id=@id AND aktif_mi=1)
-       AND (@aktif_mi=0 OR EXISTS(SELECT 1 FROM dbo.RoleKartlari WHERE id=@id AND ethernet_kart_id<>@ethernet_kart_id))
-        THROW 51002,N'Önce röle kartının aktif makine bağlantılarını kaldırınız.',1;
-
-    UPDATE dbo.RoleKartlari SET role_adi=@role_adi,ethernet_kart_id=@ethernet_kart_id,aktif_mi=@aktif_mi,guncelleyen_id=@guncelleyen_id,guncelleyen_ip=@guncelleyen_ip,guncellenme_tarih=GETDATE() WHERE id=@id;
-    COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF XACT_STATE()<>0 ROLLBACK;
-        THROW;
-    END CATCH
-END;
+:r "SP\SP_RoleKartlari\SP_RoleKartlari_GUNCELLE.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_RoleKartlari_DOLDUR @id INT
-AS BEGIN SET NOCOUNT ON; SELECT R.*, E.kart_adi, E.ip+':'+CONVERT(VARCHAR(5),E.http_port) AS adres, (SELECT COUNT(*) FROM dbo.MakineRoleBaglantilari B WHERE B.role_kart_id=R.id AND B.aktif_mi=1) AS dolu_kanal FROM dbo.RoleKartlari R JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id WHERE R.id=@id; END;
+:r "SP\SP_RoleKartlari\SP_RoleKartlari_DOLDUR.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_RoleKartlari_TUMUNU_GETIR 
-AS BEGIN SET NOCOUNT ON; SELECT R.*, E.kart_adi, E.ip+':'+CONVERT(VARCHAR(5),E.http_port) AS adres, (SELECT COUNT(*) FROM dbo.MakineRoleBaglantilari B WHERE B.role_kart_id=R.id AND B.aktif_mi=1) AS dolu_kanal FROM dbo.RoleKartlari R JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id ORDER BY R.id; END;
+:r "SP\SP_RoleKartlari\SP_RoleKartlari_TUMUNU_GETIR.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_RoleKartlari_SIL @id INT
-AS BEGIN
- SET NOCOUNT ON; SET XACT_ABORT ON;
- BEGIN TRY
- BEGIN TRANSACTION;
- DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-
- IF EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari WHERE role_kart_id=@id) THROW 51002,N'Makine bağlantısı olan röle kartı silinemez.',1;
- DELETE FROM dbo.RoleKartlari WHERE id=@id;
- IF @@ROWCOUNT=0 THROW 51002,N'Kayıt bulunamadı.',1;
- COMMIT;
- END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK; THROW; END CATCH
-END;
+:r "SP\SP_RoleKartlari\SP_RoleKartlari_SIL.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineRoleBaglantilari_EKLE
-    @role_kart_id INT,
-    @kanal_no INT,
-    @makine_id INT,
-    @aktif_mi BIT, @ekleyen_id INT, @ekleyen_ip NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET XACT_ABORT ON;
-    BEGIN TRY
-    BEGIN TRANSACTION;
-    DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-DECLARE @id INT=0;
-    IF @kanal_no NOT BETWEEN 1 AND 16 THROW 51002,N'Röle kanalı 1 ile 16 arasında olmalıdır.',1;
-    IF NOT EXISTS(SELECT 1 FROM dbo.Makineler WHERE id=@makine_id AND (aktif_mi=1 OR @aktif_mi=0))
-        THROW 51002,N'Aktif bir makine seçiniz.',1;
-    IF NOT EXISTS(SELECT 1 FROM dbo.RoleKartlari R JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id
-        WHERE R.id=@role_kart_id AND ((R.aktif_mi=1 AND E.aktif_mi=1) OR @aktif_mi=0))
-        THROW 51002,N'Aktif bir röle ve Ethernet kartı seçiniz.',1;
-    IF @aktif_mi=1 AND EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari WHERE id<>@id AND aktif_mi=1 AND (makine_id=@makine_id OR (role_kart_id=@role_kart_id AND kanal_no=@kanal_no)))
-        THROW 51002,N'Makine veya röle kanalı başka bir aktif bağlantıda kullanılıyor.',1;
-    IF EXISTS(SELECT 1 FROM dbo.MakineLoglari L WHERE L.makine_id IN
-       (SELECT makine_id FROM dbo.MakineRoleBaglantilari WHERE id=@id UNION SELECT @makine_id)
-       AND L.devam_ediyor_mu=1 AND L.basarili_mi=1 AND L.aktif_mi=1 AND L.islem_tipi=N'DURDUR')
-        THROW 51002,N'Açık duruş kaydı varken bağlantı değiştirilemez. Önce mevcut bağlantı üzerinden duruşu sonlandırınız.',1;
-
-    INSERT dbo.MakineRoleBaglantilari (role_kart_id,kanal_no,makine_id,aktif_mi,ekleyen_id,ekleyen_ip) VALUES (@role_kart_id,@kanal_no,@makine_id,@aktif_mi,@ekleyen_id,@ekleyen_ip);
-    COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF XACT_STATE()<>0 ROLLBACK;
-        THROW;
-    END CATCH
-END;
+:r "SP\SP_MakineRoleBaglantilari\SP_MakineRoleBaglantilari_EKLE.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineRoleBaglantilari_GUNCELLE
-    @id INT,
-    @role_kart_id INT,
-    @kanal_no INT,
-    @makine_id INT,
-    @aktif_mi BIT, @guncelleyen_id INT, @guncelleyen_ip NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET XACT_ABORT ON;
-    BEGIN TRY
-    BEGIN TRANSACTION;
-    DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-IF NOT EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari WHERE id=@id) THROW 51002,N'Kayıt bulunamadı.',1;
-    IF @kanal_no NOT BETWEEN 1 AND 16 THROW 51002,N'Röle kanalı 1 ile 16 arasında olmalıdır.',1;
-    IF NOT EXISTS(SELECT 1 FROM dbo.Makineler WHERE id=@makine_id AND (aktif_mi=1 OR @aktif_mi=0))
-        THROW 51002,N'Aktif bir makine seçiniz.',1;
-    IF NOT EXISTS(SELECT 1 FROM dbo.RoleKartlari R JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id
-        WHERE R.id=@role_kart_id AND ((R.aktif_mi=1 AND E.aktif_mi=1) OR @aktif_mi=0))
-        THROW 51002,N'Aktif bir röle ve Ethernet kartı seçiniz.',1;
-    IF @aktif_mi=1 AND EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari WHERE id<>@id AND aktif_mi=1 AND (makine_id=@makine_id OR (role_kart_id=@role_kart_id AND kanal_no=@kanal_no)))
-        THROW 51002,N'Makine veya röle kanalı başka bir aktif bağlantıda kullanılıyor.',1;
-    IF EXISTS(SELECT 1 FROM dbo.MakineLoglari L WHERE L.makine_id IN
-       (SELECT makine_id FROM dbo.MakineRoleBaglantilari WHERE id=@id UNION SELECT @makine_id)
-       AND L.devam_ediyor_mu=1 AND L.basarili_mi=1 AND L.aktif_mi=1 AND L.islem_tipi=N'DURDUR')
-        THROW 51002,N'Açık duruş kaydı varken bağlantı değiştirilemez. Önce mevcut bağlantı üzerinden duruşu sonlandırınız.',1;
-
-    UPDATE dbo.MakineRoleBaglantilari SET role_kart_id=@role_kart_id,kanal_no=@kanal_no,makine_id=@makine_id,aktif_mi=@aktif_mi,guncelleyen_id=@guncelleyen_id,guncelleyen_ip=@guncelleyen_ip,guncellenme_tarih=GETDATE() WHERE id=@id;
-    COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF XACT_STATE()<>0 ROLLBACK;
-        THROW;
-    END CATCH
-END;
+:r "SP\SP_MakineRoleBaglantilari\SP_MakineRoleBaglantilari_GUNCELLE.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineRoleBaglantilari_DOLDUR @id INT
-AS BEGIN SET NOCOUNT ON; SELECT B.*, R.role_adi, E.kart_adi, E.ip, E.http_port, E.ip+':'+CONVERT(VARCHAR(5),E.http_port) AS adres, M.makine_no, M.makine_adi FROM dbo.MakineRoleBaglantilari B JOIN dbo.RoleKartlari R ON R.id=B.role_kart_id JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id JOIN dbo.Makineler M ON M.id=B.makine_id WHERE B.id=@id; END;
+:r "SP\SP_MakineRoleBaglantilari\SP_MakineRoleBaglantilari_DOLDUR.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineRoleBaglantilari_TUMUNU_GETIR 
-AS BEGIN SET NOCOUNT ON; SELECT B.*, R.role_adi, E.kart_adi, E.ip, E.http_port, E.ip+':'+CONVERT(VARCHAR(5),E.http_port) AS adres, M.makine_no, M.makine_adi FROM dbo.MakineRoleBaglantilari B JOIN dbo.RoleKartlari R ON R.id=B.role_kart_id JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id JOIN dbo.Makineler M ON M.id=B.makine_id ORDER BY B.id; END;
+:r "SP\SP_MakineRoleBaglantilari\SP_MakineRoleBaglantilari_TUMUNU_GETIR.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineRoleBaglantilari_SIL @id INT
-AS BEGIN
- SET NOCOUNT ON; SET XACT_ABORT ON;
- BEGIN TRY
- BEGIN TRANSACTION;
- DECLARE @kilit INT;
-    EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar', @LockMode='Exclusive', @LockOwner='Transaction', @LockTimeout=0;
-    IF @kilit<0 THROW 51001, N'Donanım için başka bir işlem devam ediyor. Tekrar deneyiniz.', 1;
-
- IF EXISTS(SELECT 1 FROM dbo.MakineRoleBaglantilari B JOIN dbo.MakineLoglari L ON L.makine_id=B.makine_id WHERE B.id=@id AND L.devam_ediyor_mu=1 AND L.basarili_mi=1 AND L.aktif_mi=1 AND L.islem_tipi=N'DURDUR') THROW 51002,N'Açık duruş kaydı varken bağlantı silinemez.',1;
- DELETE FROM dbo.MakineRoleBaglantilari WHERE id=@id;
- IF @@ROWCOUNT=0 THROW 51002,N'Kayıt bulunamadı.',1;
- COMMIT;
- END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK; THROW; END CATCH
-END;
+:r "SP\SP_MakineRoleBaglantilari\SP_MakineRoleBaglantilari_SIL.sql"
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineRoleBaglantilari_KOMUT_GETIR @makine_id INT
-AS BEGIN
- SET NOCOUNT ON;
- IF @@TRANCOUNT=0 THROW 51002,N'Röle komutu için transaction gereklidir.',1;
- DECLARE @kilit INT, @cihaz INT, @kaynak NVARCHAR(255);
- EXEC @kilit=sys.sp_getapplock @Resource=N'ModbusDonanimAyar',@LockMode='Shared',@LockOwner='Transaction',@LockTimeout=0;
- IF @kilit<0 THROW 51001,N'Donanım ayarları güncelleniyor. Tekrar deneyiniz.',1;
- SELECT @cihaz=R.ethernet_kart_id FROM dbo.MakineRoleBaglantilari B
- JOIN dbo.RoleKartlari R ON R.id=B.role_kart_id WHERE B.makine_id=@makine_id AND B.aktif_mi=1;
- IF @cihaz IS NULL RETURN;
- SET @kaynak=N'ModbusRoleCihaz:'+CONVERT(NVARCHAR(20),@cihaz);
- EXEC @kilit=sys.sp_getapplock @Resource=@kaynak,@LockMode='Exclusive',@LockOwner='Transaction',@LockTimeout=0;
- IF @kilit<0 THROW 51001,N'Bu Ethernet kartında başka bir komut işleniyor. Tekrar deneyiniz.',1;
- SELECT B.*, E.ip, E.http_port, R.ethernet_kart_id
- FROM dbo.MakineRoleBaglantilari B JOIN dbo.RoleKartlari R ON R.id=B.role_kart_id
- JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id JOIN dbo.Makineler M ON M.id=B.makine_id
- WHERE B.makine_id=@makine_id AND B.aktif_mi=1 AND R.aktif_mi=1 AND E.aktif_mi=1 AND M.aktif_mi=1;
-END;
+:r "SP\SP_MakineRoleBaglantilari\SP_MakineRoleBaglantilari_KOMUT_GETIR.sql"
+GO
+:r "SP\SP_Makineler\SP_Makineler_DASHBOARD_GETIR.sql"
 GO
 -- Makine pasife alma/silme mevcut sayfalardan da korunur.
 CREATE OR ALTER TRIGGER dbo.TR_Makineler_RoleKoruma ON dbo.Makineler AFTER UPDATE, DELETE
@@ -359,52 +96,6 @@ AS BEGIN
      LEFT JOIN inserted I ON I.id=D.id WHERE I.id IS NULL OR I.aktif_mi=0)
      THROW 51002,N'Önce makinenin aktif röle bağlantısını kaldırınız.',1;
 END;
-GO
-CREATE OR ALTER PROCEDURE dbo.SP_Makineler_DASHBOARD_GETIR
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT
-        M.id,
-        M.makine_adi,
-        M.makine_no,
-        M.ip,
-        M.mfg,
-        M.sira_no,
-        CAST(CASE WHEN B.id IS NOT NULL AND R.aktif_mi=1 AND E.aktif_mi=1 THEN 1 ELSE 0 END AS BIT) AS role_bagli_mi,
-        R.role_adi, B.kanal_no, E.ip AS role_ip, E.http_port AS role_http_port,
-        CAST(CASE WHEN ML.id IS NULL THEN 0 ELSE 1 END AS BIT) AS duruyor_mu,
-        ML.islem_nedeni,
-        ML.islem_baslangic_tarih,
-        CASE
-            WHEN ML.id IS NULL THEN 0
-            ELSE DATEDIFF(MINUTE, ML.islem_baslangic_tarih, GETDATE())
-        END AS durus_dakika
-    FROM dbo.Makineler M
-    LEFT JOIN dbo.MakineRoleBaglantilari B ON B.makine_id=M.id AND B.aktif_mi=1
-    LEFT JOIN dbo.RoleKartlari R ON R.id=B.role_kart_id
-    LEFT JOIN dbo.EthernetKartlari E ON E.id=R.ethernet_kart_id
-    OUTER APPLY
-    (
-        SELECT TOP 1
-            L.id,
-            L.islem_nedeni,
-            L.islem_baslangic_tarih
-        FROM dbo.MakineLoglari L
-        WHERE L.makine_id = M.id
-          AND L.islem_tipi = N'DURDUR'
-          AND L.devam_ediyor_mu = 1
-          AND L.basarili_mi = 1
-          AND L.aktif_mi = 1
-        ORDER BY L.islem_baslangic_tarih DESC
-    ) ML
-    WHERE M.aktif_mi = 1
-    ORDER BY M.sira_no;
-
-    RETURN;
-END
-
 GO
 IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'ModbusRoleSqlGecisi')
 BEGIN
