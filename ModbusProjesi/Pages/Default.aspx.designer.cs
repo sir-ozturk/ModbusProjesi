@@ -11,10 +11,15 @@
 
 public partial class Default
 {
+
+    /// <summary>
+    /// smDashboard control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
     protected global::System.Web.UI.ScriptManager smDashboard;
-    protected global::System.Web.UI.UpdatePanel upDurum;
-    protected global::System.Web.UI.WebControls.Button btnDurumYenile;
-    protected global::System.Web.UI.WebControls.Label lblDonanimDurumu;
 
     /// <summary>
     /// btnSiralamaAc control.
@@ -24,6 +29,33 @@ public partial class Default
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.HtmlControls.HtmlButton btnSiralamaAc;
+
+    /// <summary>
+    /// upDurum control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.UpdatePanel upDurum;
+
+    /// <summary>
+    /// btnDurumYenile control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button btnDurumYenile;
+
+    /// <summary>
+    /// lblDonanimDurumu control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label lblDonanimDurumu;
 
     /// <summary>
     /// pnlHata control.

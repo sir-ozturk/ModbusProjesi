@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.Http;
@@ -9,11 +9,6 @@ using System.Configuration;
 
 public static class MakineRoleIslemleri
 {
-    // true = ON (normal / enerjisiz). Makinenin çalışma durumunu bildirmez.
-    public static bool GetRelayChannelState(string status, int channel)
-    {
-        return !DurumdanDuruyorMu(status, channel);
-    }
     public static bool DurumdanDuruyorMu(string durum, int relayChannel)
     {
         if (durum == null || durum.Length != 16 || relayChannel < 1 || relayChannel > 16)
@@ -21,9 +16,9 @@ public static class MakineRoleIslemleri
         foreach (char bit in durum)
             if (bit != '0' && bit != '1')
                 throw new ArgumentException("IO yanıtı yalnızca 16 adet 0/1 içermelidir.");
-        // COM-NO hedef bağlantı: IO 0 = duruş, IO 1 = röle kaynaklı hata kaldırılmış.
+        // Ters mantıklı bağlantı: IO 1 = durdurma tetiklemesi, IO 0 = normal bekleme.
         // Kanal 1 en sağdaki bittir; bu bilgi motor hareketinin geri bildirimi değildir.
-        return durum[16 - relayChannel] == '0';
+        return durum[16 - relayChannel] == '1';
     }
 
     private static readonly HttpClient httpClient = new HttpClient(new HttpClientHandler
@@ -50,20 +45,20 @@ public static class MakineRoleIslemleri
         public string HamCevap { get; set; }
         public string Hata { get; set; }
         public string HataDetayi { get; set; }
-        public bool IoOn { get { return !DuruyorMu; } }
+        public bool IoOn { get { return DuruyorMu; } }
     }
 
     public static Task<string> MakineDurdurAsync(MakineRoleBaglantilari baglanti)
     {
-        // COM-NO bağlantı için OFF = makineyi durdur.
-        return KomutGonderAsync(baglanti, false);
+        // ON = geçici durdurma tetiklemesi.
+        return KomutGonderAsync(baglanti, true);
     }
 
     public static Task<string> MakineBaslatAsync(MakineRoleBaglantilari baglanti)
     {
-        // ON = normal / röle bırakılmış. Makine duruş kaydını değiştirmez.
+        // OFF = normal bekleme. Makine duruş kaydını değiştirmez.
         // Bu komut motorun fiziksel olarak çalıştığını doğrulamaz.
-        return KomutGonderAsync(baglanti, true);
+        return KomutGonderAsync(baglanti, false);
     }
 
     public static async Task<KanalDurumSonucu> KanalDurumunuGetirAsync(MakineRoleBaglantilari baglanti)

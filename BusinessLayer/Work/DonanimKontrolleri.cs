@@ -23,9 +23,7 @@ public class DonanimKontrolleri
     public bool AyarKilidiAl()
     {
         if (!_veritabaniIslemleri.UygulamaKilidiAl("ModbusDonanimAyar", false)) return false;
-        // Bekleyen pulse'lar bırakılana kadar kayıtlı fiziksel adres korunur.
-        if (new RelayPulseStore().HasAnyActive())
-            return Hata("Aktif röle pulse işlemi varken donanım ayarları değiştirilemez. ON doğrulamasını bekleyiniz.");
+        // Komutun transaction kilidi, 3 saniyelik işlem boyunca ayar değişimini engeller.
         return true;
     }
 

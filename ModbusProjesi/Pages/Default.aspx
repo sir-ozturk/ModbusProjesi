@@ -27,89 +27,103 @@
         </div>
 
         <asp:UpdatePanel ID="upDurum" runat="server" UpdateMode="Conditional">
-        <ContentTemplate>
-        <asp:Button ID="btnDurumYenile" runat="server" OnClick="btnDurumYenile_Click" CausesValidation="false" Style="display:none" />
-        <asp:Label ID="lblDonanimDurumu" runat="server" Visible="false" CssClass="d-block text-secondary mb-2" />
-        <asp:Panel ID="pnlHata" runat="server" Visible="false" CssClass="alert alert-danger" role="alert">
-            <asp:Label ID="lblHata" runat="server"></asp:Label>
-        </asp:Panel>
+            <ContentTemplate>
+                <asp:Button ID="btnDurumYenile" runat="server" OnClick="btnDurumYenile_Click" CausesValidation="false" Style="display: none" />
+                <asp:Label ID="lblDonanimDurumu" runat="server" Visible="false" CssClass="d-block text-secondary mb-2" />
+                <asp:Panel ID="pnlHata" runat="server" Visible="false" CssClass="alert alert-danger" role="alert">
+                    <asp:Label ID="lblHata" runat="server"></asp:Label>
+                </asp:Panel>
 
-        <asp:Panel ID="pnlBasari" runat="server" Visible="false" CssClass="alert alert-success fade show" role="alert">
-            <asp:Label ID="lblBasari" runat="server"></asp:Label>
-        </asp:Panel>
+                <asp:Panel ID="pnlBasari" runat="server" Visible="false" CssClass="alert alert-success fade show" role="alert">
+                    <asp:Label ID="lblBasari" runat="server"></asp:Label>
+                </asp:Panel>
 
-        <asp:Panel ID="pnlMakineYok" runat="server" Visible="false" CssClass="alert alert-info" role="alert">
-            Gösterilecek aktif makine bulunamadı.
-        </asp:Panel>
+                <asp:Panel ID="pnlMakineYok" runat="server" Visible="false" CssClass="alert alert-info" role="alert">
+                    Gösterilecek aktif makine bulunamadı.
+                </asp:Panel>
 
-        <div class="row g-2 makine-grid">
-            <asp:Repeater ID="rptMakineler" runat="server">
-                <ItemTemplate>
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 makine-kolon">
-                        <article class='<%# MakineKartSinifi(Eval("duruyor_mu")) %>'>
-                            <header class="makine-kart-baslik text-center">
-                                <%# Server.HtmlEncode(Eval("makine_adi").ToString()) %>
-                            </header>
+                <div class="row g-2 makine-grid">
+                    <asp:Repeater ID="rptMakineler" runat="server">
+                        <ItemTemplate>
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 makine-kolon">
+                                <article class='<%# MakineKartSinifi(Eval("duruyor_mu")) %>'>
+                                    <header class="makine-kart-baslik text-center">
+                                        <%# Server.HtmlEncode(Eval("makine_adi").ToString()) %>
+                                    </header>
 
-                            <div class="makine-kart-govde">
-                                <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-                                    <span class="makine-durum">
-                                        <i class='<%# MakineDurumIkonu(Eval("duruyor_mu")) %>'></i>
-                                        <%# MakineDurumMetni(Eval("duruyor_mu")) %>
-                                    </span>
+                                    <div class="makine-kart-govde">
+                                        <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                                            <span class="makine-durum">
+                                                <i class='<%# MakineDurumIkonu(Eval("duruyor_mu")) %>'></i>
+                                                <%# MakineDurumMetni(Eval("duruyor_mu")) %>
+                                            </span>
 
-                                    <span class="makine-sure">
-                                        <%# DurusSuresiMetni(Eval("duruyor_mu"), Eval("durus_dakika")) %>
-                                    </span>
-                                </div>
+                                            <span class="makine-sure">
+                                                <%# DurusSuresiMetni(Eval("duruyor_mu"), Eval("durus_dakika")) %>
+                                            </span>
+                                        </div>
 
-                                <dl class="makine-bilgiler mb-3">
-                                    <div>
-                                        <dt>Makine No</dt>
-                                        <dd><%# Server.HtmlEncode(Eval("makine_no").ToString()) %></dd>
+                                        <dl class="makine-bilgiler mb-3">
+                                            <div>
+                                                <dt>Makine No</dt>
+                                                <dd><%# Server.HtmlEncode(Eval("makine_no").ToString()) %></dd>
+                                            </div>
+                                            <div>
+                                                <dt>IP</dt>
+                                                <dd><%# Server.HtmlEncode(Eval("ip").ToString()) %></dd>
+                                            </div>
+                                            <div>
+                                                <dt>MFG</dt>
+                                                <dd><%# Server.HtmlEncode(Eval("mfg").ToString()) %></dd>
+                                            </div>
+                                            <div class="makine-neden-satiri">
+                                                <dt>Neden</dt>
+                                                <dd><%# DurusNedeniMetni(Eval("duruyor_mu"), Eval("islem_nedeni")) %></dd>
+                                            </div>
+                                            <div>
+                                                <dt>Röle bağlantısı</dt>
+                                                <dd><%# Convert.ToBoolean(Eval("role_bagli_mi")) ? Server.HtmlEncode(Eval("role_adi") + " / Kanal " + Eval("kanal_no")) : "Aktif bağlantı yok" %></dd>
+                                            </div>
+                                        </dl>
+
+                                        <div class="small mb-3" aria-live="polite">
+                                            <div class="fw-bold">
+                                                <%# Server.HtmlEncode(Convert.ToString(Eval("talimat_durum_metni"))) %>
+                                            </div>
+
+                                            <div class="text-secondary"
+                                                style="overflow-wrap: break-word;">
+                                                <%# Server.HtmlEncode(Convert.ToString(Eval("talimat_sonuc_metni"))) %>
+                                            </div>
+                                        </div>
+
+                                        <asp:Button
+                                            ID="btnMakineDurdur"
+                                            runat="server"
+                                            Text="Durdur"
+                                            Visible='<%# !Convert.ToBoolean(Eval("duruyor_mu")) %>'
+                                            Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("role_bagli_mi")) && !Convert.ToBoolean(Eval("talimat_devam_ediyor_mu")) %>'
+                                            OnClientClick='<%# DurdurmaModalAcmaKodu(Eval("id"), Eval("makine_adi"), Eval("makine_no"), Eval("role_ip")) %>'
+                                            UseSubmitBehavior="false"
+                                            CssClass="btn btn-danger w-100 fw-bold" />
+
+                                        <asp:Button
+                                            ID="btnMakineCalistir"
+                                            runat="server"
+                                            Text="Başlat"
+                                            Visible='<%# Convert.ToBoolean(Eval("duruyor_mu")) %>'
+                                            Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("role_bagli_mi")) && !Convert.ToBoolean(Eval("talimat_devam_ediyor_mu")) %>'
+                                            CommandArgument='<%# Eval("id") %>'
+                                            OnCommand="btnMakineCalistir_Command"
+                                            CssClass="btn btn-success w-100 fw-bold" />
                                     </div>
-                                    <div>
-                                        <dt>IP</dt>
-                                        <dd><%# Server.HtmlEncode(Eval("ip").ToString()) %></dd>
-                                    </div>
-                                    <div>
-                                        <dt>MFG</dt>
-                                        <dd><%# Server.HtmlEncode(Eval("mfg").ToString()) %></dd>
-                                    </div>
-                                    <div class="makine-neden-satiri">
-                                        <dt>Neden</dt>
-                                        <dd><%# DurusNedeniMetni(Eval("duruyor_mu"), Eval("islem_nedeni")) %></dd>
-                                    </div>
-                                    <div><dt>Röle bağlantısı</dt><dd><%# Convert.ToBoolean(Eval("role_bagli_mi")) ? Server.HtmlEncode(Eval("role_adi") + " / Kanal " + Eval("kanal_no")) : "Aktif bağlantı yok" %></dd></div>
-                                </dl>
-
-                                <asp:Button
-                                    ID="btnMakineDurdur"
-                                    runat="server"
-                                    Text="Durdur"
-                                    Visible='<%# !Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("role_bagli_mi")) %>'
-                                    OnClientClick='<%# DurdurmaModalAcmaKodu(Eval("id"), Eval("makine_adi"), Eval("makine_no"), Eval("role_ip")) %>'
-                                    UseSubmitBehavior="false"
-                                    CssClass="btn btn-danger w-100 fw-bold" />
-
-                                <asp:Button
-                                    ID="btnMakineCalistir"
-                                    runat="server"
-                                    Text="Başlat"
-                                    Visible='<%# Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                    Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("role_bagli_mi")) %>'
-                                    CommandArgument='<%# Eval("id") %>'
-                                    OnCommand="btnMakineCalistir_Command"
-                                    CssClass="btn btn-success w-100 fw-bold" />
+                                </article>
                             </div>
-                        </article>
-                    </div>
-                </ItemTemplate>
-            </asp:Repeater>
-        </div>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </div>
 
-        </ContentTemplate>
+            </ContentTemplate>
         </asp:UpdatePanel>
         <asp:HiddenField ID="hdnMakineSiralamasi" runat="server" />
         <asp:HiddenField ID="hdnDurdurMakineId" runat="server" />
@@ -133,20 +147,28 @@
                     <div class="modal-body">
                         <div class="alert alert-warning small" role="alert">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                            Makineye atanmış röle kanalına durdurma komutu gönderilecek ve duruş kaydı oluşturulacaktır.
+                            Durdurma talimatı oluşturulacaktır. İşleyici uygulama çalışırken talimatı uygulayacak ve sonucu bu ekranda gösterecektir.
                         </div>
 
                         <label class="form-label fw-bold">Duruş Nedeni *</label>
 
                         <div id="durusNedenleri" class="row g-2 mb-2">
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Mekanik Arıza">Mekanik Arıza</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Hatalı Ölçü">Hatalı Ölçü</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Yüksek Fire">Yüksek Fire</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="İplik Kopuşu">İplik Kopuşu</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Programlı Bakım">Programlı Bakım</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Fazla Adet">Fazla Adet</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Operatör Talebi">Operatör Talebi</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Fabrika Müdürü Talebi">Fabrika Müdürü Talebi</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Mekanik Arıza">Mekanik Arıza</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Hatalı Ölçü">Hatalı Ölçü</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Yüksek Fire">Yüksek Fire</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="İplik Kopuşu">İplik Kopuşu</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Programlı Bakım">Programlı Bakım</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Fazla Adet">Fazla Adet</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Operatör Talebi">Operatör Talebi</button></div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Fabrika Müdürü Talebi">Fabrika Müdürü Talebi</button></div>
                         </div>
 
                         <asp:TextBox

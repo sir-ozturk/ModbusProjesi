@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -33,21 +33,8 @@ public partial class Default : System.Web.UI.Page
     {
         CurrentInfo kullanici = new Sessionlar().Current._CurrentInfo;
         if (kullanici == null || !kullanici.LoginYapildiMi) return Task.FromResult(0);
-        // IO yalnız fiziksel tetiklemedir; makinenin durumu MakineLoglari içinde tutulur.
-        try
-        {
-            string warning = RelayPulseService.Default.GetWarnings();
-            lblDonanimDurumu.Text = Server.HtmlEncode(warning);
-            lblDonanimDurumu.Visible = !string.IsNullOrEmpty(warning);
-            lblDonanimDurumu.CssClass = "d-block text-danger mb-2";
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Trace.TraceError("Pulse uyarıları okunamadı: " + ex);
-            lblDonanimDurumu.Text = "KRİTİK: Röle güvenlik kayıtları okunamıyor. Veritabanını ve watchdog durumunu kontrol ediniz.";
-            lblDonanimDurumu.Visible = true;
-            lblDonanimDurumu.CssClass = "d-block text-danger mb-2";
-        }
+        // Makinenin durumu duruş kayıtlarından okunur.
+        lblDonanimDurumu.Visible = false;
         MakineleriGetir();
         return Task.FromResult(0);
     }
@@ -77,6 +64,67 @@ public partial class Default : System.Web.UI.Page
             makineler.DashboardGetir();
 
             DataTable makineTablosu = makineler.VeriTablosu;
+
+            if (makineTablosu != null)
+            {
+                makineTablosu.Columns.Add("talimat_durum_metni", typeof(string));
+                makineTablosu.Columns.Add("talimat_sonuc_metni", typeof(string));
+                makineTablosu.Columns.Add("talimat_devam_ediyor_mu", typeof(bool));
+
+                var talimatSorgusu = new MakineDurdurmaTalimatlari(veritabaniIslemleri);
+
+                foreach (DataRow makine in makineTablosu.Rows)
+                {
+                    makine["talimat_durum_metni"] = "Talimat yok";
+                    makine["talimat_sonuc_metni"] = "";
+                    makine["talimat_devam_ediyor_mu"] = false;
+
+                    int makineId = Convert.ToInt32(makine["id"]);
+
+                    using (DataTable talimatlar = talimatSorgusu.Listele(makineId, null, 1))
+                    {
+                        if (talimatlar.Rows.Count == 0)
+                            continue;
+
+                        DataRow talimat = talimatlar.Rows[0];
+
+                        var durum = (TalimatDurumu)Convert.ToByte(talimat["islem_durumu"]);
+
+                        string durumMetni;
+
+                        switch (durum)
+                        {
+                            case TalimatDurumu.Bekliyor:
+                                durumMetni = "Bekliyor";
+                                break;
+
+                            case TalimatDurumu.Isleniyor:
+                                durumMetni = "İşleniyor";
+                                break;
+
+                            case TalimatDurumu.Tamamlandi:
+                                durumMetni = "Tamamlandı";
+                                break;
+
+                            case TalimatDurumu.Hatali:
+                                durumMetni = "Hatalı";
+                                break;
+
+                            case TalimatDurumu.KontrolGerekli:
+                                durumMetni = "Kontrol gerekli";
+                                break;
+
+                            default:
+                                durumMetni = "Bilinmeyen durum";
+                                break;
+                        }
+
+                        makine["talimat_durum_metni"] = "Talimat #" + talimat["id"] + " — " + durumMetni;
+                        makine["talimat_sonuc_metni"] = Convert.ToString(talimat["sonuc"]);
+                        makine["talimat_devam_ediyor_mu"] = durum == TalimatDurumu.Bekliyor || durum == TalimatDurumu.Isleniyor;
+                    }
+                }
+            }
 
             pnlMakineYok.Visible = makineTablosu == null || makineTablosu.Rows.Count == 0;
 
@@ -167,10 +215,10 @@ public partial class Default : System.Web.UI.Page
 
     protected void btnDurdurmayiOnayla_Click(object sender, EventArgs e)
     {
-        RegisterAsyncTask(new PageAsyncTask(MakineDurdurAsync));
+        DurdurmaTalimatiniOlustur();
     }
 
-    private async Task MakineDurdurAsync()
+    private void DurdurmaTalimatiniOlustur()
     {
         if (!makineYonetimYetkisiVar)
         {
@@ -186,7 +234,7 @@ public partial class Default : System.Web.UI.Page
         if (!int.TryParse(hdnDurdurMakineId.Value, out makineId) || makineId <= 0)
         {
             pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.MakineDurdurulamadi;
+            lblHata.Text = "Geçerli bir makine seçiniz.";
             MakineleriGetir();
             return;
         }
@@ -199,104 +247,85 @@ public partial class Default : System.Web.UI.Page
             return;
         }
 
-        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-        bool durdurmaBasarili = false;
-        string hataMesaji = Mesajlar.MakineDurdurulamadi;
+        var veritabani = new VeritabaniIslemleri();
+        bool talimatOlustu = false;
+
+        string hataMesaji = "Talimat kaydı doğrulanamadı. Tekrar denemeden önce " + "talimat tablosunu kontrol ediniz.";
 
         try
         {
-            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
+            CurrentInfo kullanici = new Sessionlar().Current._CurrentInfo;
 
-            MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(veritabaniIslemleri);
-            baglanti.MakineId = makineId;
+            if (kullanici == null || !kullanici.LoginYapildiMi)
+                throw new InvalidOperationException("Oturumunuz sona ermiş. Tekrar giriş yapınız.");
+
+            veritabani.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
+
+            // Bağlantıyı kontrol eder ve cihaz kilidini alır.
+            // Röleye herhangi bir komut göndermez.
+            var baglanti = new MakineRoleBaglantilari(veritabani)
+            {
+                MakineId = makineId
+            };
+
             if (!baglanti.KomutBaglantisiniGetir())
                 throw new InvalidOperationException(Mesajlar.MakineRoleAtamasiYok);
 
-
-            Makineler makineler = new Makineler(veritabaniIslemleri);
-            makineler.Id = makineId;
-
-            if (!makineler.Doldur() || !makineler.AktifMi)
+            var talimat = new MakineDurdurmaTalimatlari(veritabani)
             {
-                hataMesaji = Mesajlar.MakineRoleAtamasiYok;
-                veritabaniIslemleri.GeriAl();
-            }
-            else
-            {
-                MakineLoglari makineLoglari = new MakineLoglari(veritabaniIslemleri);
-                makineLoglari.MakineId = makineId;
+                MakineId = makineId,
+                IslemNedeni = durusNedeni,
+                EkleyenId = kullanici.KullaniciId,
+                EkleyenIp = Utility.IpNoGetir()
+            };
 
-                if (makineLoglari.AcikKayitGetir())
-                {
-                    hataMesaji = Mesajlar.MakineZatenDuruyor;
-                    veritabaniIslemleri.GeriAl();
-                }
-                else
-                {
-                    Sessionlar sessionlar = new Sessionlar();
-                    CurrentInfo currentInfo = sessionlar.Current._CurrentInfo;
+            if (!talimat.Ekle())
+                throw new InvalidOperationException("Durdurma talimatı oluşturulamadı.");
 
-                    makineLoglari.MakineId = makineId;
-                    makineLoglari.IslemTipi = MakineLoglari.C_IslemTipi_Durdur;
-                    makineLoglari.IslemNedeni = durusNedeni;
-                    makineLoglari.DevamEdiyorMu = true;
-                    makineLoglari.BasariliMi = true;
-                    makineLoglari.HataMesaji = null;
-                    makineLoglari.AktifMi = true;
-                    makineLoglari.EkleyenId = currentInfo.KullaniciId;
-                    makineLoglari.EkleyenIp = Utility.IpNoGetir();
-
-                    string roleHatasi = await RelayPulseService.Default.TriggerStopPulse(baglanti);
-                    if (roleHatasi != null)
-                    {
-                        hataMesaji = roleHatasi;
-                        veritabaniIslemleri.GeriAl();
-                    }
-                    else if (makineLoglari.Ekle())
-                    {
-                        veritabaniIslemleri.Uygula();
-                        durdurmaBasarili = true;
-                    }
-                    else
-                    {
-                        hataMesaji = "OFF doğrulandı ancak makine duruş kaydı yazılamadı. Pulse güvenlik takibi devam ediyor.";
-                        System.Diagnostics.Trace.TraceError("Makine " + makineId + ": " + hataMesaji);
-                        veritabaniIslemleri.GeriAl();
-                    }
-                }
-            }
-        }
-        catch (SqlException ex)
-        {
-            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
-            if (ex.Number >= 51000 && ex.Number <= 51010) hataMesaji = ex.Message;
-            veritabaniIslemleri.GeriAl();
-        }
-        catch (DonanimIslemHatasi ex)
-        {
-            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
-            hataMesaji = ex.Message;
-            veritabaniIslemleri.GeriAl();
-        }
-        catch (InvalidOperationException ex)
-        {
-            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
-            if (ex.Message == Mesajlar.MakineRoleAtamasiYok) hataMesaji = ex.Message;
-            veritabaniIslemleri.GeriAl();
+            veritabani.Uygula();
+            talimatOlustu = true;
         }
         catch (Exception ex)
         {
-            RelayPulseDiagnostics.Error("Makine " + makineId + " DURDUR: " + ex);
-            veritabaniIslemleri.GeriAl();
+            RelayPulseService.LogError("Makine " + makineId + " talimat ekleme: " + ex);
+
+            var sqlHatasi = ex as SqlException;
+
+            if (sqlHatasi != null)
+            {
+                if (sqlHatasi.Number >= 51100 && sqlHatasi.Number <= 51118)
+                {
+                    hataMesaji = sqlHatasi.Message;
+                }
+                else if (sqlHatasi.Number == 2601 || sqlHatasi.Number == 2627)
+                {
+                    hataMesaji = "Bu makine için bekleyen veya işlenen " + "bir talimat zaten var.";
+                }
+            }
+            else if (ex is InvalidOperationException)
+            {
+                hataMesaji = ex.Message;
+            }
+
+            // Prosedür işlemi zaten geri almış olabilir.
+            try
+            {
+                veritabani.GeriAl();
+            }
+            catch (Exception geriAlmaHatasi)
+            {
+                RelayPulseService.LogError("Talimat işlemi geri alma: " + geriAlmaHatasi);
+            }
         }
         finally
         {
-            veritabaniIslemleri.Bitir();
+            veritabani.Bitir();
         }
 
-        if (durdurmaBasarili)
+        if (talimatOlustu)
         {
-            Session[C_Session_DashboardBasari] = Mesajlar.RoleDurdurmaKomutuGonderildi;
+            Session[C_Session_DashboardBasari] = "Durdurma talimatı alındı. İşleyici uygulamanın " + "talimatı uygulaması bekleniyor.";
+
             Response.Redirect("~/Pages/Default.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
             return;
@@ -346,6 +375,26 @@ public partial class Default : System.Web.UI.Page
             if (!baglanti.KomutBaglantisiniGetir())
                 throw new InvalidOperationException(Mesajlar.MakineRoleAtamasiYok);
 
+            var talimatKontrol = new MakineDurdurmaTalimatlari(veritabaniIslemleri);
+
+            bool bekleyenTalimatVar;
+
+            using (DataTable bekleyenler = talimatKontrol.Listele(makineId, TalimatDurumu.Bekliyor, 1))
+            {
+                bekleyenTalimatVar = bekleyenler.Rows.Count > 0;
+            }
+
+            bool islenenTalimatVar;
+
+            using (DataTable islenenler = talimatKontrol.Listele(makineId, TalimatDurumu.Isleniyor, 1))
+            {
+                islenenTalimatVar = islenenler.Rows.Count > 0;
+            }
+
+            if (bekleyenTalimatVar || islenenTalimatVar)
+            {
+                throw new DonanimIslemHatasi("Bu makine için durdurma talimatı bekliyor veya " + "işleniyor. Talimat sonuçlanmadan başlatma " + "işlemi yapılamaz.");
+            }
 
             Makineler makineler = new Makineler(veritabaniIslemleri);
             makineler.Id = makineId;
@@ -354,12 +403,7 @@ public partial class Default : System.Web.UI.Page
             MakineLoglari makineLoglari = new MakineLoglari(veritabaniIslemleri);
             makineLoglari.MakineId = makineId;
 
-            if (RelayPulseService.Default.HasActivePulse(makineId))
-            {
-                hataMesaji = "Röle pulse işlemi henüz tamamlanmadı. ON doğrulamasını bekleyiniz.";
-                veritabaniIslemleri.GeriAl();
-            }
-            else if (!roleAtamasiVar)
+            if (!roleAtamasiVar)
             {
                 hataMesaji = Mesajlar.MakineRoleAtamasiYok;
                 veritabaniIslemleri.GeriAl();

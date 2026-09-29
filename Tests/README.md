@@ -1,44 +1,57 @@
-﻿# Geliştirme yardımcıları
+﻿# Geliştirme ve doğrulama
 
-Bu klasör uygulamanın parçası değildir; site veya röle kontrolü için çalıştırılması gerekmez. Python ve ek test paketi kullanılmaz.
+Bu klasör uygulamanın çalışması için gerekli değildir. Mevcut davranışı korumak
+ için röle ve talimat testleri tutulur. Test araçları uygulamayla dağıtılmaz.
 
-- `RoleEntegrasyonTestleri.ps1` / `.cs`: C# röle kodunu sahte HTTP sunucusuyla doğrular. Gerçek röleye komut göndermez.
-- `DonanimVeritabaniTestleri.ps1`: Sadece ayrı test veritabanındaki 6 SQL tablo kısıtını doğrular; değişiklikleri geri alır. C# iş kurallarını test etmez.
-- `DonanimSenkronizasyonKur.ps1`: Eski kurulumu engelleyen uyarı dosyasıdır; yeni kurulumda kullanılmaz.
+## Mevcut akış
 
-## Uygulamanın yapısı
+Web ekranı MakineDurdurmaTalimatlari kaydı oluşturur. Windows Forms uygulaması
+Kendi projesindeki TalimatIsleyici ile kuyruğu takip eder. RelayPulseService, ON doğrulaması,
+3 saniye bekleme ve OFF doğrulamasını gerçekleştirir. MakineRoleIslemleri
+cihazın HTTP haberleşmesini yapar. Form oluşturulmuş olması bu sınıfları gereksiz
+kılmaz. Eski RelayPulses/watchdog yapıları mevcut uygulamada kullanılmaz.
 
-Prosedürler `SP/SP_EthernetKartlari`, `SP/SP_RoleKartlari` ve `SP/SP_MakineRoleBaglantilari` klasörlerindedir. Yalnızca kayıt ekler, günceller, siler veya okurlar.
+OFF dönüşü en çok üç kez denenir. ON doğrulandıysa OFF hatasında da duruş kaydı
+korunur. Belirsiz sonuçta talimat Kontrol Gerekli olur ve işleyici durur. Açılışta
+yarım kalan talimatlar için adres doğrulanarak yalnızca OFF dönüşü denenir;
+eski ON komutu tekrarlanmaz. OFF, açık makine duruş kaydını kapatmaz.
 
-İş kuralları `BusinessLayer/Work/DonanimKontrolleri.cs` dosyasındadır. Entity sınıfları yazmadan önce bu kontrolleri çağırır. Kilitler `VeritabaniIslemleri.UygulamaKilidiAl` ile aynı SQL bağlantısı ve transaction üzerinde alınır. Ekranlar `BAGIMLI` işlem açar; başarıda `Uygula`, hatada `GeriAl` çağırır.
+Donanım yönetimi DonanimKontrolleri ve transaction kapsamlı uygulama kilitlerini
+kullanır. Talimat işleyicisi aynı cihaz/ayar kaynaklarını oturum kilitleriyle
+korur; ağ çağrısı sırasında transaction açık tutmaz. Doğrudan SQL çağrısı web
+yetkilerini ve bütün C# kontrollerini çalıştırmaz.
 
-Doğrudan prosedür çağrısı C# kontrollerini ve kilitlerini çalıştırmaz. Yönetim işlemleri uygulamadaki entity metotları üzerinden yapılmalıdır. Benzersiz indeksler, yabancı anahtarlar ve mevcut makine koruma trigger'ı SQL'de kalır.
+## Cihaz ve veritabanı gerektirmeyen testler
 
-Röle güvenlik mantığı güncellendi: ON normal/enerjisiz, OFF geçici durdurma tetiklemesidir. DURDUR artık merkezi `RelayPulseService` üzerinden kalıcı SQL kaydı, 10 saniyelik ON dönüşü, `/98` doğrulaması, retry, watchdog ve recovery kullanır. Dashboard IO bitine göre MakineLoglari kaydı açmaz/kapatmaz; makine duruş kaydı pulse tamamlandıktan sonra açık kalır.
-
-Ayrıntılı kurulum ve çalışma açıklaması: [Röle pulse güvenliği](../RelayWatchdog/README.md). Kurulum sırası: `SP/Donanim/003_RelayPulseGuvenligi.sql`, uygulama kapalıyken `004_RelayPulseTurkiyeSaati.sql`, ardından `005_RelayPulseProsedurleri.sql`. IIS kesintisinde takip için harici Windows watchdog servisi kurulmalıdır.
-
-Ek testler:
-
-- `RelayPulseTests.ps1`: Sahte saat/depo/IO ile süre, duplicate, retry, recovery ve hata senaryoları.
-- `RelayPulseSqlTests.ps1`: Yalnız ayrı pulse test veritabanında migration, SQL kilitleri ve kalıcı kayıt kontrolleri; gerçek röle kullanmaz.
-## Veritabanı güncellemesi
-
-Uygulama ve prosedürler birlikte güncellenmelidir. Yedek alındıktan sonra proje kök klasöründen SQLCMD ile:
-
-```powershell
-sqlcmd -S SUNUCU -d DB_MODBUS -E -C -b -i SP\Donanim\002_DonanimProsedurleriniGuncelle.sql
-```
-
-Bu betik ayrı prosedür dosyalarını yükler; makine atamalarını değiştirmez. İlk kurulumda `001_DonanimYonetimi.sql` kullanılır; mevcut Makine No 18'i `192.168.5.190:8080`, Kanal 1'e taşıyan geçişi de içerir.
-
-## İsteğe bağlı doğrulama
-
-Çözüm Debug derlendikten sonra:
+Önce BusinessLayer projesini Debug olarak derleyin. Sonra proje kökünden:
 
 ```powershell
+.\Tests\TalimatIsleyiciTests.ps1
+.\Tests\RelayPulseTests.ps1
 .\Tests\RoleEntegrasyonTestleri.ps1
-.\Tests\DonanimVeritabaniTestleri.ps1 -Sunucu NEDEN10 -Veritabani DB_MODBUS_DonanimTest_20260917_Prosedur
 ```
 
-Pulse veritabanı işlemleri mevcut Entity → VeritabaniIslemleri → stored procedure düzenini kullanır. Tarih alanları Türkiye saatinde tutulur. Yeni açıklama satırları Türkçedir.
+- TalimatIsleyiciTests: çift RUN, STOP, geçersiz adres, süre aşımı, belirsiz
+  komut, kayıt hatası, açılış toparlaması ve oturum kilidi hataları.
+  Formdaki işleyici kaynağını Visual Studio 2019 C# derleyicisiyle derler.
+  Gerçek MakineDurdurmaTalimatlari metotlarını sahte VeritabaniIslemleri ve röleyle
+  çalıştırır; ayrı bir depo/interface kullanılmaz.
+- RelayPulseTests: ON/OFF, bekleme, tekrar sınırı ve aynı cihazda çakışma.
+- RoleEntegrasyonTestleri: yerel sahte HTTP sunucusuyla komut ve durum okuma.
+  Gerçek röleye komut göndermez. Bazı senaryolar zaman aşımını bekler.
+
+## Yalnızca ayrı test veritabanında
+
+DonanimVeritabaniTestleri.ps1, DB_MODBUS_DonanimTest_* adlı ayrı veritabanında
+altı SQL tablo kısıtını test eder ve işlemleri geri alır. Veritabanı bağlantısı
+gerektirdiği için cihazsız testlerin parçası olarak otomatik çalıştırılmaz.
+
+## SQL dosyaları
+
+Güncel prosedürler SP altındaki ilgili tablo klasörlerindedir. Eski tek cihaz
+relay_channel geçişi ve artık bulunmayan SP/Donanim kurulum dosyalarına yapılan
+yönlendirmeler kaldırılmıştır. Mevcut veritabanı tabloları, kolonları, geçmiş
+kayıtları veya kurulu prosedürler bu kaynak temizliğiyle değiştirilmez.
+
+Fiziksel makine duruşu, SQL bağlantı kesintisi ve süreç zorla kapatıldığında
+sunucu/cihaz davranışı ayrıca saha veya ayrı test ortamında doğrulanmalıdır.

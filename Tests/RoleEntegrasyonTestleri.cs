@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -51,8 +51,8 @@ internal static class RoleEntegrasyonTestleri
             if (gecikme > 0) Kontrol(sure.Elapsed.TotalSeconds >= 3 && sure.Elapsed.TotalSeconds < 5.5, "3 saniye zaman asimi");
             string[] offYollari = { "00", "02", "04", "06", "08", "10", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30" };
             string[] onYollari = { "01", "03", "05", "07", "09", "11", "13", "15", "17", "19", "21", "23", "25", "27", "29", "31" };
-            string beklenenYol = (baslat ? onYollari : offYollari)[baglanti.KanalNo - 1];
-            Kontrol(await istek == "GET /" + beklenenYol + " HTTP/1.1", "Kanal " + baglanti.KanalNo + (baslat ? " Baslat ON /" : " Durdur OFF /") + beklenenYol);
+            string beklenenYol = (baslat ? offYollari : onYollari)[baglanti.KanalNo - 1];
+            Kontrol(await istek == "GET /" + beklenenYol + " HTTP/1.1", "Kanal " + baglanti.KanalNo + (baslat ? " Baslat OFF /" : " Durdur ON /") + beklenenYol);
         }
         finally { sunucu.Stop(); }
     }
@@ -85,27 +85,67 @@ internal static class RoleEntegrasyonTestleri
             catch (System.Net.Http.HttpRequestException) { }
             Kontrol(okundu == basarili, "Durum okuma: " + durum + "/" + govde);
             if (basarili) Kontrol(sonuc == govde.Trim(), "IO yanıtı korunur");
-            if (basarili) Kontrol(duruyorMu == (govde.Trim()[15] == '0'), "IO yorumu: OFF tetik, ON normal");
+            if (basarili) Kontrol(duruyorMu == (govde.Trim()[15] == '1'), "IO yorumu: ON tetik, OFF normal");
             Kontrol(await istek == "GET /98 HTTP/1.1", "Okuma yalnızca /98 kullanır");
         }
         finally { sunucu.Stop(); }
     }
 
+    private static async Task PulseHttpTesti()
+    {
+        var sunucu = new TcpListener(IPAddress.Loopback, 0);
+        sunucu.Start();
+        var baglanti = new MakineRoleBaglantilari(null) { MakineId=1, AktifMi=true, KanalNo=1,
+            Ip="127.0.0.1", HttpPort=((IPEndPoint)sunucu.LocalEndpoint).Port };
+        var yollar = new System.Collections.Generic.List<string>();
+        var zamanlar = new System.Collections.Generic.List<long>();
+        var saat = Stopwatch.StartNew();
+        var cevaplar = Task.Run(async () =>
+        {
+            for (int i=0; i<4; i++)
+            {
+                using (var istemci = await sunucu.AcceptTcpClientAsync())
+                using (var akis = istemci.GetStream())
+                using (var okuyucu = new StreamReader(akis))
+                {
+                    yollar.Add(await okuyucu.ReadLineAsync());
+                    zamanlar.Add(saat.ElapsedMilliseconds);
+                    while (!string.IsNullOrEmpty(await okuyucu.ReadLineAsync())) { }
+                    string govde = i==1 ? "0000000000000001" : "0000000000000000";
+                    byte[] cevap = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\nContent-Length: 16\r\nConnection: close\r\n\r\n" + govde);
+                    await akis.WriteAsync(cevap,0,cevap.Length);
+                }
+            }
+        });
+        try
+        {
+            var servis = new RelayPulseService();
+            var sonuc = await servis.TriggerStopPulse(baglanti);
+            Kontrol(sonuc.OnDogrulandi && sonuc.Hata==null, "HTTP pulse ON tetiklemesini ve OFF donusunu dogrular");
+            await cevaplar;
+            Kontrol(string.Join(",",yollar)=="GET /01 HTTP/1.1,GET /98 HTTP/1.1,GET /00 HTTP/1.1,GET /98 HTTP/1.1", "Gercek HTTP sirasi ON /01 -> /98 -> OFF /00 -> /98");
+            Kontrol(zamanlar[2]-zamanlar[1]>=2900, "HTTP OFF komutu ON dogrulamasindan 3 saniye sonra");
+        }
+        finally { sunucu.Stop(); }
+    }
     private static async Task Calistir()
     {
+        await PulseHttpTesti();
         await DurumOkumaTesti("0000000000000000", "200 OK", true);
         await DurumOkumaTesti(" 0000000000000001\r\n", "200 OK", true);
         await DurumOkumaTesti("1111111111111111", "200 OK", true);
         await DurumOkumaTesti("000", "200 OK", false);
         await DurumOkumaTesti("000000000000000x", "200 OK", false);
+        await PulseHttpTesti();
         await DurumOkumaTesti("0000000000000000", "500 Error", false);
+        await PulseHttpTesti();
         await DurumOkumaTesti("0000000000000000", "302 Found", false);
         for (int kanal = 1; kanal <= 16; kanal++)
         {
             char[] bitler = new string('0', 16).ToCharArray();
             bitler[16 - kanal] = '1';
             for (int okunan = 1; okunan <= 16; okunan++)
-                Kontrol(MakineRoleIslemleri.DurumdanDuruyorMu(new string(bitler), okunan) == (kanal != okunan), "IO bit sırası: yalnız belirtilen kanal ON " + kanal + "/" + okunan);
+                Kontrol(MakineRoleIslemleri.DurumdanDuruyorMu(new string(bitler), okunan) == (kanal == okunan), "IO bit sırası: yalnız belirtilen kanal ON " + kanal + "/" + okunan);
         }
         foreach (string bozuk in new[] { "", "0", "00000000000000000", "000000000000000x", "<html>hata</html>", null })
         {

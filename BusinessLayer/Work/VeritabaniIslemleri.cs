@@ -23,6 +23,57 @@ public class VeritabaniIslemleri
 
     public string SpAdi { get; set; }
 
+    // Form işleyicisi cihaz çağrısı boyunca transaction açmadan aynı oturumu tutar.
+    public void OturumBaslat(string baglantiMetni)
+    {
+        SqlConnectionStringBuilder ayarlar = new SqlConnectionStringBuilder(baglantiMetni)
+        {
+            Pooling = false, ConnectRetryCount = 0, ConnectTimeout = 5,
+            Enlist = false, MultipleActiveResultSets = false
+        };
+        baglantiHavuzuKullan = false;
+        sqlParametreListesi = new List<SqlParameter>();
+        sqlConnection = new SqlConnection(ayarlar.ConnectionString);
+        sqlCommand = new SqlCommand { Connection = sqlConnection,
+            CommandType = CommandType.StoredProcedure, CommandTimeout = 10 };
+        try { sqlConnection.Open(); }
+        catch { Bitir(); throw; }
+    }
+
+    public virtual void OturumKilidiAl(string kaynak, bool paylasimli)
+    {
+        using (SqlCommand komut = new SqlCommand("sys.sp_getapplock", sqlConnection))
+        {
+            komut.CommandType = CommandType.StoredProcedure;
+            komut.CommandTimeout = 10;
+            komut.Parameters.Add("@Resource", SqlDbType.NVarChar, 255).Value = kaynak;
+            komut.Parameters.Add("@LockMode", SqlDbType.VarChar, 32).Value = paylasimli ? "Shared" : "Exclusive";
+            komut.Parameters.Add("@LockOwner", SqlDbType.VarChar, 32).Value = "Session";
+            komut.Parameters.Add("@LockTimeout", SqlDbType.Int).Value = 0;
+            SqlParameter sonuc = komut.Parameters.Add("@RETURN_VALUE", SqlDbType.Int);
+            sonuc.Direction = ParameterDirection.ReturnValue;
+            komut.ExecuteNonQuery();
+            if (Convert.ToInt32(sonuc.Value) < 0)
+                throw new DonanimIslemHatasi("Başka bir işleyici veya donanım işlemi çalışıyor.");
+        }
+    }
+
+    public virtual void OturumKilidiniBirak(string kaynak)
+    {
+        using (SqlCommand komut = new SqlCommand("sys.sp_releaseapplock", sqlConnection))
+        {
+            komut.CommandType = CommandType.StoredProcedure;
+            komut.CommandTimeout = 10;
+            komut.Parameters.Add("@Resource", SqlDbType.NVarChar, 255).Value = kaynak;
+            komut.Parameters.Add("@LockOwner", SqlDbType.VarChar, 32).Value = "Session";
+            SqlParameter sonuc = komut.Parameters.Add("@RETURN_VALUE", SqlDbType.Int);
+            sonuc.Direction = ParameterDirection.ReturnValue;
+            komut.ExecuteNonQuery();
+            if (Convert.ToInt32(sonuc.Value) < 0)
+                throw new InvalidOperationException("Komut kilidi bırakılamadı.");
+        }
+    }
+
     public bool HataBildir(string mesaj)
     {
         SonHataMesaji = mesaj;
@@ -102,7 +153,7 @@ public class VeritabaniIslemleri
         }
     }
 
-    public void ParametreEkle(string parametreAdi, object parametreDegeri)
+    public virtual void ParametreEkle(string parametreAdi, object parametreDegeri)
     {
         string tamParametreAdi = "@" + parametreAdi;
 
@@ -348,7 +399,7 @@ public class VeritabaniIslemleri
         }
     }
 
-    public DataTable TabloGetir()
+    public virtual DataTable TabloGetir()
     {
         sqlCommand.CommandText = SpAdi;
 
@@ -375,18 +426,20 @@ public class VeritabaniIslemleri
         return null;
     }
 
-    public object DegerGetir()
+    public virtual object DegerGetir()
     {
-        sqlCommand.CommandText = SpAdi;
-
-        object sonuc = sqlCommand.ExecuteScalar();
-
-        ParametreleriSil();
-
-        return sonuc;
+        try
+        {
+            sqlCommand.CommandText = SpAdi;
+            return sqlCommand.ExecuteScalar();
+        }
+        finally
+        {
+            ParametreleriSil();
+        }
     }
 
-    public bool Bitir()
+    public virtual bool Bitir()
     {
         try
         {
@@ -447,7 +500,7 @@ public class VeritabaniIslemleri
         sqlTransaction = null;
     }
 
-    public void ParametreleriSil()
+    public virtual void ParametreleriSil()
     {
         try
         {

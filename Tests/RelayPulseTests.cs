@@ -1,196 +1,110 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 internal static class RelayPulseTests
 {
     private static int checks;
-    private static void Check(bool value, string label)
-    { if (!value) throw new Exception(label); checks++; Console.WriteLine("OK: " + label); }
-
-    private sealed class MemoryStore : IRelayPulseStore
+    private static void Check(bool condition, string message)
+    { if (!condition) throw new Exception(message); checks++; }
+    private static MakineRoleBaglantilari Connection()
+    { return new MakineRoleBaglantilari(null) { MakineId=1, Ip="127.0.0.1", HttpPort=8080, KanalNo=1, AktifMi=true }; }
+    private sealed class FakeIo
     {
-        public DateTime Now = new DateTime(2026,9,18,0,0,0,DateTimeKind.Utc);
-        public readonly List<RelayPulse> Rows = new List<RelayPulse>();
-        public readonly List<string> Events = new List<string>();
-        private readonly HashSet<string> locks = new HashSet<string>();
-        public bool FailCreate;
-        public bool FailSave;
-        private static RelayPulse Copy(RelayPulse p)
+        public bool Off=true, RejectOn, UnknownOn, ThrowOn, LostOnReply, LostOffReply, ThrowOff, ThrowRead;
+        public int OffFailures, OnCommands, OffCommands, Reads;
+        public Task<MakineRoleIslemleri.KanalDurumSonucu> Set(MakineRoleBaglantilari c, bool on)
         {
-            return new RelayPulse { Id=p.Id,MakineId=p.MakineId,ControllerIp=p.ControllerIp,HttpPort=p.HttpPort,
-                RelayChannel=p.RelayChannel,PulseAktif=p.PulseAktif,PulseBaslangic=p.PulseBaslangic,PulseBitis=p.PulseBitis,
-                SonrakiDeneme=p.SonrakiDeneme,GercekOnZamani=p.GercekOnZamani,OffDogrulandi=p.OffDogrulandi,
-                ReleaseDenemeSayisi=p.ReleaseDenemeSayisi,KritikHata=p.KritikHata,SonHata=p.SonHata };
-        }
-        public IRelayPulseLease TryLock(MakineRoleBaglantilari c)
-        {
-            string key=c.Ip+":"+c.HttpPort;
-            lock(locks) { if (!locks.Add(key)) return null; return new Lease(this,key); }
-        }
-        public IList<RelayPulse> GetDue(bool recovery)
-        {
-            lock(Rows) return Rows.Where(p=>p.PulseAktif && (p.PulseBitis<=Now || p.ReleaseDenemeSayisi>0)
-                && (recovery || p.SonrakiDeneme<=Now || (!p.KritikHata && Now>=p.PulseBaslangic.AddSeconds(12)))).Select(Copy).ToList();
-        }
-        public bool HasActive(int id) { lock(Rows) return Rows.Any(p=>p.PulseAktif && p.MakineId==id); }
-        public string GetWarnings() { return ""; }
-        private sealed class Lease : IRelayPulseLease
-        {
-            private readonly MemoryStore db;
-            private readonly string key;
-            public Lease(MemoryStore db,string key) { this.db=db; this.key=key; }
-            public RelayPulse Get(long id) { lock(db.Rows) return db.Rows.Where(p=>p.Id==id).Select(Copy).SingleOrDefault(); }
-            public void Create(RelayPulse p)
+            if (!on)
             {
-                if(db.FailCreate) throw new InvalidOperationException("DB unavailable");
-                lock(db.Rows)
-                {
-                    if(db.Rows.Any(x=>x.PulseAktif && (x.MakineId==p.MakineId ||
-                        (x.ControllerIp==p.ControllerIp && x.HttpPort==p.HttpPort && x.RelayChannel==p.RelayChannel))))
-                        throw new InvalidOperationException("Duplicate pulse");
-                    p.Id=db.Rows.Count+1; db.Rows.Add(Copy(p));
-                }
-            }
-            public void Save(RelayPulse p)
-            {
-                if(db.FailSave) throw new InvalidOperationException("Save unavailable");
-                lock(db.Rows) db.Rows[db.Rows.FindIndex(x=>x.Id==p.Id)]=Copy(p);
-            }
-            public void Log(RelayPulse p,string command,string response,bool success,string error)
-            { lock(db.Events) db.Events.Add(command+" "+success+" "+response+" "+error); }
-            public void Dispose() { lock(db.locks) db.locks.Remove(key); }
-        }
-    }
-
-    private sealed class FakeIo : IRelayPulseIo
-    {
-        public bool On = true;
-        public bool BadRead;
-        public int OnFailures;
-        public int OffCommands, OnCommands;
-        public bool TimeoutOff;
-        public TaskCompletionSource<bool> HoldOff;
-        public Action BeforeOff;
-        public async Task<MakineRoleIslemleri.KanalDurumSonucu> Set(MakineRoleBaglantilari c,bool on)
-        {
-            if(!on)
-            {
-                if(BeforeOff!=null) BeforeOff();
-                Interlocked.Increment(ref OffCommands);
-                if(HoldOff!=null) await HoldOff.Task;
-                On=false;
+                OffCommands++;
+                if (ThrowOff) throw new Exception("OFF exception");
+                if (OffCommands > OffFailures) Off=true;
             }
             else
             {
-                Interlocked.Increment(ref OnCommands);
-                if(OnFailures>0) OnFailures--; else On=true;
+                OnCommands++;
+                if (ThrowOn) throw new Exception("ON exception");
+                if (!RejectOn) Off=false;
             }
-            return new MakineRoleIslemleri.KanalDurumSonucu { Basarili=!(TimeoutOff && !on),
-                Hata=(TimeoutOff && !on) ? "timeout" : null, HataDetayi=(TimeoutOff && !on) ? "TaskCanceledException" : null };
+            return Task.FromResult(new MakineRoleIslemleri.KanalDurumSonucu { Basarili=!(on ? LostOnReply : LostOffReply) });
         }
         public Task<MakineRoleIslemleri.KanalDurumSonucu> Read(MakineRoleBaglantilari c)
         {
-            return Task.FromResult(new MakineRoleIslemleri.KanalDurumSonucu { Basarili=!BadRead,
-                DuruyorMu=!On,HamCevap=BadRead ? "bad" : (On ? "1111111111111111" : "0000000000000000"),
-                Hata=BadRead ? "invalid /98" : null });
+            Reads++;
+            if (ThrowRead) throw new Exception("Read exception");
+            return Task.FromResult(new MakineRoleIslemleri.KanalDurumSonucu { Basarili=!(UnknownOn && Reads==1), DuruyorMu=!Off });
         }
     }
-
-    private static MakineRoleBaglantilari Connection()
-    { return new MakineRoleBaglantilari(null) {MakineId=1,Ip="127.0.0.1",HttpPort=8080,KanalNo=1,AktifMi=true}; }
-    private static RelayPulseService Service(MemoryStore db,FakeIo io)
-    { return new RelayPulseService(db,io,()=>db.Now); }
-
+    private static RelayPulseService Service(FakeIo io, List<int> delays)
+    { return new RelayPulseService(io.Set, io.Read, ms => { delays.Add(ms); return Task.FromResult(0); }); }
     private static async Task Run()
     {
-        DateTime turkiyeSimdi = RelayPulseClock.Now;
-        Check(Math.Abs((turkiyeSimdi - DateTime.UtcNow).TotalHours - 3) < 0.01, "Türkiye saati UTC+3");
-        Check(RelayPulseService.UserError("Zaman aşımı. System.Threading.Tasks.TaskCanceledException: stack") == "Zaman aşımı.", "Old stack traces hidden from dashboard");
-        var db=new MemoryStore(); var io=new FakeIo(); var svc=Service(db,io);
-        io.BeforeOff=()=>Check(db.Rows.Count==1 && db.Rows[0].PulseAktif,"Pulse durable before OFF");
-        Check(await svc.TriggerStopPulse(Connection())==null,"OFF verified");
-        Check(db.Rows[0].PulseBitis-db.Rows[0].PulseBaslangic==TimeSpan.FromSeconds(10),"10 second deadline");
-        Check(await svc.TriggerStopPulse(Connection())!=null && io.OffCommands==1,"Duplicate does not send OFF or extend deadline");
-        db.Now=db.Now.AddSeconds(9); await svc.ReleaseExpiredPulses();
-        Check(io.OnCommands==0,"No early normal release");
-        db.Now=db.Now.AddSeconds(1); await svc.ReleaseExpiredPulses();
-        Check(io.OnCommands==1 && !db.Rows[0].PulseAktif && db.Rows[0].GercekOnZamani==db.Now,"ON verified at deadline");
+        var io=new FakeIo(); var delays=new List<int>();
+        var result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(result.OnDogrulandi && result.Hata==null && io.Off,"Normal pulse completes");
+        Check(io.OnCommands==1 && io.OffCommands==1 && io.Reads==2,"Both commands verified");
+        Check(delays.Count==1 && delays[0]==3000,"Three second delay after ON");
 
-        db=new MemoryStore(); io=new FakeIo(); svc=Service(db,io);
-        await svc.TriggerStopPulse(Connection());
-        var restarted=Service(db,io);
-        await restarted.RecoverPendingPulses();
-        Check(io.OnCommands==0,"Recovery preserves unexpired deadline");
-        db.Now=db.Now.AddSeconds(11); await restarted.RecoverPendingPulses();
-        Check(!db.Rows[0].PulseAktif && io.OnCommands==1,"New service recovers durable pulse");
+        io=new FakeIo { RejectOn=true }; delays=new List<int>();
+        result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(!result.OnDogrulandi && result.Hata!=null && io.OffCommands==0 && delays.Count==0,"Known OFF skips return command and wait");
 
-        db=new MemoryStore(); io=new FakeIo {OnFailures=20}; svc=Service(db,io);
-        await svc.TriggerStopPulse(Connection()); db.Now=db.Now.AddSeconds(10);
-        for(int attempt=1;attempt<=4;attempt++)
-        {
-            await svc.ReleaseExpiredPulses();
-            Check(db.Rows[0].ReleaseDenemeSayisi==attempt && db.Rows[0].PulseAktif,"Failed ON stays active attempt "+attempt);
-            int delay=attempt<4 ? attempt : 5;
-            Check(db.Rows[0].SonrakiDeneme==db.Now.AddSeconds(delay),"Persisted retry delay "+delay);
-            await svc.ReleaseExpiredPulses();
-            Check(io.OnCommands==attempt,"No retry before scheduled time");
-            db.Now=db.Now.AddSeconds(delay);
-        }
-        Check(db.Rows[0].KritikHata && db.Rows[0].SonHata.Contains("KRİTİK"),"Exhaustion records critical error");
-        io.OnFailures=0; await svc.ReleaseExpiredPulses();
-        Check(io.OnCommands==5 && !db.Rows[0].PulseAktif,"Independent watchdog rescues after retry exhaustion");
+        io=new FakeIo { UnknownOn=true }; delays=new List<int>();
+        result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(!result.OnDogrulandi && result.Hata!=null && io.OffCommands==1 && delays.Count==0,"Unknown ON immediately returns OFF");
 
-        db=new MemoryStore(); io=new FakeIo(); svc=Service(db,io);
-        await svc.TriggerStopPulse(Connection()); db.Now=db.Now.AddSeconds(13); io.OnFailures=1;
-        await svc.ReleaseExpiredPulses();
-        Check(db.Rows[0].KritikHata && db.Rows[0].SonHata.Contains("12 saniye"),"12 second abnormal OFF detected");
+        io=new FakeIo { LostOnReply=true, LostOffReply=true }; delays=new List<int>();
+        result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(result.OnDogrulandi && result.Hata==null,"Lost command replies resolved by status");
 
-        db=new MemoryStore(); io=new FakeIo {OnFailures=10}; svc=Service(db,io);
-        await svc.TriggerStopPulse(Connection()); db.Now=db.Now.AddSeconds(10); await svc.ReleaseExpiredPulses();
-        db.Now=db.Now.AddSeconds(1); await svc.ReleaseExpiredPulses();
-        Check(db.Rows[0].SonrakiDeneme==db.Now.AddSeconds(2),"Second retry scheduled two seconds later");
-        db.Now=db.Now.AddSeconds(1); await svc.ReleaseExpiredPulses();
-        Check(io.OnCommands==3 && db.Rows[0].KritikHata,"12 second watchdog bypasses pending retry wait");
+        io=new FakeIo { OffFailures=2 }; delays=new List<int>();
+        result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(result.Hata==null && io.OffCommands==3,"Third OFF attempt succeeds");
+        Check(delays.Count==3 && delays[1]==500 && delays[2]==500,"Short retry intervals");
 
-        db=new MemoryStore(); io=new FakeIo {BadRead=true}; svc=Service(db,io);
-        Check(await svc.TriggerStopPulse(Connection())!=null,"Malformed /98 never counts as success");
-        Check(io.OnCommands==1 && db.Rows[0].PulseAktif,"Unknown OFF prompts immediate ON, remains pending without verification");
-        io.BadRead=false; db.Now=db.Now.AddSeconds(1); await svc.ReleaseExpiredPulses();
-        Check(!db.Rows[0].PulseAktif,"Early emergency retry remains recoverable before original deadline");
+        io=new FakeIo { OffFailures=10 }; delays=new List<int>();
+        result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(result.OnDogrulandi && result.Hata!=null && io.OffCommands==3,"Failed release preserves stop confirmation and stops at three");
 
-        db=new MemoryStore(); io=new FakeIo {TimeoutOff=true}; svc=Service(db,io);
-        Check(await svc.TriggerStopPulse(Connection())==null && db.Rows[0].OffDogrulandi,"Lost command response resolved by actual IO verification");
-        Check(db.Events.Any(e=>e.Contains("TaskCanceledException")),"Timeout detail audited");
+        io=new FakeIo { ThrowOn=true }; delays=new List<int>();
+        result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(!result.OnDogrulandi && result.Hata!=null && io.OffCommands==1,"ON exception still attempts OFF");
 
-        db=new MemoryStore {FailCreate=true}; io=new FakeIo(); svc=Service(db,io);
-        try { await svc.TriggerStopPulse(Connection()); } catch(InvalidOperationException) { }
-        Check(io.OffCommands==0,"No OFF when durable insert fails");
+        io=new FakeIo { ThrowOff=true, ThrowRead=true }; delays=new List<int>();
+        result=await Service(io,delays).TriggerStopPulse(Connection());
+        Check(result.Hata!=null && io.OffCommands==3,"Exceptions remain bounded to three attempts");
+        io=new FakeIo();
+        Check((await Service(io,new List<int>()).TriggerStopPulse(Connection())).Hata==null,"Lock released after exceptions");
 
-        db=new MemoryStore(); io=new FakeIo {HoldOff=new TaskCompletionSource<bool>()}; svc=Service(db,io);
-        Task<string> first=svc.TriggerStopPulse(Connection());
-        var secondChannel=Connection(); secondChannel.MakineId=2; secondChannel.KanalNo=2;
-        Check(await Service(db,io).TriggerStopPulse(secondChannel)!=null && io.OffCommands==1,"Different channels cannot overlap on one controller");
-        Check(await Service(db,io).TriggerStopPulse(Connection())!=null,"Cross-worker duplicate blocked while OFF is in flight");
-        db.Now=db.Now.AddSeconds(10); await Service(db,io).ReleaseExpiredPulses();
-        Check(io.OnCommands==0,"Release cannot overtake an in-flight OFF");
-        io.HoldOff.SetResult(true); await first;
-        await Task.WhenAll(svc.ReleaseExpiredPulses(),Service(db,io).ReleaseExpiredPulses());
-        Check(io.OnCommands==1 && !db.Rows[0].PulseAktif,"Concurrent watchdogs send only one verified release");
+        io=new FakeIo();
+        var blocked=new TaskCompletionSource<bool>();
+        var svc=new RelayPulseService(io.Set, io.Read,ms => blocked.Task);
+        var first=svc.TriggerStopPulse(Connection());
+        Check(io.OnCommands==1 && io.OffCommands==0,"Wait precedes OFF");
+        var other=Connection(); other.MakineId=2; other.KanalNo=2;
+        result=await Service(new FakeIo(),new List<int>()).TriggerStopPulse(other);
+        Check(result.Hata!=null && !result.OnDogrulandi,"Same controller cannot overlap across channels or service instances");
+        blocked.SetResult(true);
+        Check((await first).Hata==null && io.OffCommands==1,"In-flight pulse finishes normally");
 
-        db=new MemoryStore(); io=new FakeIo(); svc=Service(db,io);
-        io.BeforeOff=()=>db.FailSave=true;
-        try { await svc.TriggerStopPulse(Connection()); } catch(InvalidOperationException) { }
-        Check(io.OnCommands==1 && db.Rows[0].PulseAktif,"Post-OFF storage failure attempts emergency ON without losing pending row");
-        db.FailSave=false; db.Now=db.Now.AddSeconds(10); await Service(db,io).RecoverPendingPulses();
-        Check(!db.Rows[0].PulseAktif,"Recovery reconciles an emergency ON");
+        io=new FakeIo();
+        svc=new RelayPulseService(io.Set, io.Read,ms => { throw new Exception("Delay interrupted"); });
+        result=await svc.TriggerStopPulse(Connection());
+        Check(result.OnDogrulandi && result.Hata!=null && io.OffCommands==1,"Wait failure still returns OFF");
+
+        io=new FakeIo(); var invalid=Connection(); invalid.AktifMi=false;
+        result=await Service(io,new List<int>()).TriggerStopPulse(invalid);
+        Check(result.Hata!=null && io.OnCommands==0 && io.OffCommands==0,"Invalid connection sends no commands");
+
+        io=new FakeIo();
+        svc=new RelayPulseService(io.Set, io.Read,ms => { io.Off=true; return Task.FromResult(0); });
+        result=await svc.TriggerStopPulse(Connection());
+        Check(result.Hata==null,"Device automatic OFF is accepted");
     }
-
     private static int Main()
     {
         try { Run().GetAwaiter().GetResult(); Console.WriteLine(checks+" pulse checks passed."); return 0; }
-        catch(Exception ex) { Console.Error.WriteLine(ex); return 1; }
+        catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
     }
 }

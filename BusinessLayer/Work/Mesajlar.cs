@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -374,14 +374,13 @@ public class Mesajlar
 
     public static string RoleDurdurmaKomutuGonderildi
     {
-        get { return "Durdurma tetiklemesi OFF olarak doğrulandı. Röle 10 saniyelik pulse sonunda ON durumuna dönecek; makine duruş kaydı açık kalacak."; }
+        get { return "Durdurma tetiklemesi tamamlandı ve rölenin OFF dönüşü doğrulandı. Makine duruş kaydı açık kalıyor."; }
     }
 
     public static string RoleBaslatmaKomutuGonderildi
     {
-        get { return "Röle ON olarak doğrulandı ve isteğiniz üzerine makine duruş kaydı kapatıldı. IO bilgisi makinenin fiziksel hareketini doğrulamaz."; }
+        get { return "Röle OFF olarak doğrulandı ve isteğiniz üzerine makine duruş kaydı kapatıldı. IO bilgisi makinenin fiziksel hareketini doğrulamaz."; }
     }
 
     #endregion
 }
-
