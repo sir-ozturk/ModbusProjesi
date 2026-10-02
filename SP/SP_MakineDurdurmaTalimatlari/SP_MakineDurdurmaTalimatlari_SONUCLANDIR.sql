@@ -1,8 +1,11 @@
+﻿USE [DB_MODBUS]
+GO
+/****** Object: StoredProcedure [dbo].[SP_MakineDurdurmaTalimatlari_SONUCLANDIR] ******/
 SET ANSI_NULLS ON;
 GO
 SET QUOTED_IDENTIFIER ON;
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineDurdurmaTalimatlari_SONUCLANDIR
+ALTER   PROCEDURE [dbo].[SP_MakineDurdurmaTalimatlari_SONUCLANDIR]
     @id INT,
     @islem_durumu TINYINT,
     @sonuc NVARCHAR(2000),
@@ -30,14 +33,14 @@ BEGIN
     IF @guncelleyen_id IS NULL OR @guncelleyen_id <= 0 OR NULLIF(LTRIM(RTRIM(@guncelleyen_ip)), N'') IS NULL
         THROW 51108, N'İşleyici kullanıcı ve IP bilgisi gereklidir.', 1;
 
-    DECLARE @makine_id INT, @neden NVARCHAR(500), @ekleyen_id INT, @ekleyen_ip NVARCHAR(50);
+    DECLARE @durus_nedeni_parametre_id INT, @durus_aciklamasi NVARCHAR(500), @makine_id INT, @neden NVARCHAR(500), @ekleyen_id INT, @ekleyen_ip NVARCHAR(50);
     SELECT @makine_id = makine_id FROM dbo.MakineDurdurmaTalimatlari WHERE id = @id;
     BEGIN TRY
         BEGIN TRANSACTION;
         -- EKLE ile aynı kilit sırası: önce makine, sonra talimat.
         IF NOT EXISTS (SELECT 1 FROM dbo.Makineler WITH (UPDLOCK, HOLDLOCK) WHERE id = @makine_id)
             THROW 51113, N'Talimat veya makine bulunamadı.', 1;
-        SELECT @neden = islem_nedeni, @ekleyen_id = ekleyen_id, @ekleyen_ip = ekleyen_ip
+        SELECT @durus_nedeni_parametre_id = durus_nedeni_parametre_id, @durus_aciklamasi = durus_aciklamasi, @neden = islem_nedeni, @ekleyen_id = ekleyen_id, @ekleyen_ip = ekleyen_ip
         FROM dbo.MakineDurdurmaTalimatlari WITH (UPDLOCK, HOLDLOCK)
         WHERE id = @id AND aktif_mi = 1 AND islem_durumu = 1;
         IF @ekleyen_id IS NULL
@@ -56,7 +59,8 @@ BEGIN
             EXEC dbo.SP_MakineLoglari_EKLE
                 @makine_id = @makine_id, @islem_tipi = N'DURDUR', @islem_nedeni = @neden,
                 @devam_ediyor_mu = 1, @basarili_mi = 1, @hata_mesaji = @hata,
-                @aktif_mi = 1, @ekleyen_id = @ekleyen_id, @ekleyen_ip = @ekleyen_ip;
+                @aktif_mi = 1, @ekleyen_id = @ekleyen_id, @ekleyen_ip = @ekleyen_ip,
+                @durus_nedeni_parametre_id = @durus_nedeni_parametre_id, @durus_aciklamasi = @durus_aciklamasi;
         END;
 
         UPDATE dbo.MakineDurdurmaTalimatlari

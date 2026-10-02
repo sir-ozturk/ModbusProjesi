@@ -1,0 +1,62 @@
+.parametre-listele .sayfa-ust-alan {
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+}
+
+.parametre-listele .btn-ekle {
+    font-size: 18px;
+    white-space: nowrap;
+}
+
+.parametre-listele .table-responsive .table {
+    min-width: 1150px;
+    font-size: 16px;
+}
+
+.parametre-listele .table-responsive .table > thead > tr > th,
+.parametre-listele .table-responsive .table > tbody > tr > th {
+    white-space: nowrap;
+    padding: 12px 10px;
+}
+
+.parametre-listele .table-responsive .table > tbody > tr > td {
+    padding: 12px 10px;
+}
+
+.parametre-listele .table-responsive .table > tbody > tr > td:nth-child(1) {
+    min-width: 175px;
+}
+
+.parametre-listele .table-responsive .table > tbody > tr > td:nth-child(2) {
+    min-width: 190px;
+    overflow-wrap: anywhere;
+}
+
+.parametre-listele .table-responsive .table > tbody > tr > td:nth-child(3) {
+    min-width: 160px;
+    overflow-wrap: anywhere;
+}
+
+.parametre-listele .table-responsive .table > tbody > tr > td:last-child > div {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.parametre-listele .table-responsive .table .btn {
+    margin-right: 0 !important;
+    white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+    .parametre-listele .baslik h2 {
+        font-size: 25px;
+    }
+
+    .parametre-listele .btn-ekle {
+        font-size: 16px;
+    }
+}

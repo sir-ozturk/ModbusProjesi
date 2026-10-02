@@ -11,6 +11,9 @@
 
 public partial class MasterPage
 {
+    protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlParametreYonetimi;
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkParametreListele;
+    protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkParametreEkle;
     protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlRoleDonanimIslemleri;
     protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkEthernetKartEkle;
     protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkEthernetKartListele;

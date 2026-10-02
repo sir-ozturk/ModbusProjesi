@@ -319,19 +319,9 @@ public class Mesajlar
         get { return "Lütfen bir duruş nedeni seçiniz veya özel neden giriniz."; }
     }
 
-    public static string MakineSimulasyondaCalistirildi
-    {
-        get { return "Makine simülasyonda yeniden çalıştırıldı."; }
-    }
-
     public static string MakineCalistirilamadi
     {
         get { return "Makine çalıştırma kaydı kapatılamadı."; }
-    }
-
-    public static string MakineZatenCalisiyor
-    {
-        get { return "Makine zaten çalışıyor."; }
     }
 
     public static string MakineRoleAtamasiYok
@@ -377,10 +367,5 @@ public class Mesajlar
         get { return "Durdurma tetiklemesi tamamlandı ve rölenin OFF dönüşü doğrulandı. Makine duruş kaydı açık kalıyor."; }
     }
 
-    public static string RoleBaslatmaKomutuGonderildi
-    {
-        get { return "Röle OFF olarak doğrulandı ve isteğiniz üzerine makine duruş kaydı kapatıldı. IO bilgisi makinenin fiziksel hareketini doğrulamaz."; }
-    }
-
-    #endregion
+#endregion
 }

@@ -1,12 +1,17 @@
+﻿USE [DB_MODBUS]
+GO
+/****** Object: StoredProcedure [dbo].[SP_MakineDurdurmaTalimatlari_EKLE] ******/
 SET ANSI_NULLS ON;
 GO
 SET QUOTED_IDENTIFIER ON;
 GO
-CREATE OR ALTER PROCEDURE dbo.SP_MakineDurdurmaTalimatlari_EKLE
+ALTER   PROCEDURE [dbo].[SP_MakineDurdurmaTalimatlari_EKLE]
     @makine_id INT,
     @islem_nedeni NVARCHAR(500),
     @ekleyen_id INT,
-    @ekleyen_ip NVARCHAR(50)
+    @ekleyen_ip NVARCHAR(50),
+    @durus_nedeni_parametre_id INT = NULL,
+    @durus_aciklamasi NVARCHAR(500) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -44,8 +49,8 @@ BEGIN
         IF @url IS NULL
             THROW 51106, N'Aktif röle bağlantısı bulunamadı.', 1;
 
-        INSERT dbo.MakineDurdurmaTalimatlari(makine_id, url, islem_nedeni, ekleyen_id, ekleyen_ip)
-        VALUES (@makine_id, @url, LTRIM(RTRIM(@islem_nedeni)), @ekleyen_id, @ekleyen_ip);
+        INSERT dbo.MakineDurdurmaTalimatlari(makine_id, url, islem_nedeni, ekleyen_id, ekleyen_ip, durus_nedeni_parametre_id, durus_aciklamasi)
+        VALUES (@makine_id, @url, LTRIM(RTRIM(@islem_nedeni)), @ekleyen_id, @ekleyen_ip, @durus_nedeni_parametre_id, @durus_aciklamasi);
         DECLARE @id INT = CONVERT(INT, SCOPE_IDENTITY());
         COMMIT TRANSACTION;
         SELECT * FROM dbo.MakineDurdurmaTalimatlari WHERE id = @id;

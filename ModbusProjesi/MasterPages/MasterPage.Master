@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MasterPage.master.cs" Inherits="MasterPage" %>
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MasterPage.master.cs" Inherits="MasterPage" %>
 
 <!DOCTYPE html>
 
@@ -11,7 +11,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet" />
-    <link href="../Styles/Default.css?v=6" rel="stylesheet" />
+    <link href="../Styles/Default.css?v=8" rel="stylesheet" />
 
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
@@ -44,7 +44,12 @@
 
         <div class="d-flex min-vh-100">
 
-            <aside class="sol-panel d-flex flex-column position-fixed top-0 start-0 h-100 px-3 py-3">
+            <aside id="solMenu" class="sol-panel offcanvas-lg offcanvas-start px-3 py-3" tabindex="-1" aria-labelledby="solMenuBaslik">
+                <div class="d-lg-none d-flex align-items-center justify-content-between mb-3">
+                    <span id="solMenuBaslik" class="fw-bold">Menü</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#solMenu" aria-label="Menüyü kapat"></button>
+                </div>
+                <div class="offcanvas-body d-flex flex-column p-0">
 
                 <a href="/Default.aspx" class="d-flex align-items-center pb-4 text-decoration-none">
                     <asp:Image
@@ -108,6 +113,24 @@
                             <li><a id="lnkRoleKartListele" runat="server" href="/Pages/RoleKartListele.aspx" class="alt-menu-link text-decoration-none">➖ Röle Kartı Listele</a></li>
                             <li><a id="lnkMakineRoleBaglantilari" runat="server" href="/Pages/MakineRoleBaglantilari.aspx" class="alt-menu-link text-decoration-none">➖ Makine–Röle Bağlantıları</a></li>
                         </ul>
+                    </div>
+
+                    <div id="pnlParametreYonetimi" runat="server" visible="false" class="mb-3">
+
+                        <div class="menu-grup-baslik d-flex align-items-center">
+                            <span class="me-2"><i class="fa-solid fa-sliders"></i></span>
+                            <span class="fw-bold">Parametre Yönetimi</span>
+                        </div>
+
+                        <ul class="list-unstyled mb-0 ps-4">
+                            <li>
+                                <a id="lnkParametreListele" runat="server" href="/Pages/ParametreListele.aspx" class="alt-menu-link text-decoration-none">➖ Parametre Listele</a>
+                            </li>
+                            <li>
+                                <a id="lnkParametreEkle" runat="server" href="/Pages/ParametreEkle.aspx" class="alt-menu-link text-decoration-none">➖ Parametre Ekle</a>
+                            </li>
+                        </ul>
+
                     </div>
 
                     <div id="pnlKullaniciIslemleri" runat="server" class="mb-3">
@@ -213,9 +236,13 @@
 
                 </div>
 
+                </div>
             </aside>
 
             <main class="icerik-alani min-vh-100">
+                <button type="button" class="btn btn-outline-primary d-lg-none mb-3" data-bs-toggle="offcanvas" data-bs-target="#solMenu" aria-controls="solMenu">
+                    <i class="fa-solid fa-bars me-2" aria-hidden="true"></i>Menü
+                </button>
 
                 <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
                 </asp:ContentPlaceHolder>

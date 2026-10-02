@@ -7,7 +7,6 @@ using System.Linq;
 public partial class MakineEkle : System.Web.UI.Page
 {
     private int gelenId = 0;
-
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.GORUNTULE))
@@ -28,18 +27,14 @@ public partial class MakineEkle : System.Web.UI.Page
             {
                 litSayfaBaslik.Text = "Makine Düzenleme Paneli";
                 btnKaydet.Text = "Güncelle";
-
                 btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.GUNCELLE);
-
                 MakineDoldur();
             }
             else
             {
                 litSayfaBaslik.Text = "Makine Ekleme Paneli";
                 btnKaydet.Text = "Kaydet";
-
                 btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.EKLE);
-
                 ddlAktiflik.SelectedValue = "";
             }
         }
@@ -48,15 +43,11 @@ public partial class MakineEkle : System.Web.UI.Page
     private void MakineDoldur()
     {
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
             Makineler makineler = new Makineler(veritabaniIslemleri);
-
             makineler.Id = gelenId;
-
             if (makineler.Doldur())
             {
                 txtModelAd.Text = makineler.ModelAd;
@@ -67,8 +58,14 @@ public partial class MakineEkle : System.Web.UI.Page
                 txtBandNo.Text = makineler.BandNo;
                 txtIp.Text = makineler.Ip;
                 txtMfg.Text = makineler.Mfg;
-
-                ddlAktiflik.SelectedValue = makineler.AktifMi ? "1" : "0";
+                if (makineler.AktifMi)
+                {
+                    ddlAktiflik.SelectedValue = "1";
+                }
+                else
+                {
+                    ddlAktiflik.SelectedValue = "0";
+                }
             }
             else
             {
@@ -92,7 +89,6 @@ public partial class MakineEkle : System.Web.UI.Page
             if (!IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.EKLE))
             {
                 Mesaj.Ver(Mesajlar.YetkinizYok, Mesaj.MesajTurleri.WARNING, Page.Master);
-
                 return;
             }
         }
@@ -101,53 +97,42 @@ public partial class MakineEkle : System.Web.UI.Page
             if (!IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.GUNCELLE))
             {
                 Mesaj.Ver(Mesajlar.YetkinizYok, Mesaj.MesajTurleri.WARNING, Page.Master);
-
                 return;
             }
         }
 
-        if (string.IsNullOrEmpty(txtMakineAdi.Text.Trim()) ||
-            string.IsNullOrEmpty(txtModelAd.Text.Trim()) ||
-            string.IsNullOrEmpty(txtEntegrasyonKod.Text.Trim()) ||
-            string.IsNullOrEmpty(txtGgNo.Text.Trim()) ||
-            string.IsNullOrEmpty(txtMakineNo.Text.Trim()) ||
-            string.IsNullOrEmpty(txtBandNo.Text.Trim()) ||
-            string.IsNullOrEmpty(txtIp.Text.Trim()) ||
-            string.IsNullOrEmpty(txtMfg.Text.Trim()) ||
-            string.IsNullOrEmpty(ddlAktiflik.SelectedValue))
+        if (string.IsNullOrEmpty(txtMakineAdi.Text.Trim())
+            || string.IsNullOrEmpty(txtModelAd.Text.Trim())
+            || string.IsNullOrEmpty(txtEntegrasyonKod.Text.Trim())
+            || string.IsNullOrEmpty(txtGgNo.Text.Trim())
+            || string.IsNullOrEmpty(txtMakineNo.Text.Trim())
+            || string.IsNullOrEmpty(txtBandNo.Text.Trim())
+            || string.IsNullOrEmpty(txtIp.Text.Trim())
+            || string.IsNullOrEmpty(txtMfg.Text.Trim())
+            || string.IsNullOrEmpty(ddlAktiflik.SelectedValue))
         {
             Mesaj.Ver(Mesajlar.MakineAlanlarBos, Mesaj.MesajTurleri.WARNING, Page.Master);
-
             return;
         }
 
         IPAddress ipAdres;
-
-        if (!IPAddress.TryParse(txtIp.Text.Trim(), out ipAdres) ||
-            ipAdres.AddressFamily != AddressFamily.InterNetwork)
+        if (!IPAddress.TryParse(txtIp.Text.Trim(), out ipAdres) || ipAdres.AddressFamily != AddressFamily.InterNetwork)
         {
             Mesaj.Ver(Mesajlar.GecersizIpAdresi, Mesaj.MesajTurleri.WARNING, Page.Master);
-
             return;
         }
 
-        if (!txtGgNo.Text.Trim().All(char.IsDigit) ||
-            !txtMakineNo.Text.Trim().All(char.IsDigit) ||
-            !txtMfg.Text.Trim().All(char.IsDigit))
+        if (!txtGgNo.Text.Trim().All(char.IsDigit) || !txtMakineNo.Text.Trim().All(char.IsDigit) || !txtMfg.Text.Trim().All(char.IsDigit))
         {
             Mesaj.Ver(Mesajlar.MakineSayisalAlanHatasi, Mesaj.MesajTurleri.WARNING, Page.Master);
-
             return;
         }
 
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
             Makineler makineler = new Makineler(veritabaniIslemleri);
-
             makineler.ModelAd = txtModelAd.Text.Trim();
             makineler.EntegrasyonKod = txtEntegrasyonKod.Text.Trim();
             makineler.GgNo = txtGgNo.Text.Trim();
@@ -157,30 +142,23 @@ public partial class MakineEkle : System.Web.UI.Page
             makineler.Ip = txtIp.Text.Trim();
             makineler.Mfg = txtMfg.Text.Trim();
             makineler.AktifMi = ddlAktiflik.SelectedValue == "1";
-
             Sessionlar sessionlar = new Sessionlar();
             CurrentInfo currentInfo = sessionlar.Current._CurrentInfo;
-
             makineler.Id = gelenId;
             if (makineler.KayitVarMi())
             {
                 Mesaj.Ver(Mesajlar.MakineKayitli, Mesaj.MesajTurleri.WARNING, Page.Master);
-
                 return;
             }
-
 
             if (gelenId == 0)
             {
                 makineler.EkleyenId = currentInfo.KullaniciId;
                 makineler.EkleyenIp = Utility.IpNoGetir();
-
                 if (makineler.Ekle())
                 {
                     Session["BasariMesaji"] = Mesajlar.MakineBasariylaEklendi;
-
                     Response.Redirect("~/Pages/MakineListele.aspx", false);
-
                     Context.ApplicationInstance.CompleteRequest();
                     return;
                 }
@@ -189,19 +167,24 @@ public partial class MakineEkle : System.Web.UI.Page
             {
                 makineler.GuncelleyenId = currentInfo.KullaniciId;
                 makineler.GuncelleyenIp = Utility.IpNoGetir();
-
                 if (makineler.Guncelle())
                 {
                     Session["BasariMesaji"] = Mesajlar.MakineBasariylaGuncellendi;
-
                     Response.Redirect("~/Pages/MakineListele.aspx", false);
-
                     Context.ApplicationInstance.CompleteRequest();
                     return;
                 }
             }
 
-            Mesaj.Ver(Server.HtmlEncode(veritabaniIslemleri.SonHataMesaji ?? Mesajlar.MakineGuncellemeHatasi), Mesaj.MesajTurleri.FAIL, Page.Master);
+            var islemHataMesaji1 = veritabaniIslemleri.SonHataMesaji;
+            if (islemHataMesaji1 != null)
+            {
+                Mesaj.Ver(Server.HtmlEncode(islemHataMesaji1), Mesaj.MesajTurleri.FAIL, Page.Master);
+            }
+            else
+            {
+                Mesaj.Ver(Server.HtmlEncode(Mesajlar.MakineGuncellemeHatasi), Mesaj.MesajTurleri.FAIL, Page.Master);
+            }
         }
         catch (Exception ex)
         {

@@ -62,7 +62,7 @@
                     </div>
 
                     <div class="modal-body">
-                        Bu kaydı silmek istediğinize emin misiniz?
+                        <span id="silOnayMetni">Bu kaydı silmek istediğinize emin misiniz?</span>
                     </div>
 
                     <div class="modal-footer">
@@ -82,6 +82,12 @@
 
     function silOnayiGoster(buton) {
         silButonu = buton;
+        var kayitAdi = buton.getAttribute("data-kayit-adi");
+        if (kayitAdi) {
+            document.getElementById("silOnayMetni").textContent = '"' + kayitAdi + '" kaydını silmek istediğinize emin misiniz?';
+        } else {
+            document.getElementById("silOnayMetni").textContent = "Bu kaydı silmek istediğinize emin misiniz?";
+        }
 
         var modalElement = document.getElementById("silOnayModal");
         var modal = bootstrap.Modal.getOrCreateInstance(modalElement);

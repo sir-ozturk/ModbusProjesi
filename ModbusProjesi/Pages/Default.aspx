@@ -1,7 +1,7 @@
 ﻿<%@ Page Title="Makine Kontrol" Language="C#" Async="true" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <link href="../Styles/MakineDashboard.css?v=1" rel="stylesheet" />
+    <link href="../Styles/MakineDashboard.css?v=2" rel="stylesheet" />
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -18,11 +18,6 @@
                     <i class="fa-solid fa-arrow-down-up-across-line me-1"></i>
                     Sıralamayı Düzenle
                 </button>
-
-                <span class="badge dashboard-mod-badge px-3 py-2">
-                    <i class="fa-solid fa-flask me-1"></i>
-                    Röle Kontrolü
-                </span>
             </div>
         </div>
 
@@ -46,9 +41,13 @@
                     <asp:Repeater ID="rptMakineler" runat="server">
                         <ItemTemplate>
                             <div class="col-12 col-sm-6 col-md-4 col-lg-3 makine-kolon">
-                                <article class='<%# MakineKartSinifi(Eval("duruyor_mu")) %>'>
-                                    <header class="makine-kart-baslik text-center">
+                                <article class='<%# MakineKartSinifi(Eval("duruyor_mu")) %>' data-makine-id='<%# Convert.ToInt32(Eval("id")) %>'>
+                                    <header class="makine-kart-baslik"><span class="makine-adi">
                                         <%# Server.HtmlEncode(Eval("makine_adi").ToString()) %>
+                                    </span>
+                                        <button type="button" class="makine-bilgi-butonu" aria-label="Makine bilgilerini göster" title="Makine bilgileri" data-bs-toggle="modal" data-bs-target="#makineBilgiModal">
+                                            <i class="fa-solid fa-info" aria-hidden="true"></i>
+                                        </button>
                                     </header>
 
                                     <div class="makine-kart-govde">
@@ -63,7 +62,7 @@
                                             </span>
                                         </div>
 
-                                        <dl class="makine-bilgiler mb-3">
+                                        <div class="makine-detay-kaynagi" hidden><dl class="makine-bilgiler mb-3">
                                             <div>
                                                 <dt>Makine No</dt>
                                                 <dd><%# Server.HtmlEncode(Eval("makine_no").ToString()) %></dd>
@@ -82,7 +81,7 @@
                                             </div>
                                             <div>
                                                 <dt>Röle bağlantısı</dt>
-                                                <dd><%# Convert.ToBoolean(Eval("role_bagli_mi")) ? Server.HtmlEncode(Eval("role_adi") + " / Kanal " + Eval("kanal_no")) : "Aktif bağlantı yok" %></dd>
+                                                <dd><%# RoleBaglantiMetni(Eval("role_bagli_mi"), Eval("role_adi"), Eval("kanal_no")) %></dd>
                                             </div>
                                         </dl>
 
@@ -97,6 +96,7 @@
                                             </div>
                                         </div>
 
+                                        </div>
                                         <asp:Button
                                             ID="btnMakineDurdur"
                                             runat="server"
@@ -106,16 +106,6 @@
                                             OnClientClick='<%# DurdurmaModalAcmaKodu(Eval("id"), Eval("makine_adi"), Eval("makine_no"), Eval("role_ip")) %>'
                                             UseSubmitBehavior="false"
                                             CssClass="btn btn-danger w-100 fw-bold" />
-
-                                        <asp:Button
-                                            ID="btnMakineCalistir"
-                                            runat="server"
-                                            Text="Başlat"
-                                            Visible='<%# Convert.ToBoolean(Eval("duruyor_mu")) %>'
-                                            Enabled='<%# MakineRoleKontrolYetkisiVarMi(Eval("role_bagli_mi")) && !Convert.ToBoolean(Eval("talimat_devam_ediyor_mu")) %>'
-                                            CommandArgument='<%# Eval("id") %>'
-                                            OnCommand="btnMakineCalistir_Command"
-                                            CssClass="btn btn-success w-100 fw-bold" />
                                     </div>
                                 </article>
                             </div>
@@ -125,6 +115,20 @@
 
             </ContentTemplate>
         </asp:UpdatePanel>
+        <div class="modal fade" id="makineBilgiModal" tabindex="-1" aria-labelledby="makineBilgiBaslik" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title fs-5" id="makineBilgiBaslik">Makine bilgileri</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                    </div>
+                    <div class="modal-body makine-detaylar" id="makineBilgiIcerik"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <asp:HiddenField ID="hdnMakineSiralamasi" runat="server" />
         <asp:HiddenField ID="hdnDurdurMakineId" runat="server" />
         <asp:HiddenField ID="hdnDurusNedeni" runat="server" />
@@ -153,30 +157,22 @@
                         <label class="form-label fw-bold">Duruş Nedeni *</label>
 
                         <div id="durusNedenleri" class="row g-2 mb-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Mekanik Arıza">Mekanik Arıza</button></div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Hatalı Ölçü">Hatalı Ölçü</button></div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Yüksek Fire">Yüksek Fire</button></div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="İplik Kopuşu">İplik Kopuşu</button></div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Programlı Bakım">Programlı Bakım</button></div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Fazla Adet">Fazla Adet</button></div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Operatör Talebi">Operatör Talebi</button></div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden="Fabrika Müdürü Talebi">Fabrika Müdürü Talebi</button></div>
+                            <asp:Repeater ID="rptDurusNedenleri" runat="server">
+                                <ItemTemplate>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-secondary w-100 durus-nedeni" data-neden='<%# Convert.ToInt32(Eval("id")) %>' data-aciklama-zorunlu='<%# AciklamaZorunlulukDegeri(Eval("aciklama_zorunlu_mu")) %>'><%# Server.HtmlEncode(Convert.ToString(Eval("adi"))) %></button>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
                         </div>
-
+                        <asp:Label ID="lblDurusNedeniBilgi" runat="server" CssClass="text-danger d-block" />
+                        <label id="durusAciklamaEtiketi" class="form-label">Açıklama (isteğe bağlı)</label>
                         <asp:TextBox
                             ID="txtOzelDurusNedeni"
                             runat="server"
                             MaxLength="500"
                             CssClass="form-control"
-                            placeholder="Özel neden girin..."></asp:TextBox>
+                            placeholder="Duruş açıklaması girin..."></asp:TextBox>
                     </div>
 
                     <div class="modal-footer">
@@ -186,7 +182,7 @@
                             runat="server"
                             Text="Durdur"
                             CssClass="btn btn-danger fw-bold"
-                            OnClientClick="durusNedeniniHazirla();"
+                            OnClientClick="return durusNedeniniHazirla();"
                             OnClick="btnDurdurmayiOnayla_Click" />
                     </div>
                 </div>
@@ -236,11 +232,21 @@
     <script>
         (function () {
             var suruklenenOge = null;
+            document.getElementById("makineBilgiModal").addEventListener("show.bs.modal", function (event) {
+                var kart = event.relatedTarget && event.relatedTarget.closest(".makine-kart");
+                if (!kart) {
+                    return;
+                }
+                document.getElementById("makineBilgiBaslik").textContent = kart.querySelector(".makine-adi").textContent.trim() + " — Makine bilgileri";
+                document.getElementById("makineBilgiIcerik").innerHTML = kart.querySelector(".makine-detay-kaynagi").innerHTML;
+            });
+
 
             window.makineDurdurmaModaliniAc = function (makineId, makineAdi, makineNo, makineIp) {
                 document.getElementById("<%= hdnDurdurMakineId.ClientID %>").value = makineId;
                 document.getElementById("<%= hdnDurusNedeni.ClientID %>").value = "";
                 document.getElementById("<%= txtOzelDurusNedeni.ClientID %>").value = "";
+                document.getElementById("durusAciklamaEtiketi").textContent = "Açıklama (isteğe bağlı)";
                 document.getElementById("durdurMakineAdi").textContent = makineAdi + " (No: " + makineNo + ")";
                 document.getElementById("durdurMakineIp").textContent = makineIp;
 
@@ -249,6 +255,31 @@
                     buton.classList.add("btn-outline-secondary");
                 });
 
+                bootstrap.Modal.getOrCreateInstance(document.getElementById("makineDurdurmaModal")).show();
+            };
+
+            window.durusSeciminiGeriYukle = function () {
+                var makineId = document.getElementById("<%= hdnDurdurMakineId.ClientID %>").value;
+                var kart = Array.from(document.querySelectorAll("[data-makine-id]")).find(function (oge) {
+                    return oge.getAttribute("data-makine-id") === makineId;
+                });
+                if (!kart) {
+                    return;
+                }
+                document.getElementById("durdurMakineAdi").textContent = kart.querySelector(".makine-adi").textContent.trim();
+                document.getElementById("durdurMakineIp").textContent = "";
+                var secilenId = document.getElementById("<%= hdnDurusNedeni.ClientID %>").value;
+                document.querySelectorAll("#durusNedenleri .durus-nedeni").forEach(function (buton) {
+                    if (buton.getAttribute("data-neden") === secilenId) {
+                        buton.classList.remove("btn-outline-secondary");
+                        buton.classList.add("btn-primary", "active");
+                        if (buton.getAttribute("data-aciklama-zorunlu") === "1") {
+                            document.getElementById("durusAciklamaEtiketi").textContent = "Açıklama *";
+                        } else {
+                            document.getElementById("durusAciklamaEtiketi").textContent = "Açıklama (isteğe bağlı)";
+                        }
+                    }
+                });
                 bootstrap.Modal.getOrCreateInstance(document.getElementById("makineDurdurmaModal")).show();
             };
 
@@ -267,30 +298,26 @@
                 nedenButonu.classList.remove("btn-outline-secondary");
                 nedenButonu.classList.add("btn-primary", "active");
                 document.getElementById("<%= hdnDurusNedeni.ClientID %>").value = nedenButonu.getAttribute("data-neden");
-                document.getElementById("<%= txtOzelDurusNedeni.ClientID %>").value = "";
-            });
-
-            document.getElementById("<%= txtOzelDurusNedeni.ClientID %>").addEventListener("input", function () {
-                if (this.value.trim() === "") {
-                    return;
+                if (nedenButonu.getAttribute("data-aciklama-zorunlu") === "1") {
+                    document.getElementById("durusAciklamaEtiketi").textContent = "Açıklama *";
+                } else {
+                    document.getElementById("durusAciklamaEtiketi").textContent = "Açıklama (isteğe bağlı)";
                 }
-
-                document.querySelectorAll("#durusNedenleri .durus-nedeni").forEach(function (buton) {
-                    buton.classList.remove("btn-primary", "active");
-                    buton.classList.add("btn-outline-secondary");
-                });
-
-                document.getElementById("<%= hdnDurusNedeni.ClientID %>").value = "";
             });
 
             window.durusNedeniniHazirla = function () {
-                var ozelNeden = document.getElementById("<%= txtOzelDurusNedeni.ClientID %>").value.trim();
-
-                if (ozelNeden !== "") {
-                    document.getElementById("<%= hdnDurusNedeni.ClientID %>").value = ozelNeden;
+                var secili = document.querySelector("#durusNedenleri .durus-nedeni.active");
+                if (!secili) {
+                    alert("Duruş nedeni seçiniz.");
+                    return false;
                 }
+                if (secili.getAttribute("data-aciklama-zorunlu") === "1"
+                    && document.getElementById("<%= txtOzelDurusNedeni.ClientID %>").value.trim() === "") {
+                    alert("Seçilen duruş nedeni için açıklama giriniz.");
+                    return false;
+                }
+                return true;
             };
-
             document.addEventListener("dragstart", function (event) {
                 var oge = event.target.closest(".makine-siralama-ogesi");
 
@@ -328,11 +355,18 @@
 
                 var kutu = hedef.getBoundingClientRect();
                 var ayniSatirda = event.clientY >= kutu.top && event.clientY <= kutu.bottom;
-                var hedefSonrasi = ayniSatirda
-                    ? event.clientX > kutu.left + kutu.width / 2
-                    : event.clientY > kutu.top + kutu.height / 2;
+                var hedefSonrasi;
+                if (ayniSatirda) {
+                    hedefSonrasi = event.clientX > kutu.left + kutu.width / 2;
+                } else {
+                    hedefSonrasi = event.clientY > kutu.top + kutu.height / 2;
+                }
 
-                liste.insertBefore(suruklenenOge, hedefSonrasi ? hedef.nextSibling : hedef);
+                if (hedefSonrasi) {
+                    liste.insertBefore(suruklenenOge, hedef.nextSibling);
+                } else {
+                    liste.insertBefore(suruklenenOge, hedef);
+                }
             });
 
             function siraNumaralariniYenile() {

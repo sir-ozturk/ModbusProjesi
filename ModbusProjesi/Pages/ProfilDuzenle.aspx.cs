@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Mail;
 
@@ -34,7 +34,6 @@ public partial class ProfilDuzenle : System.Web.UI.Page
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
             Kullanicilar kullanici = new Kullanicilar(veritabaniIslemleri);
             kullanici.Id = currentInfo.KullaniciId;
-
             if (!kullanici.Doldur())
             {
                 Mesaj.Ver(Mesajlar.KayitBulunamadi, Mesaj.MesajTurleri.FAIL, Page.Master);
@@ -46,7 +45,14 @@ public partial class ProfilDuzenle : System.Web.UI.Page
             txtSoyad.Text = kullanici.Soyad;
             txtTelefon.Text = Utility.TelefonFormatla(kullanici.Telefon);
             txtMail.Text = kullanici.Mail;
-            imgProfil.ImageUrl = string.IsNullOrEmpty(kullanici.ProfilResim) ? "~/Files/Images/no-image.svg" : "~/Files/" + kullanici.ProfilResim;
+            if (string.IsNullOrEmpty(kullanici.ProfilResim))
+            {
+                imgProfil.ImageUrl = "~/Files/Images/no-image.svg";
+            }
+            else
+            {
+                imgProfil.ImageUrl = "~/Files/" + kullanici.ProfilResim;
+            }
         }
         catch (Exception ex)
         {
@@ -68,7 +74,6 @@ public partial class ProfilDuzenle : System.Web.UI.Page
         string yeniSifre = txtYeniSifre.Text;
         string yeniSifreTekrar = txtYeniSifreTekrar.Text;
         bool sifreDegistiriliyor = !string.IsNullOrEmpty(mevcutSifre) || !string.IsNullOrEmpty(yeniSifre) || !string.IsNullOrEmpty(yeniSifreTekrar);
-
         if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(soyad) || string.IsNullOrWhiteSpace(telefon) || string.IsNullOrWhiteSpace(mail))
         {
             Mesaj.Ver(Mesajlar.ProfilAlanlariBos, Mesaj.MesajTurleri.WARNING, Page.Master);
@@ -126,13 +131,11 @@ public partial class ProfilDuzenle : System.Web.UI.Page
         DosyaIslemleri dosyaIslemleri = new DosyaIslemleri();
         string yeniFotoAdi = "";
         string eskiFotoAdi = "";
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
             Kullanicilar kullanici = new Kullanicilar(veritabaniIslemleri);
             kullanici.Id = currentInfo.KullaniciId;
-
             if (!kullanici.Doldur())
             {
                 veritabaniIslemleri.GeriAl();
@@ -157,7 +160,6 @@ public partial class ProfilDuzenle : System.Web.UI.Page
             eskiFotoAdi = kullanici.ProfilResim;
             kullanici.Telefon = telefon;
             kullanici.Mail = mail;
-
             if (kullanici.KayitVarMi())
             {
                 veritabaniIslemleri.GeriAl();
@@ -174,11 +176,26 @@ public partial class ProfilDuzenle : System.Web.UI.Page
             kullanici.Soyad = soyad;
             kullanici.Telefon = telefon;
             kullanici.Mail = mail;
-            kullanici.Sifre = sifreDegistiriliyor ? yeniSifre : null;
-            kullanici.ProfilResim = string.IsNullOrEmpty(yeniFotoAdi) ? null : yeniFotoAdi;
+            if (sifreDegistiriliyor)
+            {
+                kullanici.Sifre = yeniSifre;
+            }
+            else
+            {
+                kullanici.Sifre = null;
+            }
+
+            if (string.IsNullOrEmpty(yeniFotoAdi))
+            {
+                kullanici.ProfilResim = null;
+            }
+            else
+            {
+                kullanici.ProfilResim = yeniFotoAdi;
+            }
+
             kullanici.GuncelleyenId = currentInfo.KullaniciId;
             kullanici.GuncelleyenIp = Utility.IpNoGetir();
-
             if (!kullanici.Guncelle())
             {
                 veritabaniIslemleri.GeriAl();
@@ -186,12 +203,12 @@ public partial class ProfilDuzenle : System.Web.UI.Page
                 {
                     dosyaIslemleri.ResimSil(yeniFotoAdi);
                 }
+
                 Mesaj.Ver(Mesajlar.IslemGerceklestirilemedi, Mesaj.MesajTurleri.FAIL, Page.Master);
                 return;
             }
 
             veritabaniIslemleri.Uygula();
-
             if (!string.IsNullOrEmpty(yeniFotoAdi) && !string.IsNullOrEmpty(eskiFotoAdi))
             {
                 dosyaIslemleri.ResimSil(eskiFotoAdi);
@@ -216,6 +233,7 @@ public partial class ProfilDuzenle : System.Web.UI.Page
             {
                 dosyaIslemleri.ResimSil(yeniFotoAdi);
             }
+
             Mesaj.Ver(Mesajlar.GenelHata + ex.Message, Mesaj.MesajTurleri.FAIL, Page.Master);
         }
         finally

@@ -20,7 +20,6 @@ public partial class MakineListele : System.Web.UI.Page
         if (Session["BasariMesaji"] != null)
         {
             Mesaj.Ver(Session["BasariMesaji"].ToString(), Mesaj.MesajTurleri.SUCCESS, Page.Master);
-
             Session.Remove("BasariMesaji");
         }
 
@@ -46,15 +45,11 @@ public partial class MakineListele : System.Web.UI.Page
     private void Listele()
     {
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
             Makineler makineler = new Makineler(veritabaniIslemleri);
-
             makineler.TumunuGetir();
-
             ucMyGrid.Doldur(makineler.VeriTablosu);
         }
         catch (Exception ex)
@@ -78,7 +73,6 @@ public partial class MakineListele : System.Web.UI.Page
             }
 
             Response.Redirect("~/Pages/MakineEkle.aspx?id=" + e.Id, false);
-
             Context.ApplicationInstance.CompleteRequest();
             return;
         }
@@ -90,23 +84,28 @@ public partial class MakineListele : System.Web.UI.Page
                 Mesaj.Ver(Mesajlar.YetkinizYok, Mesaj.MesajTurleri.WARNING, Page.Master);
                 return;
             }
-            VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
 
+            VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
             try
             {
                 veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
                 Makineler makineler = new Makineler(veritabaniIslemleri);
-
                 makineler.Id = e.Id;
-
                 if (makineler.Sil())
                 {
                     Mesaj.Ver(Mesajlar.SilmeBasarili, Mesaj.MesajTurleri.SUCCESS, Page.Master);
                 }
                 else
                 {
-                    Mesaj.Ver(Server.HtmlEncode(veritabaniIslemleri.SonHataMesaji ?? "Makine silinemedi. Röle bağlantılarını kontrol ediniz."), Mesaj.MesajTurleri.FAIL, Page.Master);
+                    var islemHataMesaji1 = veritabaniIslemleri.SonHataMesaji;
+                    if (islemHataMesaji1 != null)
+                    {
+                        Mesaj.Ver(Server.HtmlEncode(islemHataMesaji1), Mesaj.MesajTurleri.FAIL, Page.Master);
+                    }
+                    else
+                    {
+                        Mesaj.Ver(Server.HtmlEncode("Makine silinemedi. Röle bağlantılarını kontrol ediniz."), Mesaj.MesajTurleri.FAIL, Page.Master);
+                    }
                 }
             }
             catch (Exception ex)

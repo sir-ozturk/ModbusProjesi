@@ -4,17 +4,11 @@
     font-weight: 700;
 }
 
-.dashboard-mod-badge {
-    color: darkblue;
-    background-color: rgba(95, 158, 160, .25);
-    border: 1px solid cadetblue;
-}
-
 .makine-kart {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    min-height: 310px;
+    min-height: 170px;
     border: 2px solid;
     border-radius: 14px;
     background-color: white;
@@ -153,13 +147,6 @@
     overflow-wrap: anywhere;
 }
 
-@media (min-width: 1600px) {
-    .makine-kolon {
-        flex: 0 0 auto;
-        width: 10%;
-    }
-}
-
 @media (max-width: 767.98px) {
     .dashboard-baslik {
         font-size: 1.4rem;
@@ -169,3 +156,47 @@
         grid-template-columns: 1fr;
     }
 }
+
+.makine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+}
+.makine-grid > .makine-kolon { width: auto; min-width: 0; }
+.makine-kart-baslik {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: normal;
+}
+.makine-adi { flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; }
+.makine-bilgi-butonu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: 50%;
+    color: white;
+    background: transparent;
+}
+.makine-bilgi-butonu:hover { background: rgba(255, 255, 255, .2); }
+.makine-bilgi-butonu:focus-visible { outline: 3px solid white; outline-offset: 2px; }
+.makine-durum, .makine-sure { overflow-wrap: anywhere; }
+.makine-detaylar .makine-bilgiler > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 12px;
+    padding: 10px 0;
+    font-size: .95rem;
+}
+.makine-detaylar .makine-bilgiler dt,
+.makine-detaylar .makine-bilgiler dd {
+    overflow: visible;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+}
+.makine-detaylar .makine-neden-satiri { min-height: 0; }
+.makine-detaylar .text-secondary { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -25,7 +25,6 @@ namespace MakineDurdurmaUygulamasi
         public Form1()
         {
             InitializeComponent();
-
             pnlGosterge.Paint += pnlGosterge_Paint;
             tmrAnimasyon.Tick += tmrAnimasyon_Tick;
             btnRun.Click += btnRun_Click;
@@ -42,31 +41,27 @@ namespace MakineDurdurmaUygulamasi
         private void pnlGosterge_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
             float merkezX = pnlGosterge.ClientSize.Width / 2f;
             float merkezY = pnlGosterge.ClientSize.Height / 2f;
-
             for (int i = 0; i < 24; i++)
             {
                 double aci = (i * 15 - 90) * Math.PI / 180;
                 int uzaklik = (animasyonAdimi - i + 24) % 24;
+                int gri;
+                if (tmrAnimasyon.Enabled)
+                {
+                    gri = 65 + uzaklik * 7;
+                }
+                else
+                {
+                    gri = 180;
+                }
 
-                int gri = tmrAnimasyon.Enabled
-                    ? 65 + uzaklik * 7
-                    : 180;
-
-                using (Pen kalem = new Pen(
-                    Color.FromArgb(gri, gri, gri), 5f))
+                using (Pen kalem = new Pen(Color.FromArgb(gri, gri, gri), 5f))
                 {
                     kalem.StartCap = LineCap.Round;
                     kalem.EndCap = LineCap.Round;
-
-                    e.Graphics.DrawLine(
-                        kalem,
-                        merkezX + (float)Math.Cos(aci) * 76,
-                        merkezY + (float)Math.Sin(aci) * 76,
-                        merkezX + (float)Math.Cos(aci) * 96,
-                        merkezY + (float)Math.Sin(aci) * 96);
+                    e.Graphics.DrawLine(kalem, merkezX + (float)Math.Cos(aci) * 76, merkezY + (float)Math.Sin(aci) * 76, merkezX + (float)Math.Cos(aci) * 96, merkezY + (float)Math.Sin(aci) * 96);
                 }
             }
         }
@@ -83,72 +78,65 @@ namespace MakineDurdurmaUygulamasi
 
             try
             {
-                string baglantiMetni =
-                    ConfigurationManager.ConnectionStrings["ModbusDb"]?.ConnectionString;
-
+                string baglantiMetni;
+                ConnectionStringSettings baglantiAyari = ConfigurationManager.ConnectionStrings["ModbusDb"];
+                if (baglantiAyari != null)
+                {
+                    baglantiMetni = baglantiAyari.ConnectionString;
+                }
+                else
+                {
+                    baglantiMetni = null;
+                }
                 if (string.IsNullOrWhiteSpace(baglantiMetni))
+                {
                     throw new InvalidOperationException("ModbusDb bağlantı ayarı bulunamadı.");
+                }
 
                 int kullaniciId;
                 int gecerlilikSaniye;
-
-                if (!int.TryParse(
-                        ConfigurationManager.AppSettings["TalimatIsleyiciKullaniciId"],
-                        out kullaniciId) || kullaniciId <= 0)
+                if (!int.TryParse(ConfigurationManager.AppSettings["TalimatIsleyiciKullaniciId"], out kullaniciId) || kullaniciId <= 0)
                 {
                     throw new InvalidOperationException("İşleyici kullanıcı ID ayarı geçersiz.");
                 }
 
-                if (!int.TryParse(ConfigurationManager.AppSettings["TalimatGecerlilikSaniye"], out gecerlilikSaniye) || gecerlilikSaniye < 1 || gecerlilikSaniye > 86400)
+                if (!int.TryParse(ConfigurationManager.AppSettings["TalimatGecerlilikSaniye"], out gecerlilikSaniye)
+                    || gecerlilikSaniye < 1
+                    || gecerlilikSaniye > 86400)
                 {
-                    throw new InvalidOperationException(
-                        "Talimat geçerlilik süresi geçersiz.");
+                    throw new InvalidOperationException("Talimat geçerlilik süresi geçersiz.");
                 }
 
                 string ip = YerelIpGetir();
-
                 durdurmaIstegi = new CancellationTokenSource();
-
                 talimatIsleyici = new TalimatIsleyici(baglantiMetni, kullaniciId, ip, gecerlilikSaniye);
-
                 var durumBildirimi = new Progress<string>(mesaj =>
                 {
-                    if (!kapaniyor
-                        && isleyiciGorevi != null
-                        && !isleyiciGorevi.IsCompleted
-                        && durdurmaIstegi != null
-                        && !durdurmaIstegi.IsCancellationRequested)
+                    if (!kapaniyor && isleyiciGorevi != null && !isleyiciGorevi.IsCompleted && durdurmaIstegi != null && !durdurmaIstegi.IsCancellationRequested)
                     {
                         lblDurum.Text = mesaj;
                     }
                 });
-
                 btnRun.Text = "STOP";
                 btnRun.BackColor = Color.Khaki;
                 lblDurum.Text = "Bağlantı kuruluyor...";
                 tmrAnimasyon.Start();
-
                 isleyiciGorevi = talimatIsleyici.CalistirAsync(durdurmaIstegi.Token, durumBildirimi);
-
                 await isleyiciGorevi;
-
                 lblDurum.Text = "Durduruldu";
             }
             catch (Exception ex)
             {
                 lblDurum.Text = "İşleyici durduruldu";
-
                 MessageBox.Show(this, ex.Message, "İşlem bilgisi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
                 tmrAnimasyon.Stop();
                 pnlGosterge.Invalidate();
-
                 btnRun.Text = "RUN";
                 btnRun.BackColor = Color.PaleGreen;
                 btnRun.Enabled = !kapaniyor;
-
                 if (durdurmaIstegi != null)
                 {
                     durdurmaIstegi.Dispose();
@@ -161,8 +149,7 @@ namespace MakineDurdurmaUygulamasi
 
         private string YerelIpGetir()
         {
-            foreach (IPAddress adres in
-                Dns.GetHostAddresses(Dns.GetHostName()))
+            foreach (IPAddress adres in Dns.GetHostAddresses(Dns.GetHostName()))
             {
                 if (adres.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(adres))
                 {
@@ -176,27 +163,28 @@ namespace MakineDurdurmaUygulamasi
         private async void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (isleyiciGorevi == null || isleyiciGorevi.IsCompleted)
+            {
                 return;
+            }
 
             e.Cancel = true;
-
             if (kapaniyor)
+            {
                 return;
+            }
 
             kapaniyor = true;
             btnRun.Enabled = false;
             btnExit.Enabled = false;
             lblDurum.Text = "İşlem tamamlanınca uygulama kapanacak...";
-
             durdurmaIstegi.Cancel();
-
             try
             {
                 await isleyiciGorevi;
             }
             catch
             {
-                // Hata, RUN olayında kullanıcıya gösterilir.
+            // Hata, RUN olayında kullanıcıya gösterilir.
             }
 
             // Diğer bekleyen arayüz işlemlerinden sonra kapat.

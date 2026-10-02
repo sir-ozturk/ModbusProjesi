@@ -5,7 +5,37 @@ using System.Web.UI.WebControls;
 
 public partial class ucMyGrid : System.Web.UI.UserControl
 {
-    #region ÖZELLİKLER
+#region ÖZELLİKLER
+    private string silmeKayitAdiAlani;
+    public string SilmeKayitAdiAlani
+    {
+        get
+        {
+            return silmeKayitAdiAlani;
+        }
+
+        set
+        {
+            silmeKayitAdiAlani = value;
+        }
+    }
+
+    public bool AramaGorunur
+    {
+        get
+        {
+            return txtArama.Visible;
+        }
+
+        set
+        {
+            txtArama.Visible = value;
+            if (!value)
+            {
+                txtArama.Text = string.Empty;
+            }
+        }
+    }
 
     public DataTable Table
     {
@@ -13,6 +43,7 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         {
             return Session[SessionTabloAdiOlustur()] as DataTable;
         }
+
         set
         {
             Session[SessionTabloAdiOlustur()] = value;
@@ -25,6 +56,7 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         {
             return grdMyGrid.PageSize;
         }
+
         set
         {
             grdMyGrid.PageSize = value;
@@ -35,8 +67,16 @@ public partial class ucMyGrid : System.Web.UI.UserControl
     {
         get
         {
-            return ViewState["SiralamaAlani"] == null ? string.Empty : ViewState["SiralamaAlani"].ToString();
+            if (ViewState["SiralamaAlani"] == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return ViewState["SiralamaAlani"].ToString();
+            }
         }
+
         set
         {
             ViewState["SiralamaAlani"] = value;
@@ -47,18 +87,24 @@ public partial class ucMyGrid : System.Web.UI.UserControl
     {
         get
         {
-            return ViewState["SiralamaYonu"] == null ? "ASC" : ViewState["SiralamaYonu"].ToString();
+            if (ViewState["SiralamaYonu"] == null)
+            {
+                return "ASC";
+            }
+            else
+            {
+                return ViewState["SiralamaYonu"].ToString();
+            }
         }
+
         set
         {
             ViewState["SiralamaYonu"] = value;
         }
     }
 
-    #endregion
-
-    #region ENUM
-
+#endregion
+#region ENUM
     public enum FormatTip
     {
         YOK,
@@ -72,10 +118,8 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         DETAY
     }
 
-    #endregion
-
-    #region EVENT ARGUMENTS
-
+#endregion
+#region EVENT ARGUMENTS
     public class MyGridButonEventArgs : EventArgs
     {
         public int Id { get; set; }
@@ -83,19 +127,14 @@ public partial class ucMyGrid : System.Web.UI.UserControl
     }
 
     public event EventHandler<MyGridButonEventArgs> ButonTiklandi;
-
-    #endregion
-
-    #region SAYFA OLAYLARI
-
+#endregion
+#region SAYFA OLAYLARI
     protected void Page_Load(object sender, EventArgs e)
     {
     }
 
-    #endregion
-
-    #region GRID METOTLARI
-
+#endregion
+#region GRID METOTLARI
     public void Doldur(DataTable veriTablosu)
     {
         Table = veriTablosu;
@@ -112,11 +151,9 @@ public partial class ucMyGrid : System.Web.UI.UserControl
 
         DataTable gosterilecekTablo = Table;
         string aranan = txtArama.Text.Trim().ToLower();
-
         if (!string.IsNullOrEmpty(aranan))
         {
             DataTable filtreliTablo = Table.Clone();
-
             foreach (DataRow satir in Table.Rows)
             {
                 foreach (object deger in satir.ItemArray)
@@ -133,7 +170,6 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         }
 
         DataView dataView = gosterilecekTablo.DefaultView;
-
         if (!string.IsNullOrEmpty(SiralamaAlani))
         {
             dataView.Sort = SiralamaAlani + " " + SiralamaYonu;
@@ -144,10 +180,8 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         lblKayitSayisi.Text = "Toplam Kayıt: " + gosterilecekTablo.Rows.Count;
     }
 
-    #endregion
-
-    #region KOLON METOTLARI
-
+#endregion
+#region KOLON METOTLARI
     public void KolonEkle(string veriAlani, string baslik)
     {
         BoundField kolon = new BoundField();
@@ -188,19 +222,16 @@ public partial class ucMyGrid : System.Web.UI.UserControl
     {
         TemplateField kolon = new TemplateField();
         kolon.HeaderText = baslik;
-        kolon.ItemTemplate = new ButonAlanTemplate(idAlani, butonTipleri);
+        kolon.ItemTemplate = new ButonAlanTemplate(idAlani, butonTipleri, SilmeKayitAdiAlani);
         grdMyGrid.Columns.Add(kolon);
     }
 
-    #endregion
-
-    #region FORMATLI ALAN TEMPLATE
-
+#endregion
+#region FORMATLI ALAN TEMPLATE
     private class FormatliAlanTemplate : ITemplate
     {
         private string veriAlani;
         private FormatTip formatTip;
-
         public FormatliAlanTemplate(string _veriAlani, FormatTip _formatTip)
         {
             veriAlani = _veriAlani;
@@ -210,12 +241,10 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         public void InstantiateIn(Control container)
         {
             Label label = new Label();
-
             label.DataBinding += delegate
             {
                 GridViewRow satir = (GridViewRow)label.NamingContainer;
                 object deger = DataBinder.Eval(satir.DataItem, veriAlani);
-
                 if (deger == null || deger == DBNull.Value)
                 {
                     label.Text = string.Empty;
@@ -223,32 +252,26 @@ public partial class ucMyGrid : System.Web.UI.UserControl
                 }
 
                 string metin = deger.ToString();
-
                 switch (formatTip)
                 {
                     case FormatTip.TELEFON:
                         label.Text = Utility.TelefonFormatla(metin);
                         break;
-
                     default:
                         label.Text = metin;
                         break;
                 }
             };
-
             container.Controls.Add(label);
         }
     }
 
-    #endregion
-
-    #region BİRLEŞİK ALAN TEMPLATE
-
+#endregion
+#region BİRLEŞİK ALAN TEMPLATE
     private class BirlesikAlanTemplate : ITemplate
     {
         private string veriAlani1;
         private string veriAlani2;
-
         public BirlesikAlanTemplate(string _veriAlani1, string _veriAlani2)
         {
             veriAlani1 = _veriAlani1;
@@ -258,31 +281,44 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         public void InstantiateIn(Control container)
         {
             Label label = new Label();
-
             label.DataBinding += delegate
             {
                 GridViewRow satir = (GridViewRow)label.NamingContainer;
                 object deger1 = DataBinder.Eval(satir.DataItem, veriAlani1);
                 object deger2 = DataBinder.Eval(satir.DataItem, veriAlani2);
-                string metin1 = deger1 == null || deger1 == DBNull.Value ? string.Empty : deger1.ToString();
-                string metin2 = deger2 == null || deger2 == DBNull.Value ? string.Empty : deger2.ToString();
+                string metin1;
+                if (deger1 == null || deger1 == DBNull.Value)
+                {
+                    metin1 = string.Empty;
+                }
+                else
+                {
+                    metin1 = deger1.ToString();
+                }
+
+                string metin2;
+                if (deger2 == null || deger2 == DBNull.Value)
+                {
+                    metin2 = string.Empty;
+                }
+                else
+                {
+                    metin2 = deger2.ToString();
+                }
+
                 label.Text = (metin1 + " " + metin2).Trim();
             };
-
             container.Controls.Add(label);
         }
     }
 
-    #endregion
-
-    #region DURUM ALAN TEMPLATE
-
+#endregion
+#region DURUM ALAN TEMPLATE
     private class DurumAlanTemplate : ITemplate
     {
         private string veriAlani;
         private string trueMetin;
         private string falseMetin;
-
         public DurumAlanTemplate(string _veriAlani, string _trueMetin, string _falseMetin)
         {
             veriAlani = _veriAlani;
@@ -293,12 +329,10 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         public void InstantiateIn(Control container)
         {
             Label label = new Label();
-
             label.DataBinding += delegate
             {
                 GridViewRow satir = (GridViewRow)label.NamingContainer;
                 object deger = DataBinder.Eval(satir.DataItem, veriAlani);
-
                 if (deger == null || deger == DBNull.Value)
                 {
                     label.Text = string.Empty;
@@ -306,7 +340,6 @@ public partial class ucMyGrid : System.Web.UI.UserControl
                 }
 
                 bool durum = Convert.ToBoolean(deger);
-
                 if (durum)
                 {
                     label.Text = trueMetin;
@@ -318,34 +351,32 @@ public partial class ucMyGrid : System.Web.UI.UserControl
                     label.CssClass = "badge bg-danger";
                 }
             };
-
             container.Controls.Add(label);
         }
     }
 
-    #endregion
-
-    #region BUTON ALAN TEMPLATE
-
+#endregion
+#region BUTON ALAN TEMPLATE
     private class ButonAlanTemplate : ITemplate
     {
         private string idAlani;
         private ButonTip[] butonTipleri;
-
-        public ButonAlanTemplate(string _idAlani, ButonTip[] _butonTipleri)
+        private string silmeKayitAdiAlani;
+        public ButonAlanTemplate(string _idAlani, ButonTip[] _butonTipleri, string _silmeKayitAdiAlani)
         {
             idAlani = _idAlani;
             butonTipleri = _butonTipleri;
+            silmeKayitAdiAlani = _silmeKayitAdiAlani;
         }
 
         public void InstantiateIn(Control container)
         {
             Panel panel = new Panel();
-
             foreach (ButonTip butonTip in butonTipleri)
             {
                 LinkButton buton = new LinkButton();
-
+                // Yetkiyle gizlenen butonlar diger islemin postback kimligini degistirmemeli.
+                buton.ID = "btn" + butonTip.ToString();
                 switch (butonTip)
                 {
                     case ButonTip.GUNCELLE:
@@ -353,14 +384,12 @@ public partial class ucMyGrid : System.Web.UI.UserControl
                         buton.CommandName = "GUNCELLE";
                         buton.CssClass = "btn btn-warning btn-sm me-2";
                         break;
-
                     case ButonTip.SIL:
                         buton.Text = "<i class='fa-solid fa-trash-can'></i> Sil";
                         buton.CommandName = "SIL";
                         buton.CssClass = "btn btn-danger btn-sm me-2";
                         buton.OnClientClick = "silOnayiGoster(this); return false;";
                         break;
-
                     case ButonTip.DETAY:
                         buton.Text = "<i class='fa-solid fa-eye'></i> Detay";
                         buton.CommandName = "DETAY";
@@ -373,8 +402,11 @@ public partial class ucMyGrid : System.Web.UI.UserControl
                     GridViewRow satir = (GridViewRow)buton.NamingContainer;
                     object idDegeri = DataBinder.Eval(satir.DataItem, idAlani);
                     buton.CommandArgument = idDegeri.ToString();
+                    if (butonTip == ButonTip.SIL && !string.IsNullOrEmpty(silmeKayitAdiAlani))
+                    {
+                        buton.Attributes["data-kayit-adi"] = Convert.ToString(DataBinder.Eval(satir.DataItem, silmeKayitAdiAlani));
+                    }
                 };
-
                 panel.Controls.Add(buton);
             }
 
@@ -382,14 +414,11 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         }
     }
 
-    #endregion
-
-    #region GRID OLAYLARI
-
+#endregion
+#region GRID OLAYLARI
     protected void grdMyGrid_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         ButonTip butonTip;
-
         if (!Enum.TryParse(e.CommandName, out butonTip))
         {
             return;
@@ -422,7 +451,6 @@ public partial class ucMyGrid : System.Web.UI.UserControl
     {
         int kayitSayisi = Convert.ToInt32(ddlKayitSayisi.SelectedValue);
         grdMyGrid.PageIndex = 0;
-
         if (kayitSayisi == 0)
         {
             grdMyGrid.AllowPaging = false;
@@ -440,7 +468,14 @@ public partial class ucMyGrid : System.Web.UI.UserControl
     {
         if (SiralamaAlani == e.SortExpression)
         {
-            SiralamaYonu = SiralamaYonu == "ASC" ? "DESC" : "ASC";
+            if (SiralamaYonu == "ASC")
+            {
+                SiralamaYonu = "DESC";
+            }
+            else
+            {
+                SiralamaYonu = "ASC";
+            }
         }
         else
         {
@@ -467,17 +502,22 @@ public partial class ucMyGrid : System.Web.UI.UserControl
             }
 
             LinkButton linkButton = hucre.Controls[0] as LinkButton;
-
             if (linkButton == null)
             {
                 continue;
             }
 
             linkButton.CssClass = "grid-siralama-link";
-
             if (linkButton.CommandArgument == SiralamaAlani)
             {
-                linkButton.Text += SiralamaYonu == "ASC" ? " ↑" : " ↓";
+                if (SiralamaYonu == "ASC")
+                {
+                    linkButton.Text += " ↑";
+                }
+                else
+                {
+                    linkButton.Text += " ↓";
+                }
             }
             else
             {
@@ -486,14 +526,11 @@ public partial class ucMyGrid : System.Web.UI.UserControl
         }
     }
 
-    #endregion
-
-    #region YARDIMCI METOTLAR
-
+#endregion
+#region YARDIMCI METOTLAR
     private string SessionTabloAdiOlustur()
     {
         return "ucMyGrid_" + ClientID + "_Table";
     }
-
-    #endregion
+#endregion
 }

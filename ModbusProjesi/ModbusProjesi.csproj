@@ -92,6 +92,22 @@
       <DependentUpon>RoleKartEkle.aspx</DependentUpon>
     </Compile>
     <Content Include="Pages\RoleKartListele.aspx" />
+    <Content Include="Pages\ParametreListele.aspx" />
+    <Content Include="Pages\ParametreEkle.aspx" />
+    <Compile Include="Pages\ParametreEkle.aspx.cs">
+      <DependentUpon>ParametreEkle.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\ParametreEkle.aspx.designer.cs">
+      <DependentUpon>ParametreEkle.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ParametreListele.aspx.cs">
+      <DependentUpon>ParametreListele.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\ParametreListele.aspx.designer.cs">
+      <DependentUpon>ParametreListele.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Pages\RoleKartListele.aspx.cs">
       <DependentUpon>RoleKartListele.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -136,6 +152,7 @@
     <Content Include="Styles\MakineEkle.css" />
     <Content Include="Styles\MakineDashboard.css" />
     <Content Include="Styles\MakineListele.css" />
+    <Content Include="Styles\ParametreListele.css" />
     <Content Include="Styles\RolEkleme.css" />
     <Content Include="Styles\RolListeleme.css" />
     <Content Include="Styles\RolYetki.css" />

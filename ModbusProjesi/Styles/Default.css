@@ -1,18 +1,18 @@
-﻿body {
+body {
     background-color: white;
 }
 
 .sol-panel {
     overflow-y: auto;
-    width: 260px;
+    width: 300px;
     background-color: cadetblue;
     color: darkblue;
     z-index: 1000;
 }
 
 .icerik-alani {
-    margin-left: 260px;
-    width: calc(100% - 260px);
+    margin-left: 300px;
+    width: calc(100% - 300px);
     padding: 30px;
     box-sizing: border-box;
     background-color: white;
@@ -32,7 +32,7 @@
 .menu-ana-link,
 .menu-grup-baslik {
     color: darkblue;
-    font-size: 23px;
+    font-size: 18px;
 }
 
     .menu-ana-link:hover {
@@ -41,7 +41,7 @@
 
 .alt-menu-link {
     color: white;
-    font-size: 20px;
+    font-size: 16px;
     transition: color 0.2s;
 }
 
@@ -68,7 +68,7 @@
 
 .profil-isim {
     color: darkblue;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 .profil-link {
@@ -141,3 +141,52 @@
         color: darkblue !important;
         text-decoration: none !important;
     }
+
+.sol-panel { --bs-offcanvas-width: min(300px, 100vw); }
+.sol-panel { overflow: hidden; }
+.sol-panel .offcanvas-body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 0;
+    min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #376e70 cadetblue;
+}
+.sol-panel .offcanvas-body > * { flex-shrink: 0; }
+.sol-panel .offcanvas-body::-webkit-scrollbar { width: 8px; }
+.sol-panel .offcanvas-body::-webkit-scrollbar-track,
+.sol-panel .offcanvas-body::-webkit-scrollbar-corner,
+.sol-panel .offcanvas-body::-webkit-scrollbar-button { background-color: cadetblue; }
+.sol-panel .offcanvas-body::-webkit-scrollbar-thumb {
+    background-color: #376e70;
+    border: 2px solid cadetblue;
+    border-radius: 8px;
+}
+.sol-panel .offcanvas-body::-webkit-scrollbar-thumb:hover { background-color: #285658; }
+.sol-panel .list-unstyled { padding-left: 1rem !important; }
+.menu-ana-link, .menu-grup-baslik, .alt-menu-link, .profil-isim {
+    white-space: nowrap;
+}
+.menu-ana-link > .me-2, .menu-grup-baslik > .me-2 { flex-shrink: 0; }
+.alt-menu-link { display: block; padding: 4px 0; }
+.profil-isim { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.icerik-alani { min-width: 0; }
+@media (min-width: 992px) {
+    .sol-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+    }
+    .sol-panel.offcanvas-lg { background-color: cadetblue !important; }
+    .sol-panel.offcanvas-lg .offcanvas-body { flex-grow: 1; }
+}
+@media (max-width: 991.98px) {
+    .sol-panel { background-color: cadetblue; }
+    .icerik-alani { margin-left: 0; width: 100%; padding: 16px; }
+}
+@media (max-width: 359.98px) {
+    .icerik-alani { padding: 10px; }
+}

@@ -51,6 +51,8 @@
     <Compile Include="Entity\Makineler.cs" />
     <Compile Include="Entity\EthernetKartlari.cs" />
     <Compile Include="Entity\RoleKartlari.cs" />
+    <Compile Include="Entity\ParametreGruplari.cs" />
+    <Compile Include="Entity\Parametreler.cs" />
     <Compile Include="Entity\MakineRoleBaglantilari.cs" />
 
     <Compile Include="Entity\RolYetkiler.cs" />
@@ -66,6 +68,7 @@
     <Compile Include="Work\MakineRoleIslemleri.cs" />
     <Compile Include="Work\RelayPulseService.cs" />
     <Compile Include="Work\DonanimKontrolleri.cs" />
+    <Compile Include="Work\ParametreKontrolleri.cs" />
     <Compile Include="Work\OrtakAlanlar.cs" />
     <Compile Include="Entity\Roller.cs" />
     <Compile Include="Interfaces\IOrtakMetotlar.cs" />

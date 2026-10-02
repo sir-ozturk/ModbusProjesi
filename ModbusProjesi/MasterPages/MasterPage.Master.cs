@@ -20,6 +20,12 @@ public partial class MasterPage : System.Web.UI.MasterPage
             return;
         }
 
+        bool parametreListeleYetkisi = IslemYetki.Kontrol(Ekranlar.PARAMETRE_LISTELE, IslemTurleri.GORUNTULE);
+        bool parametreEkleYetkisi = IslemYetki.Kontrol(Ekranlar.PARAMETRE_EKLE, IslemTurleri.GORUNTULE);
+        pnlParametreYonetimi.Visible = parametreListeleYetkisi || parametreEkleYetkisi;
+        lnkParametreListele.Visible = parametreListeleYetkisi;
+        lnkParametreEkle.Visible = parametreEkleYetkisi;
+
         if (!Page.IsPostBack)
         {
             MenuYetkileriniAyarla();

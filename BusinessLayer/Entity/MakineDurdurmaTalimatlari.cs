@@ -18,29 +18,25 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         VeritabaniIslem = veritabaniIslemleri;
     }
 
-    #region SABİTLER
-
+#region SABİTLER
     public const string C_Tablo = "dbo.MakineDurdurmaTalimatlari";
-
     public const string C_Sp_KomutOncesiKontrol = "dbo.SP_MakineDurdurmaTalimatlari_KOMUT_ONCESI_KONTROL";
     public const string C_Sp_Ekle = "dbo.SP_MakineDurdurmaTalimatlari_EKLE";
     public const string C_Sp_Listele = "dbo.SP_MakineDurdurmaTalimatlari_LISTELE";
     public const string C_Sp_YarimKalanlariGetir = "dbo.SP_MakineDurdurmaTalimatlari_YARIM_KALANLARI_GETIR";
     public const string C_Sp_SiradakiniAl = "dbo.SP_MakineDurdurmaTalimatlari_SIRADAKINI_AL";
     public const string C_Sp_Sonuclandir = "dbo.SP_MakineDurdurmaTalimatlari_SONUCLANDIR";
-
     public const string C_Sutun_makine_id = "makine_id";
     public const string C_Sutun_url = "url";
     public const string C_Sutun_islem_nedeni = "islem_nedeni";
+    public const string C_Sutun_durus_nedeni_parametre_id = "durus_nedeni_parametre_id";
+    public const string C_Sutun_durus_aciklamasi = "durus_aciklamasi";
     public const string C_Sutun_islem_durumu = "islem_durumu";
     public const string C_Sutun_sonuc = "sonuc";
     public const string C_Sutun_islem_baslangic_tarih = "islem_baslangic_tarih";
     public const string C_Sutun_islem_bitis_tarih = "islem_bitis_tarih";
-
-    #endregion
-
-    #region NESNELER
-
+#endregion
+#region NESNELER
     private int makineId;
     public int MakineId
     {
@@ -48,6 +44,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             return makineId;
         }
+
         set
         {
             makineId = value;
@@ -61,6 +58,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             return url;
         }
+
         set
         {
             url = value;
@@ -74,9 +72,38 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             return islemNedeni;
         }
+
         set
         {
             islemNedeni = value;
+        }
+    }
+
+    private int? durusNedeniParametreId;
+    public int? DurusNedeniParametreId
+    {
+        get
+        {
+            return durusNedeniParametreId;
+        }
+
+        set
+        {
+            durusNedeniParametreId = value;
+        }
+    }
+
+    private string durusAciklamasi;
+    public string DurusAciklamasi
+    {
+        get
+        {
+            return durusAciklamasi;
+        }
+
+        set
+        {
+            durusAciklamasi = value;
         }
     }
 
@@ -87,6 +114,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             return islemDurumu;
         }
+
         set
         {
             islemDurumu = value;
@@ -100,6 +128,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             return sonuc;
         }
+
         set
         {
             sonuc = value;
@@ -113,6 +142,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             return islemBaslangicTarih;
         }
+
         set
         {
             islemBaslangicTarih = value;
@@ -126,6 +156,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             return islemBitisTarih;
         }
+
         set
         {
             islemBitisTarih = value;
@@ -133,11 +164,8 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
     }
 
     private readonly List<string> komutKilitleri = new List<string>();
-
-    #endregion
-
-    #region METOTLAR
-
+#endregion
+#region METOTLAR
     // Web tarafı yetki kontrolünden sonra açık bağlantı ile çağırır.
     // Satır döndüren prosedür kullanılır; HttpContext tabanlı genel log yolu kullanılmaz.
     public bool Ekle()
@@ -146,11 +174,34 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             throw new InvalidOperationException("Veritabanı bağlantısı gereklidir.");
         }
+
         try
         {
+            string nedenMetni;
+            string aciklama;
+            var durusNedeniId1 = DurusNedeniParametreId;
+            if (durusNedeniId1 != null)
+            {
+                if (!new ParametreKontrolleri(VeritabaniIslem).DurusNedeniKontrol(durusNedeniId1.Value, DurusAciklamasi, out nedenMetni, out aciklama))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!new ParametreKontrolleri(VeritabaniIslem).DurusNedeniKontrol(0, DurusAciklamasi, out nedenMetni, out aciklama))
+                {
+                    return false;
+                }
+            }
+
+            IslemNedeni = nedenMetni;
+            DurusAciklamasi = aciklama;
             VeritabaniIslem.SpAdi = C_Sp_Ekle;
             VeritabaniIslem.ParametreEkle(C_Sutun_makine_id, MakineId);
             VeritabaniIslem.ParametreEkle(C_Sutun_islem_nedeni, IslemNedeni);
+            VeritabaniIslem.ParametreEkle(C_Sutun_durus_nedeni_parametre_id, DurusNedeniParametreId);
+            VeritabaniIslem.ParametreEkle(C_Sutun_durus_aciklamasi, DurusAciklamasi);
             VeritabaniIslem.ParametreEkle(C_Sutun_ekleyen_id, EkleyenId);
             VeritabaniIslem.ParametreEkle(C_Sutun_ekleyen_ip, EkleyenIp);
             SonucKayit = VeritabaniIslem.SatirGetir();
@@ -158,6 +209,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
             {
                 return false;
             }
+
             Oku(SonucKayit);
             return true;
         }
@@ -173,14 +225,22 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             throw new InvalidOperationException("Veritabanı bağlantısı gereklidir.");
         }
+
         try
         {
             VeritabaniIslem.SpAdi = C_Sp_Listele;
             VeritabaniIslem.ParametreEkle(C_Sutun_makine_id, makineId);
-            VeritabaniIslem.ParametreEkle(C_Sutun_islem_durumu, durum.HasValue ? (object)(byte)durum.Value : null);
+            if (durum.HasValue)
+            {
+                VeritabaniIslem.ParametreEkle(C_Sutun_islem_durumu, (object)(byte)durum.Value);
+            }
+            else
+            {
+                VeritabaniIslem.ParametreEkle(C_Sutun_islem_durumu, null);
+            }
+
             VeritabaniIslem.ParametreEkle("adet", adet);
             VeriTablosu = VeritabaniIslem.TabloGetir();
-
             return VeriTablosu;
         }
         finally
@@ -202,6 +262,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
                     talimatlar.Add(Satirdan(satir));
                 }
             }
+
             return talimatlar;
         }
         finally
@@ -218,7 +279,14 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
             VeritabaniIslem.ParametreEkle("gecerlilik_saniye", gecerlilikSaniye);
             IsleyiciBilgileriniEkle();
             DataRow satir = VeritabaniIslem.SatirGetir();
-            return satir == null ? null : Satirdan(satir);
+            if (satir == null)
+            {
+                return null;
+            }
+            else
+            {
+                return Satirdan(satir);
+            }
         }
         finally
         {
@@ -232,6 +300,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         {
             throw new InvalidOperationException("Önceki komut kilitleri bırakılmadı.");
         }
+
         KomutKilidiAl("ModbusDonanimAyar", true);
         try
         {
@@ -242,6 +311,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
             {
                 return null;
             }
+
             MakineRoleBaglantilari baglanti = new MakineRoleBaglantilari(null)
             {
                 MakineId = makineId,
@@ -271,7 +341,14 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
             VeritabaniIslem.ParametreEkle(C_Sutun_makine_id, talimat.MakineId);
             VeritabaniIslem.ParametreEkle("gecerlilik_saniye", gecerlilikSaniye);
             object sonuc = VeritabaniIslem.DegerGetir();
-            return sonuc == null || sonuc == DBNull.Value ? null : Convert.ToString(sonuc);
+            if (sonuc == null || sonuc == DBNull.Value)
+            {
+                return null;
+            }
+            else
+            {
+                return Convert.ToString(sonuc);
+            }
         }
         finally
         {
@@ -297,6 +374,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
                 {
                     throw new InvalidOperationException("Talimat sonucu doğrulanamadı.");
                 }
+
                 talimat.Oku(tablo.Rows[0]);
             }
         }
@@ -340,23 +418,72 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         MakineId = Convert.ToInt32(satir[C_Sutun_makine_id]);
         Url = Convert.ToString(satir[C_Sutun_url]);
         IslemNedeni = Convert.ToString(satir[C_Sutun_islem_nedeni]);
+        if (satir.IsNull(C_Sutun_durus_nedeni_parametre_id))
+        {
+            DurusNedeniParametreId = (int? )null;
+        }
+        else
+        {
+            DurusNedeniParametreId = Convert.ToInt32(satir[C_Sutun_durus_nedeni_parametre_id]);
+        }
+
+        if (satir.IsNull(C_Sutun_durus_aciklamasi))
+        {
+            DurusAciklamasi = null;
+        }
+        else
+        {
+            DurusAciklamasi = Convert.ToString(satir[C_Sutun_durus_aciklamasi]);
+        }
+
         IslemDurumu = (TalimatDurumu)Convert.ToByte(satir[C_Sutun_islem_durumu]);
-        Sonuc = satir.IsNull(C_Sutun_sonuc) ? null : Convert.ToString(satir[C_Sutun_sonuc]);
+        if (satir.IsNull(C_Sutun_sonuc))
+        {
+            Sonuc = null;
+        }
+        else
+        {
+            Sonuc = Convert.ToString(satir[C_Sutun_sonuc]);
+        }
+
         IslemBaslangicTarih = Tarih(satir, C_Sutun_islem_baslangic_tarih);
         IslemBitisTarih = Tarih(satir, C_Sutun_islem_bitis_tarih);
         EkleyenId = Convert.ToInt32(satir[C_Sutun_ekleyen_id]);
         EkleyenIp = Convert.ToString(satir[C_Sutun_ekleyen_ip]);
         EklenmeTarih = Convert.ToDateTime(satir[C_Sutun_eklenme_tarih]);
-        GuncelleyenId = satir.IsNull(C_Sutun_guncelleyen_id) ? 0 : Convert.ToInt32(satir[C_Sutun_guncelleyen_id]);
+        if (satir.IsNull(C_Sutun_guncelleyen_id))
+        {
+            GuncelleyenId = 0;
+        }
+        else
+        {
+            GuncelleyenId = Convert.ToInt32(satir[C_Sutun_guncelleyen_id]);
+        }
+
         GuncelleyenIp = Convert.ToString(satir[C_Sutun_guncelleyen_ip]);
-        GuncellenmeTarih = Tarih(satir, C_Sutun_guncellenme_tarih) ?? DateTime.MinValue;
+        var guncellenmeTarihi2 = Tarih(satir, C_Sutun_guncellenme_tarih);
+        if (guncellenmeTarihi2 != null)
+        {
+            GuncellenmeTarih = guncellenmeTarihi2.Value;
+        }
+        else
+        {
+            GuncellenmeTarih = DateTime.MinValue;
+        }
+
         AktifMi = Convert.ToBoolean(satir[C_Sutun_aktif_mi]);
     }
 
     private static DateTime? Tarih(DataRow satir, string sutunAdi)
     {
-        return satir.IsNull(sutunAdi) ? (DateTime?)null : Convert.ToDateTime(satir[sutunAdi]);
+        if (satir.IsNull(sutunAdi))
+        {
+            return (DateTime? )null;
+        }
+        else
+        {
+            return Convert.ToDateTime(satir[sutunAdi]);
+        }
     }
-
-    #endregion
+#endregion
 }

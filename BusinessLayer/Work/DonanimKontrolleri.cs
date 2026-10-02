@@ -7,7 +7,6 @@ using System.Net.Sockets;
 public class DonanimKontrolleri
 {
     private readonly VeritabaniIslemleri _veritabaniIslemleri;
-
     public enum Islem
     {
         EKLE,
@@ -22,7 +21,11 @@ public class DonanimKontrolleri
 
     public bool AyarKilidiAl()
     {
-        if (!_veritabaniIslemleri.UygulamaKilidiAl("ModbusDonanimAyar", false)) return false;
+        if (!_veritabaniIslemleri.UygulamaKilidiAl("ModbusDonanimAyar", false))
+        {
+            return false;
+        }
+
         // Komutun transaction kilidi, 3 saniyelik işlem boyunca ayar değişimini engeller.
         return true;
     }
@@ -44,34 +47,45 @@ public class DonanimKontrolleri
             return false;
         }
 
-        int id = islem == Islem.EKLE ? 0 : kayit.Id;
-        DataTable kartlar = TabloGetir(EthernetKartlari.C_Sp_TumunuGetir);
+        int id;
+        if (islem == Islem.EKLE)
+        {
+            id = 0;
+        }
+        else
+        {
+            id = kayit.Id;
+        }
 
+        DataTable kartlar = TabloGetir(EthernetKartlari.C_Sp_TumunuGetir);
         if (islem != Islem.EKLE && KayitBul(kartlar, id) == null)
         {
             return Hata("Kayıt bulunamadı.");
         }
 
-        DataRow[] roleler = TabloGetir(RoleKartlari.C_Sp_TumunuGetir).AsEnumerable()
-            .Where(x => Convert.ToInt32(x["ethernet_kart_id"]) == id).ToArray();
-
+        DataRow[] roleler = TabloGetir(RoleKartlari.C_Sp_TumunuGetir).AsEnumerable().Where(x => Convert.ToInt32(x["ethernet_kart_id"]) == id).ToArray();
         if (islem == Islem.SIL)
         {
             return roleler.Length == 0 || Hata("Bağlı röle kartı olan Ethernet kartı silinemez.");
         }
 
         IPAddress adres;
-        if (string.IsNullOrWhiteSpace(kayit.KartAdi) || kayit.KartAdi.Length > 100
-            || string.IsNullOrWhiteSpace(kayit.Model) || kayit.Model.Length > 50
-            || !IPAddress.TryParse(kayit.Ip, out adres) || adres.AddressFamily != AddressFamily.InterNetwork
-            || kayit.HttpPort < 1 || kayit.HttpPort > 65535)
+        if (string.IsNullOrWhiteSpace(kayit.KartAdi)
+            || kayit.KartAdi.Length > 100
+            || string.IsNullOrWhiteSpace(kayit.Model)
+            || kayit.Model.Length > 50
+            || !IPAddress.TryParse(kayit.Ip, out adres)
+            || adres.AddressFamily != AddressFamily.InterNetwork
+            || kayit.HttpPort < 1
+            || kayit.HttpPort > 65535)
         {
             return Hata("Kart adı, model, IPv4 adresi veya HTTP portu geçersiz.");
         }
 
         kayit.Ip = adres.ToString();
         if (kartlar.AsEnumerable().Any(x => Convert.ToInt32(x["id"]) != id
-            && x["ip"].ToString() == kayit.Ip && Convert.ToInt32(x["http_port"]) == kayit.HttpPort))
+            && x["ip"].ToString() == kayit.Ip
+            && Convert.ToInt32(x["http_port"]) == kayit.HttpPort))
         {
             return Hata("Bu IP ve HTTP portu zaten tanımlı.");
         }
@@ -105,18 +119,24 @@ public class DonanimKontrolleri
             return false;
         }
 
-        int id = islem == Islem.EKLE ? 0 : kayit.Id;
+        int id;
+        if (islem == Islem.EKLE)
+        {
+            id = 0;
+        }
+        else
+        {
+            id = kayit.Id;
+        }
+
         DataTable roleler = TabloGetir(RoleKartlari.C_Sp_TumunuGetir);
         DataRow eskiKayit = KayitBul(roleler, id);
-
         if (islem != Islem.EKLE && eskiKayit == null)
         {
             return Hata("Kayıt bulunamadı.");
         }
 
-        DataRow[] baglantilar = TabloGetir(MakineRoleBaglantilari.C_Sp_TumunuGetir).AsEnumerable()
-            .Where(x => Convert.ToInt32(x["role_kart_id"]) == id).ToArray();
-
+        DataRow[] baglantilar = TabloGetir(MakineRoleBaglantilari.C_Sp_TumunuGetir).AsEnumerable().Where(x => Convert.ToInt32(x["role_kart_id"]) == id).ToArray();
         if (islem == Islem.SIL)
         {
             return baglantilar.Length == 0 || Hata("Makine bağlantısı olan röle kartı silinemez.");
@@ -134,14 +154,15 @@ public class DonanimKontrolleri
             return Hata("Aktif bir Ethernet kartı seçiniz.");
         }
 
-        if (roleler.AsEnumerable().Any(x => Convert.ToInt32(x["id"]) != id
-            && Convert.ToInt32(x["ethernet_kart_id"]) == kayit.EthernetKartId))
+        if (roleler.AsEnumerable().Any(x => Convert.ToInt32(x["id"]) != id && Convert.ToInt32(x["ethernet_kart_id"]) == kayit.EthernetKartId))
         {
             return Hata("Bu Ethernet kartına başka bir röle kartı bağlı.");
         }
 
-        if (eskiKayit != null && baglantilar.Any(x => Convert.ToBoolean(x["aktif_mi"]))
-            && (!kayit.AktifMi || Convert.ToInt32(eskiKayit["ethernet_kart_id"]) != kayit.EthernetKartId))
+        if (eskiKayit != null
+            && baglantilar.Any(x => Convert.ToBoolean(x["aktif_mi"]))
+            && (!kayit.AktifMi
+            || Convert.ToInt32(eskiKayit["ethernet_kart_id"]) != kayit.EthernetKartId))
         {
             return Hata("Önce röle kartının aktif makine bağlantılarını kaldırınız.");
         }
@@ -156,10 +177,18 @@ public class DonanimKontrolleri
             return false;
         }
 
-        int id = islem == Islem.EKLE ? 0 : kayit.Id;
+        int id;
+        if (islem == Islem.EKLE)
+        {
+            id = 0;
+        }
+        else
+        {
+            id = kayit.Id;
+        }
+
         DataTable baglantilar = TabloGetir(MakineRoleBaglantilari.C_Sp_TumunuGetir);
         DataRow eskiKayit = KayitBul(baglantilar, id);
-
         if (islem != Islem.EKLE && eskiKayit == null)
         {
             return Hata("Kayıt bulunamadı.");
@@ -201,11 +230,12 @@ public class DonanimKontrolleri
             return Hata("Aktif bir röle ve Ethernet kartı seçiniz.");
         }
 
-        if (kayit.AktifMi && baglantilar.AsEnumerable().Any(x => Convert.ToInt32(x["id"]) != id
+        if (kayit.AktifMi
+            && baglantilar.AsEnumerable().Any(x => Convert.ToInt32(x["id"]) != id
             && Convert.ToBoolean(x["aktif_mi"])
             && (Convert.ToInt32(x["makine_id"]) == kayit.MakineId
-                || (Convert.ToInt32(x["role_kart_id"]) == kayit.RoleKartId
-                    && Convert.ToInt32(x["kanal_no"]) == kayit.KanalNo))))
+            || (Convert.ToInt32(x["role_kart_id"]) == kayit.RoleKartId
+            && Convert.ToInt32(x["kanal_no"]) == kayit.KanalNo))))
         {
             return Hata("Makine veya röle kanalı başka bir aktif bağlantıda kullanılıyor.");
         }

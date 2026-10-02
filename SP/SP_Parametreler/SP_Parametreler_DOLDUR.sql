@@ -1,0 +1,38 @@
+USE [DB_MODBUS]
+GO
+/****** Object:  StoredProcedure [dbo].[SP_Parametreler_DOLDUR]    Script Date: 01.10.2026 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[SP_Parametreler_DOLDUR]
+
+    @id INT
+
+AS
+BEGIN
+
+    SELECT
+        P.id,
+        P.grup_id,
+        P.kod,
+        P.adi,
+        P.aciklama,
+        P.sira_no,
+        P.aciklama_zorunlu_mu,
+        P.aktif_mi,
+        P.eklenme_tarih,
+        P.ekleyen_id,
+        P.ekleyen_ip,
+        P.guncelleyen_id,
+        P.guncelleyen_ip,
+        P.guncellenme_tarih,
+        G.kod AS grup_kodu,
+        G.adi AS grup_adi,
+        G.aktif_mi AS grup_aktif_mi
+    FROM Parametreler P
+    INNER JOIN ParametreGruplari G ON G.id = P.grup_id
+    WHERE P.id = @id;
+
+END
+GO

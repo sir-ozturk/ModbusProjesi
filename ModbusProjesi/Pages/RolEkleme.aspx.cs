@@ -5,11 +5,9 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-
 public partial class RolEkleme : System.Web.UI.Page
 {
     private int gelenId = 0;
-
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IslemYetki.Kontrol(Ekranlar.ROL_EKLE, IslemTurleri.GORUNTULE))
@@ -27,11 +25,9 @@ public partial class RolEkleme : System.Web.UI.Page
         if (Page.IsPostBack == false)
         {
             BasariMesajiniGoster();
-
             if (gelenId > 0)
             {
                 RolDoldur();
-
                 btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.ROL_EKLE, IslemTurleri.GUNCELLE);
                 btnSil.Enabled = IslemYetki.Kontrol(Ekranlar.ROL_EKLE, IslemTurleri.SIL);
                 btnYetkiler.Enabled = IslemYetki.Kontrol(Ekranlar.ROL_YETKI, IslemTurleri.GUNCELLE);
@@ -39,9 +35,7 @@ public partial class RolEkleme : System.Web.UI.Page
             else
             {
                 YeniRolHazirla();
-
                 btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.ROL_EKLE, IslemTurleri.EKLE);
-
                 btnSil.Enabled = false;
                 btnYetkiler.Enabled = false;
             }
@@ -62,15 +56,11 @@ public partial class RolEkleme : System.Web.UI.Page
     private void YeniRolHazirla()
     {
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
             Roller roller = new Roller(veritabaniIslemleri);
-
             int yeniId = roller.MaxIdGetir() + 1;
-
             txtRolKodu.Text = "R" + yeniId.ToString("D3");
         }
         catch (Exception ex)
@@ -86,21 +76,24 @@ public partial class RolEkleme : System.Web.UI.Page
     private void RolDoldur()
     {
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
             Roller roller = new Roller(veritabaniIslemleri);
-
             roller.Id = gelenId;
-
             if (roller.Doldur())
             {
                 txtRolKodu.Text = roller.RolKodu;
                 txtRolAdi.Text = roller.Adi;
                 txtAciklama.Text = roller.Aciklama;
-                ddlAktiflik.SelectedValue = roller.AktifMi ? "1" : "0";
+                if (roller.AktifMi)
+                {
+                    ddlAktiflik.SelectedValue = "1";
+                }
+                else
+                {
+                    ddlAktiflik.SelectedValue = "0";
+                }
             }
         }
         catch (Exception ex)
@@ -133,39 +126,29 @@ public partial class RolEkleme : System.Web.UI.Page
         if (string.IsNullOrEmpty(txtRolAdi.Text.Trim()) || string.IsNullOrEmpty(ddlAktiflik.SelectedValue))
         {
             Mesaj.Ver(Mesajlar.RolAlanlarBos, Mesaj.MesajTurleri.WARNING, Page.Master);
-
             return;
         }
 
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
             Roller roller = new Roller(veritabaniIslemleri);
-
             roller.RolKodu = txtRolKodu.Text.Trim();
             roller.Adi = txtRolAdi.Text.Trim();
             roller.Aciklama = txtAciklama.Text.Trim();
             roller.AktifMi = ddlAktiflik.SelectedValue == "1";
-
             Sessionlar sessionlar = new Sessionlar();
             CurrentInfo currentInfo = sessionlar.Current._CurrentInfo;
-
             if (gelenId == 0)
             {
                 roller.EkleyenId = currentInfo.KullaniciId;
                 roller.EkleyenIp = Utility.IpNoGetir();
-
                 if (roller.Ekle())
                 {
                     int yeniId = roller.MaxIdGetir();
-
                     Session["BasariMesaji"] = Mesajlar.RolBasariylaEklendi;
-
                     Response.Redirect("~/Pages/RolEkleme.aspx?id=" + yeniId, false);
-
                     Context.ApplicationInstance.CompleteRequest();
                     return;
                 }
@@ -175,7 +158,6 @@ public partial class RolEkleme : System.Web.UI.Page
                 roller.Id = gelenId;
                 roller.GuncelleyenId = currentInfo.KullaniciId;
                 roller.GuncelleyenIp = Utility.IpNoGetir();
-
                 if (roller.Guncelle())
                 {
                     Mesaj.Ver(Mesajlar.RolBasariylaGuncellendi, Mesaj.MesajTurleri.SUCCESS, Page.Master);
@@ -205,15 +187,12 @@ public partial class RolEkleme : System.Web.UI.Page
         }
 
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMLI);
             veritabaniIslemleri.LogYasak = true;
-
             Roller roller = new Roller(veritabaniIslemleri);
             roller.Id = gelenId;
-
             if (!roller.Doldur())
             {
                 veritabaniIslemleri.GeriAl();
@@ -223,10 +202,8 @@ public partial class RolEkleme : System.Web.UI.Page
 
             string silinenRolKodu = roller.RolKodu;
             string silinenRolAdi = roller.Adi;
-
             RolYetkiler rolYetkiler = new RolYetkiler(veritabaniIslemleri);
             rolYetkiler.RolId = gelenId;
-
             if (!rolYetkiler.RoleGoreSil())
             {
                 veritabaniIslemleri.GeriAl();
@@ -242,14 +219,8 @@ public partial class RolEkleme : System.Web.UI.Page
             }
 
             veritabaniIslemleri.Uygula();
-
-            LogIslemleri.OlayKaydet(
-                "Rol Silindi",
-                "Roller",
-                "Rol Id: " + gelenId + ", Rol Kodu: " + silinenRolKodu + ", Rol Adı: " + silinenRolAdi);
-
+            LogIslemleri.OlayKaydet("Rol Silindi", "Roller", "Rol Id: " + gelenId + ", Rol Kodu: " + silinenRolKodu + ", Rol Adı: " + silinenRolAdi);
             Session["BasariMesaji"] = Mesajlar.SilmeBasarili;
-
             Response.Redirect("~/Pages/RolListeleme.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
             return;
@@ -278,7 +249,6 @@ public partial class RolEkleme : System.Web.UI.Page
         }
 
         Response.Redirect("~/Pages/RolYetki.aspx?id=" + gelenId, false);
-
         Context.ApplicationInstance.CompleteRequest();
         return;
     }

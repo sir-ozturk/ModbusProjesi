@@ -1,4 +1,11 @@
-CREATE OR ALTER PROCEDURE dbo.SP_MakineLoglari_ACIK_KAYIT_GETIR
+USE [DB_MODBUS]
+GO
+/****** Object: StoredProcedure [dbo].[SP_MakineLoglari_ACIK_KAYIT_GETIR] ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER   PROCEDURE [dbo].[SP_MakineLoglari_ACIK_KAYIT_GETIR]
     @makine_id INT
 AS
 BEGIN
@@ -9,6 +16,8 @@ BEGIN
         makine_id,
         islem_tipi,
         islem_nedeni,
+        durus_nedeni_parametre_id,
+        durus_aciklamasi,
         islem_baslangic_tarih,
         islem_bitis_tarih,
         devam_ediyor_mu,
@@ -25,3 +34,4 @@ BEGIN
 
     RETURN;
 END
+GO

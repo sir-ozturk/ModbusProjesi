@@ -12,7 +12,6 @@ public partial class KullaniciListele : System.Web.UI.Page
         GridHazirla();
     }
 
-
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IslemYetki.Kontrol(Ekranlar.KULLANICI_LISTELE, IslemTurleri.GORUNTULE))
@@ -39,31 +38,34 @@ public partial class KullaniciListele : System.Web.UI.Page
         ucMyGrid.DurumKolonEkle(Kullanicilar.C_Sutun_aktif_mi, "Durum", "Aktif", "Pasif");
         bool guncellemeYetkisi = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.GUNCELLE);
         bool silmeYetkisi = IslemYetki.Kontrol(Ekranlar.KULLANICI_EKLE, IslemTurleri.SIL);
-
         if (guncellemeYetkisi && silmeYetkisi)
         {
             ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE, ucMyGrid.ButonTip.SIL);
         }
-        else if (guncellemeYetkisi)
+        else
         {
-            ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE);
-        }
-        else if (silmeYetkisi)
-        {
-            ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.SIL);
+            if (guncellemeYetkisi)
+            {
+                ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.GUNCELLE);
+            }
+            else
+            {
+                if (silmeYetkisi)
+                {
+                    ucMyGrid.ButonEkle("İşlemler", Kullanicilar.C_Sutun_id, ucMyGrid.ButonTip.SIL);
+                }
+            }
         }
     }
 
     private void Listele()
     {
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
         try
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
             Kullanicilar kullanicilar = new Kullanicilar(veritabaniIslemleri);
             kullanicilar.TumunuGetir();
-
             ucMyGrid.Doldur(kullanicilar.VeriTablosu);
         }
         catch (Exception ex)
@@ -86,7 +88,6 @@ public partial class KullaniciListele : System.Web.UI.Page
             }
 
             Response.Redirect("~/Pages/KullaniciEkle.aspx?id=" + e.Id, false);
-
             Context.ApplicationInstance.CompleteRequest();
             return;
         }
@@ -99,13 +100,10 @@ public partial class KullaniciListele : System.Web.UI.Page
             }
 
             VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
-
             try
             {
                 veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
-
                 Kullanicilar kullanicilar = new Kullanicilar(veritabaniIslemleri);
-
                 kullanicilar.Id = e.Id;
                 kullanicilar.Sil();
             }
