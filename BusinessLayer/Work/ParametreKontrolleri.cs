@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data;
+using System.Collections.Generic;
+using System.Globalization;
 
 public class ParametreKontrolleri
 {
@@ -44,19 +46,6 @@ public class ParametreKontrolleri
         else
         {
             kayit.Aciklama = kayit.Aciklama.Trim();
-        }
-
-        if (kayit.Kod.Length == 0 || kayit.Kod.Length > 50)
-        {
-            return Hata("Kod gereklidir ve 50 karakteri aşamaz.");
-        }
-
-        foreach (char karakter in kayit.Kod)
-        {
-            if (!(karakter >= 'A' && karakter <= 'Z') && !(karakter >= '0' && karakter <= '9') && karakter != '_')
-            {
-                return Hata("Kod yalnızca A-Z, rakam ve alt çizgi içerebilir.");
-            }
         }
 
         if (string.IsNullOrWhiteSpace(kayit.Adi) || kayit.Adi.Length > 150)
@@ -109,10 +98,16 @@ public class ParametreKontrolleri
                 return Hata("Parametrenin grubu ve kodu değiştirilemez.");
             }
 
+            if (eskiKayit.SonucKayit["grup_kodu"].ToString() == ParametreGruplari.C_Grup_MakineModeli && kayit.Adi.Length > 100)
+            {
+                return Hata("Makine modeli adı 100 karakteri aşamaz.");
+            }
+
             return true;
         }
 
         bool aktifGrup = false;
+        string grupKodu = "";
         ParametreGruplari gruplar = new ParametreGruplari(_veritabaniIslemleri);
         using (DataTable tablo = gruplar.Listele(true))
         {
@@ -120,7 +115,13 @@ public class ParametreKontrolleri
             {
                 if (Convert.ToInt32(satir[OrtakAlanlar.C_Sutun_id]) == kayit.GrupId)
                 {
+                    if (satir[ParametreGruplari.C_Sutun_kod].ToString() == ParametreGruplari.C_Grup_MakineModeli && kayit.Adi.Length > 100)
+                    {
+                        return Hata("Makine modeli adı 100 karakteri aşamaz.");
+                    }
+
                     aktifGrup = true;
+                    grupKodu = satir[ParametreGruplari.C_Sutun_kod].ToString();
                     break;
                 }
             }
@@ -131,19 +132,51 @@ public class ParametreKontrolleri
             return Hata("Seçilen parametre grubu bulunamadı veya pasiftir.");
         }
 
+        return ParametreKodunuOlustur(kayit, grupKodu);
+    }
+
+    private bool ParametreKodunuOlustur(Parametreler kayit, string grupKodu)
+    {
+        if (string.IsNullOrWhiteSpace(grupKodu) || grupKodu.Length > 46)
+        {
+            return Hata("Parametre grubunun kodu otomatik kod üretimine uygun değildir.");
+        }
+
+        foreach (char karakter in grupKodu)
+        {
+            if (!(karakter >= 'A' && karakter <= 'Z') && !(karakter >= '0' && karakter <= '9') && karakter != '_')
+            {
+                return Hata("Grup kodu yalnızca A-Z, rakam ve alt çizgi içerebilir.");
+            }
+        }
+
+        HashSet<string> kullanilanKodlar = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         Parametreler parametreler = new Parametreler(_veritabaniIslemleri);
+        // Aktif ve pasif kayıtların tamamı numarayı kullanmaya devam eder.
         using (DataTable tablo = parametreler.Listele(kayit.GrupId))
         {
             foreach (DataRow satir in tablo.Rows)
             {
-                if (string.Equals(satir[Parametreler.C_Sutun_kod].ToString(), kayit.Kod, StringComparison.OrdinalIgnoreCase))
-                {
-                    return Hata("Bu grupta aynı kodla bir parametre zaten bulunmaktadır.");
-                }
+                kullanilanKodlar.Add(satir[Parametreler.C_Sutun_kod].ToString());
             }
         }
 
-        return true;
+        for (long numara = 1; numara <= (long)kullanilanKodlar.Count + 1; numara++)
+        {
+            string yeniKod = grupKodu + "_" + numara.ToString("D3", CultureInfo.InvariantCulture);
+            if (yeniKod.Length > 50)
+            {
+                return Hata("Üretilen parametre kodu 50 karakteri aşamaz.");
+            }
+
+            if (!kullanilanKodlar.Contains(yeniKod))
+            {
+                kayit.Kod = yeniKod;
+                return true;
+            }
+        }
+
+        return Hata("Parametre kodu oluşturulamadı.");
     }
 
     public bool DurusNedeniKontrol(int id, string aciklama, out string nedenMetni, out string durusAciklamasi)
@@ -224,39 +257,6 @@ public class ParametreKontrolleri
             return Hata("Silinecek parametre bulunamadı.");
         }
 
-        string gecmisNeden = null;
-        if (kayit.SonucKayit["grup_kodu"].ToString() == ParametreGruplari.C_Grup_MakineDurusNedeni)
-        {
-            // Eski sekiz sabit neden; adi degistirilse de ilk metni korunur.
-            switch (kayit.Kod)
-            {
-                case "MEKANIK_ARIZA":
-                    gecmisNeden = "Mekanik Arıza";
-                    break;
-                case "HATALI_OLCU":
-                    gecmisNeden = "Hatalı Ölçü";
-                    break;
-                case "YUKSEK_FIRE":
-                    gecmisNeden = "Yüksek Fire";
-                    break;
-                case "IPLIK_KOPUSU":
-                    gecmisNeden = "İplik Kopuşu";
-                    break;
-                case "PROGRAMLI_BAKIM":
-                    gecmisNeden = "Programlı Bakım";
-                    break;
-                case "FAZLA_ADET":
-                    gecmisNeden = "Fazla Adet";
-                    break;
-                case "OPERATOR_TALEBI":
-                    gecmisNeden = "Operatör Talebi";
-                    break;
-                case "FABRIKA_MUDURU_TALEBI":
-                    gecmisNeden = "Fabrika Müdürü Talebi";
-                    break;
-            }
-        }
-
         _veritabaniIslemleri.SpAdi = Parametreler.C_Sp_KullanimKayitlariGetir;
         _veritabaniIslemleri.ParametreEkle(OrtakAlanlar.C_Sutun_id, id);
         using (DataTable tablo = _veritabaniIslemleri.TabloGetir())
@@ -264,8 +264,7 @@ public class ParametreKontrolleri
             foreach (DataRow satir in tablo.Rows)
             {
                 bool kimlikleKullanilmis = satir["durus_nedeni_parametre_id"] != DBNull.Value && Convert.ToInt32(satir["durus_nedeni_parametre_id"]) == id;
-                bool gecmisteKullanilmis = satir["durus_nedeni_parametre_id"] == DBNull.Value && gecmisNeden != null && string.Equals(satir["islem_nedeni"].ToString(), gecmisNeden, StringComparison.Ordinal);
-                if (kimlikleKullanilmis || gecmisteKullanilmis)
+                if (kimlikleKullanilmis)
                 {
                     return Hata("Bu parametre talimat veya duruş kayıtlarında kullanıldığı için silinemez. Pasifleştirebilirsiniz.");
                 }

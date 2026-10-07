@@ -13,13 +13,7 @@
             <a id="lnkEkle" runat="server" visible="false" href="ParametreEkle.aspx" class="btn-ekle">Yeni Parametre Ekle</a>
         </div>
 
-        <asp:Panel ID="pnlHata" runat="server" Visible="false" CssClass="alert alert-danger">
-            <asp:Label ID="lblHata" runat="server" />
-        </asp:Panel>
 
-        <asp:Panel ID="pnlBasari" runat="server" Visible="false" CssClass="alert alert-success">
-            <asp:Label ID="lblBasari" runat="server" />
-        </asp:Panel>
 
         <asp:Panel ID="pnlFiltreler" runat="server" DefaultButton="btnListele" CssClass="row g-3 mb-4">
             <div class="col-md-4">

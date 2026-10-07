@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Web.UI.WebControls;
@@ -47,8 +47,7 @@ public partial class ParametreListele : System.Web.UI.Page
         {
             if (Session["ParametreBasari"] != null)
             {
-                pnlBasari.Visible = true;
-                lblBasari.Text = Server.HtmlEncode(Session["ParametreBasari"].ToString());
+                Mesaj.Ver(Session["ParametreBasari"].ToString(), Mesaj.MesajTurleri.SUCCESS, Master);
                 Session.Remove("ParametreBasari");
             }
 
@@ -124,13 +123,12 @@ public partial class ParametreListele : System.Web.UI.Page
             return;
         }
 
-        pnlBasari.Visible = false;
         Listele();
     }
 
     private void Listele()
     {
-        pnlHata.Visible = false;
+
         pnlBosListe.Visible = false;
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
         try
@@ -191,8 +189,7 @@ public partial class ParametreListele : System.Web.UI.Page
 
     private void Hata(string mesaj)
     {
-        pnlHata.Visible = true;
-        lblHata.Text = Server.HtmlEncode(mesaj);
+        Mesaj.Ver(mesaj, Mesaj.MesajTurleri.FAIL, Master);
     }
 
     protected void ucGrid_ButonTiklandi(object sender, ucMyGrid.MyGridButonEventArgs e)
@@ -230,7 +227,7 @@ public partial class ParametreListele : System.Web.UI.Page
 
     private void ParametreSil(int id)
     {
-        pnlBasari.Visible = false;
+
         if (!IslemYetki.Kontrol(Ekranlar.PARAMETRE_LISTELE, IslemTurleri.SIL))
         {
             Hata(Mesajlar.YetkinizYok);
@@ -278,8 +275,7 @@ public partial class ParametreListele : System.Web.UI.Page
         Listele();
         if (silindi)
         {
-            pnlBasari.Visible = true;
-            lblBasari.Text = "Parametre silindi.";
+            Mesaj.Ver("Parametre silindi.", Mesaj.MesajTurleri.SUCCESS, Master);
         }
         else
         {

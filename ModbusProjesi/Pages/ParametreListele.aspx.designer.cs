@@ -1,10 +1,10 @@
 public partial class ParametreListele
 {
     protected global::System.Web.UI.WebControls.Panel pnlIcerik;
-    protected global::System.Web.UI.WebControls.Panel pnlHata;
-    protected global::System.Web.UI.WebControls.Label lblHata;
-    protected global::System.Web.UI.WebControls.Panel pnlBasari;
-    protected global::System.Web.UI.WebControls.Label lblBasari;
+
+
+
+
     protected global::System.Web.UI.WebControls.Panel pnlFiltreler;
     protected global::System.Web.UI.WebControls.Label lblGrup;
     protected global::System.Web.UI.WebControls.DropDownList ddlGruplar;

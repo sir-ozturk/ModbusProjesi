@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Ethernet Kartı" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="EthernetKartEkle.aspx.cs" Inherits="EthernetKartEkle" %>
+<%@ Page Title="Ethernet Kartı" Language="C#" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="EthernetKartEkle.aspx.cs" Inherits="EthernetKartEkle" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../Styles/MakineEkle.css" rel="stylesheet" />
     <link href="../Styles/MakineListele.css" rel="stylesheet" />
@@ -6,8 +6,8 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container-fluid">
         <div class="text-center mb-4"><h2 class="text-modbus fw-bold"><asp:Literal ID="litBaslik" runat="server" /></h2></div>
-        <asp:Panel ID="pnlHata" runat="server" Visible="false" CssClass="alert alert-danger"><asp:Label ID="lblHata" runat="server" /></asp:Panel>
-        <asp:Panel ID="pnlBasari" runat="server" Visible="false" CssClass="alert alert-success"><asp:Label ID="lblBasari" runat="server" /></asp:Panel>
+
+
         <div class="row justify-content-center"><div class="col-12 col-xl-9">
             <div class="row mb-3 align-items-center"><asp:Label runat="server" AssociatedControlID="txtKartAdi" CssClass="col-md-3 fw-bold text-modbus" Text="Kart adı" /><div class="col-md-9"><asp:TextBox ID="txtKartAdi" runat="server" CssClass="form-control form-control-modbus" MaxLength="100"></asp:TextBox></div></div>
             <div class="row mb-3 align-items-center"><asp:Label runat="server" AssociatedControlID="ddlModel" CssClass="col-md-3 fw-bold text-modbus" Text="Model" /><div class="col-md-9"><asp:DropDownList ID="ddlModel" runat="server" CssClass="form-select form-select-modbus"></asp:DropDownList></div></div>

@@ -14,7 +14,7 @@ public class MakineLoglari : OrtakAlanlar
         VeriTablosu = null;
     }
 
-#region SABİTLER
+    #region SABİTLER
     public const string C_Tablo = "dbo.MakineLoglari";
     public const string C_Sp_Ekle = "dbo.SP_MakineLoglari_EKLE";
     public const string C_Sp_AcikKayitGetir = "dbo.SP_MakineLoglari_ACIK_KAYIT_GETIR";
@@ -30,8 +30,8 @@ public class MakineLoglari : OrtakAlanlar
     public const string C_Sutun_basarili_mi = "basarili_mi";
     public const string C_Sutun_hata_mesaji = "hata_mesaji";
     public const string C_IslemTipi_Durdur = "DURDUR";
-#endregion
-#region NESNELER
+    #endregion
+    #region NESNELER
     private int? durusNedeniParametreId;
     public int? DurusNedeniParametreId
     {
@@ -172,8 +172,8 @@ public class MakineLoglari : OrtakAlanlar
         }
     }
 
-#endregion
-#region METOTLAR
+    #endregion
+    #region METOTLAR
     public bool Ekle()
     {
         VeritabaniIslem.SpAdi = C_Sp_Ekle;
@@ -215,7 +215,7 @@ public class MakineLoglari : OrtakAlanlar
 
         if (SonucKayit.IsNull(C_Sutun_durus_nedeni_parametre_id))
         {
-            DurusNedeniParametreId = (int? )null;
+            DurusNedeniParametreId = (int?)null;
         }
         else
         {
@@ -234,7 +234,7 @@ public class MakineLoglari : OrtakAlanlar
         IslemBaslangicTarih = Convert.ToDateTime(SonucKayit[C_Sutun_islem_baslangic_tarih]);
         if (SonucKayit[C_Sutun_islem_bitis_tarih] == DBNull.Value)
         {
-            IslemBitisTarih = (DateTime? )null;
+            IslemBitisTarih = (DateTime?)null;
         }
         else
         {
@@ -280,5 +280,5 @@ public class MakineLoglari : OrtakAlanlar
 
         return VeritabaniIslem.Calistir();
     }
-#endregion
+    #endregion
 }

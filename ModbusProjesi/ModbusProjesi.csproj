@@ -148,6 +148,7 @@
     <Content Include="Styles\ProfilDuzenle.css" />
     <Content Include="Styles\LogDetay.css" />
     <Content Include="Styles\Login.css" />
+    <Content Include="Scripts\MesajBildirimleri.js" />
     <Content Include="Styles\LogListesi.css" />
     <Content Include="Styles\MakineEkle.css" />
     <Content Include="Styles\MakineDashboard.css" />

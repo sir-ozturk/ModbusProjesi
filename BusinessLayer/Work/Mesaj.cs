@@ -1,95 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-
 public class Mesaj
 {
-    public enum MesajTurleri
+    public enum MesajTurleri { SUCCESS, FAIL, INFO, WARNING }
+
+    public static void Ver(string metin, MesajTurleri tur, MasterPage master)
     {
-        SUCCESS,
-        FAIL,
-        INFO,
-        WARNING
+        Goster(metin, tur, master, master.Page);
     }
 
-    public static void Ver(string mesajMetni, MesajTurleri mesajTuru, MasterPage master)
+    public static void Ver(string metin, MesajTurleri tur, Page page)
     {
-        try
-        {
-            Label lbl_success = (Label)master.FindControl("lbl_success");
-            Label lbl_warning = (Label)master.FindControl("lbl_warning");
-            Label lbl_info = (Label)master.FindControl("lbl_info");
-            Label lbl_error = (Label)master.FindControl("lbl_error");
-            lbl_error.Text = "";
-            lbl_info.Text = "";
-            lbl_success.Text = "";
-            lbl_warning.Text = "";
-            if (mesajTuru == MesajTurleri.SUCCESS)
-            {
-                lbl_success.Text = mesajMetni;
-            }
-            if (mesajTuru == MesajTurleri.FAIL)
-            {
-                lbl_error.Text = mesajMetni;
-            }
-            if (mesajTuru == MesajTurleri.INFO)
-            {
-                lbl_info.Text = mesajMetni;
-            }
-            if (mesajTuru == MesajTurleri.WARNING)
-            {
-                lbl_warning.Text = mesajMetni;
-            }
-        }
-        catch
-        {
-
-        }
+        Goster(metin, tur, page, page);
     }
 
-    public static void Ver(string mesajMetni, MesajTurleri mesajTuru, Page page)
+    private static void Goster(string metin, MesajTurleri tur, Control kok, Page page)
     {
-        try
+        string[] ids = { "lbl_success", "lbl_error", "lbl_info", "lbl_warning" };
+        string secilen = ids[(int)tur];
+        foreach (string id in ids)
         {
-            Label lbl_success = (Label)page.FindControl("lbl_success");
-            Label lbl_warning = (Label)page.FindControl("lbl_warning");
-            Label lbl_info = (Label)page.FindControl("lbl_info");
-            Label lbl_error = (Label)page.FindControl("lbl_error");
-
-            lbl_error.Text = "";
-            lbl_info.Text = "";
-            lbl_success.Text = "";
-            lbl_warning.Text = "";
-
-            if (mesajTuru == MesajTurleri.SUCCESS)
-            {
-                lbl_success.Text = mesajMetni;
-            }
-
-            if (mesajTuru == MesajTurleri.FAIL)
-            {
-                lbl_error.Text = mesajMetni;
-            }
-
-            if (mesajTuru == MesajTurleri.INFO)
-            {
-                lbl_info.Text = mesajMetni;
-            }
-
-            if (mesajTuru == MesajTurleri.WARNING)
-            {
-                lbl_warning.Text = mesajMetni;
-            }
+            Label etiket = kok.FindControl(id) as Label;
+            if (etiket != null) etiket.Text = id == secilen ? HttpUtility.HtmlEncode(metin) : "";
         }
-        catch
+        ScriptManager manager = ScriptManager.GetCurrent(page);
+        if (manager != null && manager.IsInAsyncPostBack)
         {
-
+            string kod = "window.modbusMesajiGoster('" + HttpUtility.JavaScriptStringEncode(metin)
+                + "', '" + tur.ToString() + "', 5000);";
+            ScriptManager.RegisterStartupScript(page, page.GetType(), "ModbusMesaji", kod, true);
         }
     }
 }
-

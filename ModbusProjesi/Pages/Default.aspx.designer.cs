@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // <otomatik olarak oluşturulmuş>
 //     Bu kod bir araç tarafından oluşturuldu.
 //
@@ -11,6 +11,13 @@
 
 public partial class Default
 {
+    protected global::System.Web.UI.WebControls.Panel pnlTakip;
+    protected global::System.Web.UI.WebControls.Label lblAcikDurus;
+    protected global::System.Web.UI.WebControls.Label lblBekleyenTalimat;
+    protected global::System.Web.UI.WebControls.Label lblKontrolTalimat;
+    protected global::System.Web.UI.WebControls.Repeater rptTakip;
+    protected global::System.Web.UI.WebControls.Panel pnlTakipBos;
+    protected global::System.Web.UI.WebControls.Label lblTakipBilgi;
 
     /// <summary>
     /// smDashboard denetimi.
@@ -57,41 +64,9 @@ public partial class Default
     /// </remarks>
     protected global::System.Web.UI.WebControls.Label lblDonanimDurumu;
 
-    /// <summary>
-    /// pnlHata denetimi.
-    /// </summary>
-    /// <remarks>
-    /// Otomatik olarak oluşturulan alan.
-    /// Değiştirmek için, alan bildirimini tasarımcı dosyasından arka plan kod dosyasına taşıyın.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Panel pnlHata;
 
-    /// <summary>
-    /// lblHata denetimi.
-    /// </summary>
-    /// <remarks>
-    /// Otomatik olarak oluşturulan alan.
-    /// Değiştirmek için, alan bildirimini tasarımcı dosyasından arka plan kod dosyasına taşıyın.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Label lblHata;
 
-    /// <summary>
-    /// pnlBasari denetimi.
-    /// </summary>
-    /// <remarks>
-    /// Otomatik olarak oluşturulan alan.
-    /// Değiştirmek için, alan bildirimini tasarımcı dosyasından arka plan kod dosyasına taşıyın.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Panel pnlBasari;
 
-    /// <summary>
-    /// lblBasari denetimi.
-    /// </summary>
-    /// <remarks>
-    /// Otomatik olarak oluşturulan alan.
-    /// Değiştirmek için, alan bildirimini tasarımcı dosyasından arka plan kod dosyasına taşıyın.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Label lblBasari;
 
     /// <summary>
     /// pnlMakineYok denetimi.

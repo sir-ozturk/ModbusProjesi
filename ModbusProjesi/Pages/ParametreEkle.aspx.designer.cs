@@ -2,8 +2,8 @@ public partial class ParametreEkle
 {
     protected global::System.Web.UI.WebControls.Panel pnlIcerik;
     protected global::System.Web.UI.WebControls.Literal litBaslik;
-    protected global::System.Web.UI.WebControls.Panel pnlHata;
-    protected global::System.Web.UI.WebControls.Label lblHata;
+
+
     protected global::System.Web.UI.WebControls.DropDownList ddlGruplar;
     protected global::System.Web.UI.WebControls.TextBox txtKod;
     protected global::System.Web.UI.WebControls.TextBox txtAdi;

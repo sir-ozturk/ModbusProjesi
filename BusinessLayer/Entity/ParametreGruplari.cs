@@ -13,6 +13,7 @@ public class ParametreGruplari : OrtakAlanlar
     public const string C_Tablo = "dbo.ParametreGruplari";
     public const string C_Sp_Listele = "dbo.SP_ParametreGruplari_LISTELE";
     public const string C_Grup_MakineDurusNedeni = "MAKINE_DURUS_NEDENI";
+    public const string C_Grup_MakineModeli = "MAKINE_MODELI";
     public const string C_Sutun_kod = "kod";
     public const string C_Sutun_adi = "adi";
     public const string C_Sutun_sira_no = "sira_no";

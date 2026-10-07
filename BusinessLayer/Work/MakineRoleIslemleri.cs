@@ -26,8 +26,12 @@ public static class MakineRoleIslemleri
         return durum[16 - relayChannel] == '1';
     }
 
-    private static readonly HttpClient httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseProxy = false, // Tek cihaz 16 kanala hizmet verir; eşzamanlı bağlantılarla cihaz yükü artırılmaz.
- MaxConnectionsPerServer = 1 })
+    private static readonly HttpClient httpClient = new HttpClient(new HttpClientHandler
+    {
+        AllowAutoRedirect = false,
+        UseProxy = false, // Tek cihaz 16 kanala hizmet verir; eşzamanlı bağlantılarla cihaz yükü artırılmaz.
+        MaxConnectionsPerServer = 1
+    })
     {
         Timeout = System.Threading.Timeout.InfiniteTimeSpan,
         MaxResponseContentBufferSize = 4096

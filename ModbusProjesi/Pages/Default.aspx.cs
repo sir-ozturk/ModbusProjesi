@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -88,8 +88,12 @@ public partial class Default : System.Web.UI.Page
         }
 
         Session.Remove(C_Session_DashboardBasari);
-        pnlBasari.Visible = true;
-        lblBasari.Text = basariMesaji.ToString();
+        DashboardMesajiGoster(basariMesaji.ToString(), "SUCCESS");
+    }
+
+    private void DashboardMesajiGoster(string metin, string tur)
+    {
+        Mesaj.Ver(metin, (Mesaj.MesajTurleri)Enum.Parse(typeof(Mesaj.MesajTurleri), tur), Master);
     }
 
     private void MakineleriGetir()
@@ -106,12 +110,14 @@ public partial class Default : System.Web.UI.Page
                 makineTablosu.Columns.Add("talimat_durum_metni", typeof(string));
                 makineTablosu.Columns.Add("talimat_sonuc_metni", typeof(string));
                 makineTablosu.Columns.Add("talimat_devam_ediyor_mu", typeof(bool));
+                makineTablosu.Columns.Add("talimat_durumu", typeof(int));
                 var talimatSorgusu = new MakineDurdurmaTalimatlari(veritabaniIslemleri);
                 foreach (DataRow makine in makineTablosu.Rows)
                 {
                     makine["talimat_durum_metni"] = "Talimat yok";
                     makine["talimat_sonuc_metni"] = "";
                     makine["talimat_devam_ediyor_mu"] = false;
+                    makine["talimat_durumu"] = -1;
                     int makineId = Convert.ToInt32(makine["id"]);
                     using (DataTable talimatlar = talimatSorgusu.Listele(makineId, null, 1))
                     {
@@ -122,6 +128,7 @@ public partial class Default : System.Web.UI.Page
 
                         DataRow talimat = talimatlar.Rows[0];
                         var durum = (TalimatDurumu)Convert.ToByte(talimat["islem_durumu"]);
+                        makine["talimat_durumu"] = (int)durum;
                         string durumMetni;
                         switch (durum)
                         {
@@ -157,11 +164,12 @@ public partial class Default : System.Web.UI.Page
             rptMakineler.DataBind();
             rptSiralanabilirMakineler.DataSource = makineTablosu;
             rptSiralanabilirMakineler.DataBind();
+            TakipBilgileriniGetir(makineTablosu);
         }
         catch
         {
-            pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.MakineBilgileriAlinamadi;
+            pnlTakip.Visible = false;
+            DashboardMesajiGoster(Mesajlar.MakineBilgileriAlinamadi, "FAIL");
         }
         finally
         {
@@ -169,12 +177,74 @@ public partial class Default : System.Web.UI.Page
         }
     }
 
+    private void TakipBilgileriniGetir(DataTable makineler)
+    {
+        pnlTakip.Visible = makineler != null && makineler.Rows.Count > 0;
+        if (!pnlTakip.Visible) return;
+
+        var kayitlar = new DataTable();
+        kayitlar.Columns.Add("id", typeof(int));
+        kayitlar.Columns.Add("makine", typeof(string));
+        kayitlar.Columns.Add("durum", typeof(string));
+        kayitlar.Columns.Add("aciklama", typeof(string));
+        kayitlar.Columns.Add("sinif", typeof(string));
+        kayitlar.Columns.Add("oncelik", typeof(int));
+        kayitlar.Columns.Add("dakika", typeof(int));
+        int durus = 0, bekleyen = 0, kontrol = 0;
+        foreach (DataRow makine in makineler.Rows)
+        {
+            bool duruyor = Convert.ToBoolean(makine["duruyor_mu"]);
+            int talimat = Convert.ToInt32(makine["talimat_durumu"]);
+            int dakika = duruyor ? Convert.ToInt32(makine["durus_dakika"]) : 0;
+            if (duruyor) durus++;
+            if (talimat == (int)TalimatDurumu.Bekliyor || talimat == (int)TalimatDurumu.Isleniyor) bekleyen++;
+            if (talimat == (int)TalimatDurumu.KontrolGerekli) kontrol++;
+
+            string durum, aciklama, sinif;
+            int oncelik;
+            if (talimat == (int)TalimatDurumu.KontrolGerekli)
+            {
+                durum = "Kontrol gerekli";
+                aciklama = "Talimat sonucu için makineyi ve röle bağlantısını kontrol edin.";
+                sinif = "takip-kontrol";
+                oncelik = 0;
+            }
+            else if (talimat == (int)TalimatDurumu.Bekliyor || talimat == (int)TalimatDurumu.Isleniyor)
+            {
+                bool isleniyor = talimat == (int)TalimatDurumu.Isleniyor;
+                durum = isleniyor ? "İşleniyor" : "Bekliyor";
+                aciklama = isleniyor ? "Durdurma talimatı uygulanıyor." : "Talimatın uygulanması bekleniyor.";
+                sinif = "takip-bekleyen";
+                oncelik = 1;
+            }
+            else if (duruyor)
+            {
+                durum = dakika + " dk duruş";
+                aciklama = Convert.ToString(makine["islem_nedeni"]);
+                sinif = "takip-durus";
+                oncelik = 2;
+            }
+            else continue;
+
+            kayitlar.Rows.Add(makine["id"], makine["makine_adi"], durum, aciklama, sinif, oncelik, dakika);
+        }
+
+        lblAcikDurus.Text = durus.ToString();
+        lblBekleyenTalimat.Text = bekleyen.ToString();
+        lblKontrolTalimat.Text = kontrol.ToString();
+        var sirali = kayitlar.AsEnumerable().OrderBy(r => r.Field<int>("oncelik"))
+            .ThenByDescending(r => r.Field<int>("dakika")).Take(5).ToList();
+        rptTakip.DataSource = sirali.Count > 0 ? sirali.CopyToDataTable() : kayitlar;
+        rptTakip.DataBind();
+        pnlTakipBos.Visible = kayitlar.Rows.Count == 0;
+        lblTakipBilgi.Text = kayitlar.Rows.Count > 5 ? "Öncelikli 5 makine gösteriliyor." : "";
+    }
+
     protected void btnSiralamayiKaydet_Click(object sender, EventArgs e)
     {
         if (!makineYonetimYetkisiVar)
         {
-            pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.YetkinizYok;
+            DashboardMesajiGoster(Mesajlar.YetkinizYok, "FAIL");
             MakineleriGetir();
             return;
         }
@@ -182,8 +252,7 @@ public partial class Default : System.Web.UI.Page
         List<int> makineIdleri;
         if (!MakineIdleriniGetir(out makineIdleri))
         {
-            pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.MakineSiralamasiGuncellenemedi;
+            DashboardMesajiGoster(Mesajlar.MakineSiralamasiGuncellenemedi, "FAIL");
             MakineleriGetir();
             return;
         }
@@ -201,8 +270,7 @@ public partial class Default : System.Web.UI.Page
             if (!makineler.SiralamayiGuncelle(SiralamaXmlOlustur(makineIdleri)))
             {
                 veritabaniIslemleri.GeriAl();
-                pnlHata.Visible = true;
-                lblHata.Text = Mesajlar.MakineSiralamasiGuncellenemedi;
+                DashboardMesajiGoster(Mesajlar.MakineSiralamasiGuncellenemedi, "FAIL");
                 MakineleriGetir();
                 return;
             }
@@ -213,8 +281,7 @@ public partial class Default : System.Web.UI.Page
         catch
         {
             veritabaniIslemleri.GeriAl();
-            pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.MakineSiralamasiGuncellenemedi;
+            DashboardMesajiGoster(Mesajlar.MakineSiralamasiGuncellenemedi, "FAIL");
         }
         finally
         {
@@ -241,8 +308,7 @@ public partial class Default : System.Web.UI.Page
     {
         if (!makineYonetimYetkisiVar)
         {
-            pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.YetkinizYok;
+            DashboardMesajiGoster(Mesajlar.YetkinizYok, "FAIL");
             MakineleriGetir();
             return;
         }
@@ -251,16 +317,14 @@ public partial class Default : System.Web.UI.Page
         int durusNedeniId;
         if (!int.TryParse(hdnDurdurMakineId.Value, out makineId) || makineId <= 0)
         {
-            pnlHata.Visible = true;
-            lblHata.Text = "Geçerli bir makine seçiniz.";
+            DashboardMesajiGoster("Geçerli bir makine seçiniz.", "FAIL");
             MakineleriGetir();
             return;
         }
 
         if (!int.TryParse(hdnDurusNedeni.Value, out durusNedeniId) || durusNedeniId <= 0)
         {
-            pnlHata.Visible = true;
-            lblHata.Text = Mesajlar.DurusNedeniSeciniz;
+            DashboardMesajiGoster(Mesajlar.DurusNedeniSeciniz, "FAIL");
             MakineleriGetir();
             return;
         }
@@ -361,8 +425,7 @@ public partial class Default : System.Web.UI.Page
             return;
         }
 
-        pnlHata.Visible = true;
-        lblHata.Text = Server.HtmlEncode(hataMesaji);
+        DashboardMesajiGoster(hataMesaji, "FAIL");
         lblDurusNedeniBilgi.Text = Server.HtmlEncode(hataMesaji);
         MakineleriGetir();
         ScriptManager.RegisterStartupScript(this, GetType(), "DurusSeciminiGeriYukle", "window.addEventListener('load', function () { durusSeciminiGeriYukle(); });", true);

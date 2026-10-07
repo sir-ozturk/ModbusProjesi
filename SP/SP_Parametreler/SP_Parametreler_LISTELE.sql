@@ -5,7 +5,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE   PROCEDURE [dbo].[SP_Parametreler_LISTELE]
+CREATE OR ALTER PROCEDURE [dbo].[SP_Parametreler_LISTELE]
 
     @grup_id INT = NULL,
     @aktif_mi BIT = NULL,
@@ -37,7 +37,7 @@ BEGIN
     WHERE (@grup_id IS NULL OR P.grup_id = @grup_id)
       AND (@aktif_mi IS NULL OR P.aktif_mi = @aktif_mi)
       AND (@arama IS NULL OR CHARINDEX(@arama, P.kod) > 0 OR CHARINDEX(@arama, P.adi) > 0)
-    ORDER BY P.sira_no, P.id;
+    ORDER BY P.grup_id, P.sira_no, P.id;
 
 END
 GO

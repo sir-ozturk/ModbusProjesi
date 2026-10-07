@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Login" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Login" %>
 
 <!DOCTYPE html>
 
@@ -17,7 +17,7 @@
 <body>
     <form id="form1" runat="server" defaultbutton="btnGiris">
 
-        <div class="toast-container position-fixed start-50 translate-middle-x p-3" style="top: 25px; z-index: 2000;">
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
             <div id="toastMesaj" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
 
                 <div class="toast-header">
@@ -93,37 +93,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var success = document.getElementById("<%= lbl_success.ClientID %>");
-            var error = document.getElementById("<%= lbl_error.ClientID %>");
-            var info = document.getElementById("<%= lbl_info.ClientID %>");
-            var warning = document.getElementById("<%= lbl_warning.ClientID %>");
-
-            var toastElement = document.getElementById("toastMesaj");
-            var toastBaslik = document.getElementById("toastBaslik");
-
-            if (success && success.innerText.trim() !== "") {
-                toastBaslik.innerText = "Başarılı";
-                toastElement.classList.add("text-bg-success");
-                new bootstrap.Toast(toastElement, { autohide: true, delay: 10000 }).show();
-            }
-            else if (error && error.innerText.trim() !== "") {
-                toastBaslik.innerText = "Hata";
-                toastElement.classList.add("text-bg-danger");
-                new bootstrap.Toast(toastElement, { autohide: true, delay: 8000 }).show();
-            }
-            else if (info && info.innerText.trim() !== "") {
-                toastBaslik.innerText = "Bilgi";
-                toastElement.classList.add("text-bg-info");
-                new bootstrap.Toast(toastElement, { autohide: true, delay: 6000 }).show();
-            }
-            else if (warning && warning.innerText.trim() !== "") {
-                toastBaslik.innerText = "Uyarı";
-                toastElement.classList.add("text-bg-warning");
-                new bootstrap.Toast(toastElement, { autohide: true, delay: 8000 }).show();
-            }
-        });
-    </script>
+    <script src="<%= ResolveUrl("~/Scripts/MesajBildirimleri.js?v=1") %>"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Web.UI;
 
 public partial class MakineListele : System.Web.UI.Page
@@ -100,11 +100,11 @@ public partial class MakineListele : System.Web.UI.Page
                     var islemHataMesaji1 = veritabaniIslemleri.SonHataMesaji;
                     if (islemHataMesaji1 != null)
                     {
-                        Mesaj.Ver(Server.HtmlEncode(islemHataMesaji1), Mesaj.MesajTurleri.FAIL, Page.Master);
+                        Mesaj.Ver(islemHataMesaji1, Mesaj.MesajTurleri.FAIL, Page.Master);
                     }
                     else
                     {
-                        Mesaj.Ver(Server.HtmlEncode("Makine silinemedi. Röle bağlantılarını kontrol ediniz."), Mesaj.MesajTurleri.FAIL, Page.Master);
+                        Mesaj.Ver("Makine silinemedi. Röle bağlantılarını kontrol ediniz.", Mesaj.MesajTurleri.FAIL, Page.Master);
                     }
                 }
             }

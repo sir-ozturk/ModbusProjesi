@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Web.UI.WebControls;
 
@@ -47,7 +47,7 @@ public partial class ParametreEkle : System.Web.UI.Page
         }
 
         ddlGruplar.Enabled = gelenId == 0;
-        txtKod.ReadOnly = gelenId > 0;
+        txtKod.ReadOnly = true;
         if (!IsPostBack)
         {
             ViewState["FormHazir"] = FormuDoldur();
@@ -114,6 +114,8 @@ public partial class ParametreEkle : System.Web.UI.Page
             else
             {
                 ParametreGruplari gruplar = new ParametreGruplari(veritabaniIslemleri);
+                txtKod.Text = "";
+                txtKod.Attributes["placeholder"] = "Kaydedildiğinde otomatik oluşturulacak";
                 ddlGruplar.DataSource = gruplar.Listele(true);
                 ddlGruplar.DataTextField = ParametreGruplari.C_Sutun_adi;
                 ddlGruplar.DataValueField = OrtakAlanlar.C_Sutun_id;
@@ -203,7 +205,6 @@ public partial class ParametreEkle : System.Web.UI.Page
             return;
         }
 
-        pnlHata.Visible = false;
         VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
         try
         {
@@ -222,7 +223,6 @@ public partial class ParametreEkle : System.Web.UI.Page
             else
             {
                 kayit.GrupId = grupId;
-                kayit.Kod = txtKod.Text;
             }
 
             kayit.Adi = txtAdi.Text;
@@ -306,7 +306,6 @@ public partial class ParametreEkle : System.Web.UI.Page
 
     private void Hata(string mesaj)
     {
-        pnlHata.Visible = true;
-        lblHata.Text = Server.HtmlEncode(mesaj);
+        Mesaj.Ver(mesaj, Mesaj.MesajTurleri.FAIL, Master);
     }
 }

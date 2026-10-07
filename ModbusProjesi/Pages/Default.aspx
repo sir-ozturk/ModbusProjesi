@@ -1,7 +1,7 @@
 ﻿<%@ Page Title="Makine Kontrol" Language="C#" Async="true" MasterPageFile="~/MasterPages/MasterPage.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Default" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <link href="../Styles/MakineDashboard.css?v=2" rel="stylesheet" />
+    <link href="../Styles/MakineDashboard.css?v=4" rel="stylesheet" />
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -25,14 +25,6 @@
             <ContentTemplate>
                 <asp:Button ID="btnDurumYenile" runat="server" OnClick="btnDurumYenile_Click" CausesValidation="false" Style="display: none" />
                 <asp:Label ID="lblDonanimDurumu" runat="server" Visible="false" CssClass="d-block text-secondary mb-2" />
-                <asp:Panel ID="pnlHata" runat="server" Visible="false" CssClass="alert alert-danger" role="alert">
-                    <asp:Label ID="lblHata" runat="server"></asp:Label>
-                </asp:Panel>
-
-                <asp:Panel ID="pnlBasari" runat="server" Visible="false" CssClass="alert alert-success fade show" role="alert">
-                    <asp:Label ID="lblBasari" runat="server"></asp:Label>
-                </asp:Panel>
-
                 <asp:Panel ID="pnlMakineYok" runat="server" Visible="false" CssClass="alert alert-info" role="alert">
                     Gösterilecek aktif makine bulunamadı.
                 </asp:Panel>
@@ -53,7 +45,6 @@
                                     <div class="makine-kart-govde">
                                         <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
                                             <span class="makine-durum">
-                                                <i class='<%# MakineDurumIkonu(Eval("duruyor_mu")) %>'></i>
                                                 <%# MakineDurumMetni(Eval("duruyor_mu")) %>
                                             </span>
 
@@ -90,10 +81,7 @@
                                                 <%# Server.HtmlEncode(Convert.ToString(Eval("talimat_durum_metni"))) %>
                                             </div>
 
-                                            <div class="text-secondary"
-                                                style="overflow-wrap: break-word;">
-                                                <%# Server.HtmlEncode(Convert.ToString(Eval("talimat_sonuc_metni"))) %>
-                                            </div>
+                                            <div class="text-secondary"><%# Server.HtmlEncode(Convert.ToString(Eval("talimat_sonuc_metni")).Trim()) %></div>
                                         </div>
 
                                         </div>
@@ -113,6 +101,25 @@
                     </asp:Repeater>
                 </div>
 
+                <asp:Panel ID="pnlTakip" runat="server" Visible="false" CssClass="makine-takip mt-4">
+                    <h2 class="fs-5 fw-bold mb-3">Duruş ve talimat takibi</h2>
+                    <div class="takip-ozet mb-3">
+                        <span>Açık duruş <asp:Label ID="lblAcikDurus" runat="server" CssClass="fw-bold" /></span>
+                        <span>Bekleyen / işlenen talimat <asp:Label ID="lblBekleyenTalimat" runat="server" CssClass="fw-bold" /></span>
+                        <span>Kontrol gereken talimat <asp:Label ID="lblKontrolTalimat" runat="server" CssClass="fw-bold" /></span>
+                    </div>
+                    <asp:Repeater ID="rptTakip" runat="server">
+                        <ItemTemplate>
+                            <button type="button" class="takip-satir" data-takip-makine-id='<%# Eval("id") %>' data-bs-toggle="modal" data-bs-target="#makineBilgiModal" title="Makine bilgilerini göster">
+                                <span class="fw-bold"><%# Server.HtmlEncode(Convert.ToString(Eval("makine"))) %></span>
+                                <span class='takip-durum <%# Eval("sinif") %>'><%# Server.HtmlEncode(Convert.ToString(Eval("durum"))) %></span>
+                                <span class="takip-aciklama"><%# Server.HtmlEncode(Convert.ToString(Eval("aciklama"))) %></span>
+                            </button>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                    <asp:Panel ID="pnlTakipBos" runat="server" CssClass="text-secondary small py-2">Açık duruş, bekleyen veya kontrol gerektiren işlem yok.</asp:Panel>
+                    <asp:Label ID="lblTakipBilgi" runat="server" CssClass="d-block text-secondary small mt-2" />
+                </asp:Panel>
             </ContentTemplate>
         </asp:UpdatePanel>
         <div class="modal fade" id="makineBilgiModal" tabindex="-1" aria-labelledby="makineBilgiBaslik" aria-hidden="true">
@@ -234,6 +241,12 @@
             var suruklenenOge = null;
             document.getElementById("makineBilgiModal").addEventListener("show.bs.modal", function (event) {
                 var kart = event.relatedTarget && event.relatedTarget.closest(".makine-kart");
+                if (!kart && event.relatedTarget) {
+                    var makineId = event.relatedTarget.getAttribute("data-takip-makine-id");
+                    if (makineId && /^\d+$/.test(makineId)) {
+                        kart = document.querySelector('.makine-kart[data-makine-id="' + makineId + '"]');
+                    }
+                }
                 if (!kart) {
                     return;
                 }
@@ -308,12 +321,12 @@
             window.durusNedeniniHazirla = function () {
                 var secili = document.querySelector("#durusNedenleri .durus-nedeni.active");
                 if (!secili) {
-                    alert("Duruş nedeni seçiniz.");
+                    window.modbusMesajiGoster("Duruş nedeni seçiniz.", "WARNING");
                     return false;
                 }
                 if (secili.getAttribute("data-aciklama-zorunlu") === "1"
                     && document.getElementById("<%= txtOzelDurusNedeni.ClientID %>").value.trim() === "") {
-                    alert("Seçilen duruş nedeni için açıklama giriniz.");
+                    window.modbusMesajiGoster("Seçilen duruş nedeni için açıklama giriniz.", "WARNING");
                     return false;
                 }
                 return true;
@@ -384,22 +397,6 @@
 
                 document.getElementById("<%= hdnMakineSiralamasi.ClientID %>").value = makineIdleri.join(",");
             };
-
-            document.addEventListener("DOMContentLoaded", function () {
-                var basariPaneli = document.getElementById("<%= pnlBasari.ClientID %>");
-
-                if (!basariPaneli) {
-                    return;
-                }
-
-                window.setTimeout(function () {
-                    basariPaneli.classList.remove("show");
-
-                    window.setTimeout(function () {
-                        basariPaneli.style.display = "none";
-                    }, 150);
-                }, 5000);
-            });
 
             window.setTimeout(function sayfayiYenile() {
                 if (!document.querySelector(".modal.show") && !document.hidden &&

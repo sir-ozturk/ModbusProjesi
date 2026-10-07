@@ -22,13 +22,13 @@ public partial class MakineEkle
     protected global::System.Web.UI.WebControls.Literal litSayfaBaslik;
 
     /// <summary>
-    /// txtModelAd control.
+    /// ddlModelAd control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.TextBox txtModelAd;
+    protected global::System.Web.UI.WebControls.DropDownList ddlModelAd;
 
     /// <summary>
     /// txtEntegrasyonKod control.

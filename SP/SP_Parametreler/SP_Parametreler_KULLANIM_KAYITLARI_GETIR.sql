@@ -5,7 +5,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE   PROCEDURE [dbo].[SP_Parametreler_KULLANIM_KAYITLARI_GETIR]
+CREATE OR ALTER PROCEDURE [dbo].[SP_Parametreler_KULLANIM_KAYITLARI_GETIR]
 
     @id INT
 
@@ -17,7 +17,6 @@ BEGIN
         islem_nedeni
     FROM MakineDurdurmaTalimatlari
     WHERE durus_nedeni_parametre_id = @id
-       OR durus_nedeni_parametre_id IS NULL
 
     UNION ALL
 
@@ -25,8 +24,7 @@ BEGIN
         durus_nedeni_parametre_id,
         islem_nedeni
     FROM MakineLoglari
-    WHERE durus_nedeni_parametre_id = @id
-       OR durus_nedeni_parametre_id IS NULL;
+    WHERE durus_nedeni_parametre_id = @id;
 
 END
 GO

@@ -1,8 +1,10 @@
-﻿using System;
+using System;
 using System.Web.UI;
 using System.Net;
 using System.Net.Sockets;
 using System.Linq;
+using System.Data;
+using System.Web.UI.WebControls;
 
 public partial class MakineEkle : System.Web.UI.Page
 {
@@ -36,6 +38,7 @@ public partial class MakineEkle : System.Web.UI.Page
                 btnKaydet.Text = "Kaydet";
                 btnKaydet.Enabled = IslemYetki.Kontrol(Ekranlar.MAKINE_EKLE, IslemTurleri.EKLE);
                 ddlAktiflik.SelectedValue = "";
+                ModelleriDoldur();
             }
         }
     }
@@ -50,7 +53,7 @@ public partial class MakineEkle : System.Web.UI.Page
             makineler.Id = gelenId;
             if (makineler.Doldur())
             {
-                txtModelAd.Text = makineler.ModelAd;
+                ModelleriDoldur(veritabaniIslemleri, makineler.ModelAd);
                 txtEntegrasyonKod.Text = makineler.EntegrasyonKod;
                 txtGgNo.Text = makineler.GgNo;
                 txtMakineNo.Text = makineler.MakineNo;
@@ -82,6 +85,92 @@ public partial class MakineEkle : System.Web.UI.Page
         }
     }
 
+    private void ModelleriDoldur()
+    {
+        VeritabaniIslemleri veritabaniIslemleri = new VeritabaniIslemleri();
+        try
+        {
+            veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
+            ModelleriDoldur(veritabaniIslemleri, null);
+        }
+        catch (Exception ex)
+        {
+            btnKaydet.Enabled = false;
+            Mesaj.Ver(Mesajlar.ListelemeHatasi + ex.Message, Mesaj.MesajTurleri.FAIL, Page.Master);
+        }
+        finally
+        {
+            veritabaniIslemleri.Bitir();
+        }
+    }
+
+    private void ModelleriDoldur(VeritabaniIslemleri veritabaniIslemleri, string mevcutModel)
+    {
+        ddlModelAd.Items.Clear();
+        ddlModelAd.Items.Add(new ListItem("Model seçiniz", ""));
+        Parametreler parametreler = new Parametreler(veritabaniIslemleri);
+        using (DataTable tablo = parametreler.GrubaGoreGetir(ParametreGruplari.C_Grup_MakineModeli))
+        {
+            foreach (DataRow satir in tablo.Rows)
+            {
+                string modelAdi = satir[Parametreler.C_Sutun_adi].ToString();
+                if (!string.IsNullOrWhiteSpace(modelAdi) && modelAdi.Length <= 100 && ddlModelAd.Items.FindByValue(modelAdi) == null)
+                {
+                    ddlModelAd.Items.Add(new ListItem(modelAdi, modelAdi));
+                }
+            }
+        }
+
+        // Pasif veya listede bulunmayan eski model düzenlemede korunur.
+        if (!string.IsNullOrWhiteSpace(mevcutModel))
+        {
+            if (ddlModelAd.Items.FindByValue(mevcutModel) == null)
+            {
+                ddlModelAd.Items.Add(new ListItem(mevcutModel + " (Mevcut model)", mevcutModel));
+            }
+
+            ddlModelAd.SelectedValue = mevcutModel;
+        }
+    }
+
+    private bool ModelSeciminiKontrol(VeritabaniIslemleri veritabaniIslemleri)
+    {
+        string modelAdi = ddlModelAd.SelectedValue;
+        if (string.IsNullOrWhiteSpace(modelAdi) || modelAdi.Length > 100)
+        {
+            return false;
+        }
+
+        if (gelenId > 0)
+        {
+            Makineler mevcutMakine = new Makineler(veritabaniIslemleri);
+            mevcutMakine.Id = gelenId;
+            if (!mevcutMakine.Doldur())
+            {
+                return false;
+            }
+
+            if (string.Equals(mevcutMakine.ModelAd, modelAdi, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        Parametreler parametreler = new Parametreler(veritabaniIslemleri);
+        using (DataTable tablo = parametreler.GrubaGoreGetir(ParametreGruplari.C_Grup_MakineModeli))
+        {
+            foreach (DataRow satir in tablo.Rows)
+            {
+                if (string.Equals(satir[Parametreler.C_Sutun_adi].ToString(), modelAdi, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected void btnKaydet_Click(object sender, EventArgs e)
     {
         if (gelenId == 0)
@@ -102,7 +191,7 @@ public partial class MakineEkle : System.Web.UI.Page
         }
 
         if (string.IsNullOrEmpty(txtMakineAdi.Text.Trim())
-            || string.IsNullOrEmpty(txtModelAd.Text.Trim())
+            || string.IsNullOrEmpty(ddlModelAd.SelectedValue)
             || string.IsNullOrEmpty(txtEntegrasyonKod.Text.Trim())
             || string.IsNullOrEmpty(txtGgNo.Text.Trim())
             || string.IsNullOrEmpty(txtMakineNo.Text.Trim())
@@ -133,7 +222,13 @@ public partial class MakineEkle : System.Web.UI.Page
         {
             veritabaniIslemleri.Baslat(VeritabaniIslemleri.IslemTip.BAGIMSIZ);
             Makineler makineler = new Makineler(veritabaniIslemleri);
-            makineler.ModelAd = txtModelAd.Text.Trim();
+            if (!ModelSeciminiKontrol(veritabaniIslemleri))
+            {
+                Mesaj.Ver("Aktif bir makine modeli seçiniz. Mevcut makinenin eski modeli korunabilir.", Mesaj.MesajTurleri.WARNING, Page.Master);
+                return;
+            }
+
+            makineler.ModelAd = ddlModelAd.SelectedValue;
             makineler.EntegrasyonKod = txtEntegrasyonKod.Text.Trim();
             makineler.GgNo = txtGgNo.Text.Trim();
             makineler.MakineNo = txtMakineNo.Text.Trim();
@@ -179,11 +274,11 @@ public partial class MakineEkle : System.Web.UI.Page
             var islemHataMesaji1 = veritabaniIslemleri.SonHataMesaji;
             if (islemHataMesaji1 != null)
             {
-                Mesaj.Ver(Server.HtmlEncode(islemHataMesaji1), Mesaj.MesajTurleri.FAIL, Page.Master);
+                Mesaj.Ver(islemHataMesaji1, Mesaj.MesajTurleri.FAIL, Page.Master);
             }
             else
             {
-                Mesaj.Ver(Server.HtmlEncode(Mesajlar.MakineGuncellemeHatasi), Mesaj.MesajTurleri.FAIL, Page.Master);
+                Mesaj.Ver(Mesajlar.MakineGuncellemeHatasi, Mesaj.MesajTurleri.FAIL, Page.Master);
             }
         }
         catch (Exception ex)

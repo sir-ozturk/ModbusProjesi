@@ -18,7 +18,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         VeritabaniIslem = veritabaniIslemleri;
     }
 
-#region SABİTLER
+    #region SABİTLER
     public const string C_Tablo = "dbo.MakineDurdurmaTalimatlari";
     public const string C_Sp_KomutOncesiKontrol = "dbo.SP_MakineDurdurmaTalimatlari_KOMUT_ONCESI_KONTROL";
     public const string C_Sp_Ekle = "dbo.SP_MakineDurdurmaTalimatlari_EKLE";
@@ -35,8 +35,8 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
     public const string C_Sutun_sonuc = "sonuc";
     public const string C_Sutun_islem_baslangic_tarih = "islem_baslangic_tarih";
     public const string C_Sutun_islem_bitis_tarih = "islem_bitis_tarih";
-#endregion
-#region NESNELER
+    #endregion
+    #region NESNELER
     private int makineId;
     public int MakineId
     {
@@ -164,8 +164,8 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
     }
 
     private readonly List<string> komutKilitleri = new List<string>();
-#endregion
-#region METOTLAR
+    #endregion
+    #region METOTLAR
     // Web tarafı yetki kontrolünden sonra açık bağlantı ile çağırır.
     // Satır döndüren prosedür kullanılır; HttpContext tabanlı genel log yolu kullanılmaz.
     public bool Ekle()
@@ -420,7 +420,7 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
         IslemNedeni = Convert.ToString(satir[C_Sutun_islem_nedeni]);
         if (satir.IsNull(C_Sutun_durus_nedeni_parametre_id))
         {
-            DurusNedeniParametreId = (int? )null;
+            DurusNedeniParametreId = (int?)null;
         }
         else
         {
@@ -478,12 +478,12 @@ public class MakineDurdurmaTalimatlari : OrtakAlanlar
     {
         if (satir.IsNull(sutunAdi))
         {
-            return (DateTime? )null;
+            return (DateTime?)null;
         }
         else
         {
             return Convert.ToDateTime(satir[sutunAdi]);
         }
     }
-#endregion
+    #endregion
 }

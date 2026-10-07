@@ -36,12 +36,11 @@
                     </label>
 
                     <div class="col-12 col-md-9">
-                        <asp:TextBox
-                            ID="txtModelAd"
+                        <asp:DropDownList
+                            ID="ddlModelAd"
                             runat="server"
-                            CssClass="form-control form-control-modbus"
-                            MaxLength="100">
-                        </asp:TextBox>
+                            CssClass="form-select form-select-modbus">
+                        </asp:DropDownList>
                     </div>
                 </div>
 

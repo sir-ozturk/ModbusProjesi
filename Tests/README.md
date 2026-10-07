@@ -29,6 +29,7 @@ yetkilerini ve bütün C# kontrollerini çalıştırmaz.
 .\Tests\TalimatIsleyiciTests.ps1
 .\Tests\RelayPulseTests.ps1
 .\Tests\RoleEntegrasyonTestleri.ps1
+.\Tests\ParametreKodTests.ps1
 ```
 
 - TalimatIsleyiciTests: çift RUN, STOP, geçersiz adres, süre aşımı, belirsiz
@@ -37,6 +38,9 @@ yetkilerini ve bütün C# kontrollerini çalıştırmaz.
   Gerçek MakineDurdurmaTalimatlari metotlarını sahte VeritabaniIslemleri ve röleyle
   çalıştırır; ayrı bir depo/interface kullanılmaz.
 - RelayPulseTests: ON/OFF, bekleme, tekrar sınırı ve aynı cihazda çakışma.
+- ParametreKodTests: gerçek ParametreKontrolleri kaynağını sahte verilerle sınar.
+  İlk boş numara, pasif kayıtların korunması, kilit hatası, güncellemede kodun
+  korunması ve tekrar kullanılan numaranın eski nedenle karıştırılmaması doğrulanır.
 - RoleEntegrasyonTestleri: yerel sahte HTTP sunucusuyla komut ve durum okuma.
   Gerçek röleye komut göndermez. Bazı senaryolar zaman aşımını bekler.
 
@@ -47,6 +51,13 @@ altı SQL tablo kısıtını test eder ve işlemleri geri alır. Veritabanı ba�
 gerektirdiği için cihazsız testlerin parçası olarak otomatik çalıştırılmaz.
 
 ## SQL dosyaları
+
+Otomatik parametre kodu geçişinde, eski kimliksiz duruş kayıtları için önce
+`SP/SP_Parametreler/Parametreler_ESKI_DURUS_KIMLIKLERINI_BAGLA.sql` bir kez çalıştırılır.
+Bu geçiş betiği kod numaraları yeniden kullanılmaya başladıktan sonra tekrar
+çalıştırılmaz. Ardından `SP_Parametreler_KULLANIM_KAYITLARI_GETIR.sql` uygulanır.
+Yeni parametre kodu mevcut bağlı işlem ve ModbusParametreAyar kilidi altında,
+C# Work katmanında üretilir; mevcut EKLE prosedürü kodu parametre olarak alır.
 
 Güncel prosedürler SP altındaki ilgili tablo klasörlerindedir. Eski tek cihaz
 relay_channel geçişi ve artık bulunmayan SP/Donanim kurulum dosyalarına yapılan

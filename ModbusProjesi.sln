@@ -7,12 +7,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusProjesi", "ModbusProj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLayer", "BusinessLayer\BusinessLayer.csproj", "{C3F162B1-A022-4A18-B831-7459B7C258B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakineDurdurmaUygulamasi", "MakineDurdurmaUygulamasi\MakineDurdurmaUygulamasi\MakineDurdurmaUygulamasi.csproj", "{D34726D6-757D-4756-BD60-14598EABDACC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D34726D6-757D-4756-BD60-14598EABDACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D34726D6-757D-4756-BD60-14598EABDACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D34726D6-757D-4756-BD60-14598EABDACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D34726D6-757D-4756-BD60-14598EABDACC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C5121F56-0DD3-4EE4-85B4-CF3C895F1EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5121F56-0DD3-4EE4-85B4-CF3C895F1EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5121F56-0DD3-4EE4-85B4-CF3C895F1EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU

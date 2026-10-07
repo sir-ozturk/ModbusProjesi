@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 public partial class RoleKartListele : System.Web.UI.Page
 {
@@ -16,8 +16,7 @@ public partial class RoleKartListele : System.Web.UI.Page
         {
             if (Session["DonanimBasari"] != null)
             {
-                pnlBasari.Visible = true;
-                lblBasari.Text = Server.HtmlEncode(Session["DonanimBasari"].ToString());
+                Mesaj.Ver(Session["DonanimBasari"].ToString(), Mesaj.MesajTurleri.SUCCESS, Master);
                 Session.Remove("DonanimBasari");
             }
 
@@ -27,8 +26,7 @@ public partial class RoleKartListele : System.Web.UI.Page
 
     private void Hata(string mesaj)
     {
-        pnlHata.Visible = true;
-        lblHata.Text = Server.HtmlEncode(mesaj);
+        Mesaj.Ver(mesaj, Mesaj.MesajTurleri.FAIL, Master);
     }
 
     protected void Page_Init(object sender, EventArgs e)
